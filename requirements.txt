@@ -1,0 +1,8 @@
+google-cloud-aiplatform
+google-cloud-documentai
+functions-framework
+chromadb
+gcsfs
+functions-framework
+google-cloud-storage
+langchain-google-vertexai
