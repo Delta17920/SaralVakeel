@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Storage } from '@google-cloud/storage';
 
-const storage = new Storage({ keyFilename: 'C:/laww/backend/services/document-query/query.json' });
-const bucket = storage.bucket('lexi-simplify-uploads-v4');
+const storage = new Storage({
+  projectId: process.env.GCP_PROJECT_ID,
+  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+});
+const bucket = storage.bucket(process.env.FINAL_DB_BUCKET!);
 
 export async function GET(req: NextRequest) {
+  console.log("Bucket env var:", process.env.FINAL_DB_BUCKET);
   const { searchParams } = new URL(req.url);
   const filename = searchParams.get('filename');
   const contentType = searchParams.get('contentType');
