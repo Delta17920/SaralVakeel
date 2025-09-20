@@ -241,7 +241,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({ isDarkMod
   return (
     <div className="p-8 max-w-6xl mx-auto">
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         {[
           { 
             icon: FileText, 
@@ -288,7 +288,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({ isDarkMod
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
       {/* Upload Zone */}
       <div className="mb-8">

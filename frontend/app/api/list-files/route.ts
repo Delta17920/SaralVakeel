@@ -1,16 +1,17 @@
-// pages/api/list-files.ts
-import { NextApiRequest, NextApiResponse } from 'next';
+// app/api/list-files/route.ts
+import { NextRequest, NextResponse } from 'next/server';
 import { Storage } from '@google-cloud/storage';
 
-const storage = new Storage({ keyFilename: 'path-to-service-account.json' });
+const storage = new Storage({ keyFilename: 'service-account.json' });
 const bucket = storage.bucket('lexi-simplify-uploads-v4');
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export async function GET(req: NextRequest) {
   try {
     const [files] = await bucket.getFiles();
     const fileNames = files.map(f => f.name);
-    res.status(200).json({ files: fileNames });
+    return NextResponse.json({ files: fileNames });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to list files' });
+    console.error(err);
+    return NextResponse.json({ error: 'Failed to list files' }, { status: 500 });
   }
 }

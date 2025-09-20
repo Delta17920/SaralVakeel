@@ -8,7 +8,6 @@ const storage = new Storage({
 const bucket = storage.bucket(process.env.FINAL_DB_BUCKET!);
 
 export async function GET(req: NextRequest) {
-  console.log("Bucket env var:", process.env.FINAL_DB_BUCKET);
   const { searchParams } = new URL(req.url);
   const filename = searchParams.get('filename');
   const contentType = searchParams.get('contentType');

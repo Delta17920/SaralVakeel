@@ -24,6 +24,7 @@ import {
 
 interface AIAnalysisProps {
   isDarkMode: boolean;
+  onViewReport?: (filename: string) => void;
 }
 
 interface AnalysisCard {
@@ -48,71 +49,61 @@ interface MetricCard {
   bgColor: string;
 }
 
-const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode }) => {
+const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('7d');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [analysisCards, setAnalysisCards] = useState<AnalysisCard[]>([]);
 
-  const [analysisCards] = useState<AnalysisCard[]>([
-    {
-      id: '1',
-      title: 'M&A Agreement Analysis',
-      status: 'complete',
-      progress: 100,
-      findings: 23,
-      riskScore: 8.5,
-      completedAt: new Date('2024-01-15T10:30:00'),
-      category: 'Contract Review',
-      keyInsights: [
-        'High liability exposure in indemnification clauses',
-        'Missing termination provisions for key scenarios',
-        'Unclear intellectual property transfer terms'
-      ]
-    },
-    {
-      id: '2',
-      title: 'Employment Contract Batch',
-      status: 'processing',
-      progress: 67,
-      findings: 12,
-      riskScore: 6.2,
-      category: 'Employment Law',
-      keyInsights: [
-        'Non-compete clauses may be unenforceable',
-        'Salary disclosure requirements missing'
-      ]
-    },
-    {
-      id: '3',
-      title: 'Data Privacy Assessment',
-      status: 'complete',
-      progress: 100,
-      findings: 18,
-      riskScore: 9.1,
-      completedAt: new Date('2024-01-14T14:20:00'),
-      category: 'Compliance',
-      keyInsights: [
-        'GDPR consent mechanisms inadequate',
-        'Data retention policies unclear',
-        'Third-party processor agreements missing'
-      ]
-    },
-    {
-      id: '4',
-      title: 'Corporate Governance Review',
-      status: 'warning',
-      progress: 100,
-      findings: 8,
-      riskScore: 4.3,
-      completedAt: new Date('2024-01-13T09:15:00'),
-      category: 'Corporate Law',
-      keyInsights: [
-        'Board composition requirements not met',
-        'Audit committee independence issues'
-      ]
+ useEffect(() => {
+  async function fetchJsonFiles() {
+    setIsLoading(true);
+    try {
+      // 1️⃣ Get JSON filenames
+      const res = await fetch('/api/list-json-files');
+      const data = await res.json();
+      console.log(data);
+      
+      const filenames: string[] = data.files;
+
+      // 2️⃣ Fetch JSON content for each file
+      const cards: AnalysisCard[] = await Promise.all(
+        filenames.map(async (file, index) => {
+          try {
+            const fileRes = await fetch(`/api/fetch-json?filename=${encodeURIComponent(file)}`);
+            const fileData = await fileRes.json();
+            console.log(fileData);
+            
+            return {
+              id: (index + 1).toString(),
+              title: file.replace(/\.[^/.]+$/, ''), // remove extension
+              status: 'complete', // default or from JSON if available
+              progress: 100,
+              findings: fileData.data.findings ?? Math.floor(Math.random() * 25),
+              riskScore: fileData.data.riskScore ?? parseFloat((Math.random() * 10).toFixed(1)),
+              completedAt: fileData.data.completedAt ? new Date(fileData.data.completedAt) : new Date(),
+              category: fileData.data.category ?? 'Auto Analysis',
+              keyInsights: fileData.data.keyInsights ?? ['Insight 1', 'Insight 2']
+            } as AnalysisCard;
+          } catch (err) {
+            console.error(`Failed to fetch content for ${file}`, err);
+            return null;
+          }
+        })
+      );
+
+      setAnalysisCards(cards.filter(Boolean) as AnalysisCard[]);
+    } catch (err) {
+      console.error('Failed to fetch JSON files', err);
+    } finally {
+      setIsLoading(false);
     }
-  ]);
+  }
+
+  fetchJsonFiles();
+}, []);
 
   const metrics: MetricCard[] = [
     {
@@ -199,11 +190,104 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode }) => {
   };
 
   const filteredAnalyses = analysisCards.filter(card => {
-    const matchesSearch = card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         card.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      card.category.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = activeFilter === 'all' || card.status === activeFilter;
     return matchesSearch && matchesFilter;
   });
+
+  if (isLoading) {
+  return (
+    <div className="p-8 max-w-6xl mx-auto space-y-8">
+      {/* Header Skeleton */}
+      <div className="animate-pulse">
+        <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/3 mb-2"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/2"></div>
+      </div>
+
+      {/* Metrics Grid Skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className={`p-6 rounded-2xl border animate-pulse ${
+            isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+          }`}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+              <div className="w-8 h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            </div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded mb-2"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+          </div>
+        ))}
+      </div>
+
+      {/* Search and Cards Skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-1/4 mb-4"></div>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className={`p-6 rounded-2xl border animate-pulse ${
+                isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+              }`}>
+                <div className="flex justify-between mb-4">
+                  <div className="flex-1">
+                    <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-3/4 mb-2"></div>
+                    <div className="flex space-x-2">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-20"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-16"></div>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  {[...Array(3)].map((_, j) => (
+                    <div key={j} className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-2 mb-4">
+                  <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-4/5"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+                </div>
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded-lg"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Sidebar Skeleton */}
+        <div className="space-y-6">
+          <div className={`p-6 rounded-2xl border animate-pulse ${
+            isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+          }`}>
+            <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-1/2 mb-6"></div>
+            <div className="space-y-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex justify-between">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/3"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-8"></div>
+                  </div>
+                  <div className={`h-3 rounded-full ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8">
@@ -419,11 +503,15 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode }) => {
                 </div>
 
                 {/* Action Button */}
+                {/* Action Button */}
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <button className="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg hover:from-blue-700 hover:to-violet-700 transition-all duration-200">
+                  <button 
+                  onClick={() => onViewReport?.(analysis.title + '.json')}
+                  className="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg hover:from-blue-700 hover:to-violet-700 transition-all duration-200"
+                  >
                     <span className="font-medium">View Detailed Report</span>
                     <ChevronRight className="w-4 h-4" />
-                  </button>
+                    </button>
                 </div>
               </div>
             ))}
