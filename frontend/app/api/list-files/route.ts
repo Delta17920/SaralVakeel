@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { Storage } from '@google-cloud/storage';
 
 const storage = new Storage({ keyFilename: 'path-to-service-account.json' });
-const bucket = storage.bucket('lexi-simplify-uploads-20250827-v9k3');
+const bucket = storage.bucket('lexi-simplify-uploads-v4');
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
