@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Storage } from '@google-cloud/storage';
 
-const storage = new Storage({ keyFilename: 'D:/law-proj/SaralVakeel/backend/services/document-query/query.json' });
-const bucket = storage.bucket('lexi-simplify-uploads-20250827-v9k3');
+const storage = new Storage({ keyFilename: 'C:/laww/backend/services/document-query/query.json' });
+const bucket = storage.bucket('lexi-simplify-uploads-v4');
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
