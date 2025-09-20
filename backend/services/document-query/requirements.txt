@@ -6,4 +6,3 @@ gcsfs
 functions-framework
 google-cloud-storage
 langchain-google-vertexai
-langchain_text_splitters
