@@ -1,19 +1,19 @@
 import os
+import json
+import base64
 import shutil
 import tempfile
 
 from google.cloud import documentai, storage
 import vertexai
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_vertexai.embeddings import VertexAIEmbeddings
-from langchain_google_vertexai import ChatVertexAI
+from vertexai.language_models import TextEmbeddingModel
+from vertexai.generative_models import GenerativeModel
 import chromadb
 from dotenv import load_dotenv
 
-# Load environment variables from .env file for local development
 load_dotenv()
 
-# --- CONFIGURATION (Reads from Environment) ---
+# --- CONFIGURATION ---
 GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 VERTEXAI_LOCATION = os.environ.get("VERTEXAI_LOCATION")
 DOCAI_LOCATION = os.environ.get("DOCAI_LOCATION")
@@ -26,37 +26,30 @@ embedding_model = None
 llm = None
 
 def process_document_for_chroma(event, context):
-    """
-    Triggered by a file upload, generates a report, creates embeddings,
-    and saves them to a ChromaDB database in GCS.
-    """
     global docai_client, embedding_model, llm
 
     bucket_name = event['bucket']
     file_name = event['name']
     
-    # Input Validation
     if not file_name.lower().endswith('.pdf'):
-        print(f"File {file_name} is not a PDF. Skipping.")
         return "Not a PDF."
     
-    if "vector_databases/" in file_name or "_report.txt" in file_name:
-        print(f"File {file_name} is a generated file. Skipping.")
+    if "vector_databases/" in file_name or "_report.json" in file_name:
         return "Skipped generated file."
         
-    # Client Initialization (on cold start)
     if not docai_client:
         print("-> Initializing AI clients (cold start)...")
         vertexai.init(project=GCP_PROJECT_ID, location=VERTEXAI_LOCATION)
         docai_client = documentai.DocumentProcessorServiceClient(client_options={"api_endpoint": f"{DOCAI_LOCATION}-documentai.googleapis.com"})
-        embedding_model = VertexAIEmbeddings(model_name="text-embedding-005")
-        llm = ChatVertexAI(model_name="gemini-2.0-flash")
+        embedding_model = TextEmbeddingModel.from_pretrained("text-embedding-005")
+        llm = GenerativeModel("gemini-2.0-flash")
 
     gcs_uri = f"gs://{bucket_name}/{file_name}"
     print(f"🎉 Processing started for: {gcs_uri}")
     
-    # Text Extraction
+    # --- Text Extraction ---
     print("-> Step 1: Extracting text with Document AI...")
+    # ... (rest of the text extraction code is the same)
     docai_resource_name = docai_client.processor_path(GCP_PROJECT_ID, DOCAI_LOCATION, DOCAI_PROCESSOR_ID)
     gcs_document = documentai.GcsDocument(gcs_uri=gcs_uri, mime_type="application/pdf")
     request = documentai.ProcessRequest(name=docai_resource_name, gcs_document=gcs_document)
@@ -65,34 +58,60 @@ def process_document_for_chroma(event, context):
     print("-> Text extraction complete.")
 
     if not extracted_text.strip():
-        print("-> No text found in document. Halting.")
         return "No text found."
 
-    # Detailed Report Generation
-    print("-> Step 2: Generating detailed report with Gemini...")
-    report_prompt = f"Act as a legal analyst. Analyze the following text and provide a structured report including a summary, key entities, main obligations, and potential risks.\n\nDOCUMENT TEXT:\n---\n{extracted_text}\n---"
+    # --- NEW STEP: GENERATE DETAILED JSON REPORT ---
+    print("-> Step 2: Generating detailed report as JSON...")
+    report_prompt = f"""
+    Act as a meticulous legal analyst. Analyze the following legal document text.
+    Your response MUST be a single, valid JSON object. Do not include any text before or after the JSON.
+
+    The JSON object should have the following structure:
+    - "documentTitle": A short, descriptive title for the document.
+    - "documentType": The type of document (e.g., "Lease Agreement", "Loan Contract").
+    - "summary": A concise, easy-to-understand summary of the document's main purpose.
+    - "parties": A list of JSON objects, where each object represents a party and has the keys "role" (e.g., "Tenant") and "name" (e.g., "Jane Smith").
+    - "keyTerms": A list of JSON objects, where each object represents a key financial or temporal term and has the keys "term" (e.g., "Monthly Rent"), "value" (e.g., "$1500"), and "details" (e.g., "Due on the 1st of each month").
+    - "obligations": A list of strings detailing the primary responsibilities and duties of the main party (e.g., the Tenant).
+    - "risks": A list of strings identifying clauses that are potentially unfavorable, ambiguous, or require special attention.
+
+    DOCUMENT TEXT:
+    ---
+    {extracted_text}
+    ---
+    """
     try:
-        response = llm.invoke(report_prompt)
-        report_text = response.content
-        print("-> Report generated successfully.")
+        response = llm.generate_content(report_prompt)
+        # Clean the response to ensure it's valid JSON
+        json_text = response.text.strip().replace("```json", "").replace("```", "").strip()
+        report_json = json.loads(json_text)
+        print("-> JSON report generated successfully.")
 
         storage_client = storage.Client()
         bucket = storage_client.bucket(FINAL_DB_BUCKET)
-        report_file_name = os.path.splitext(os.path.basename(file_name))[0] + "_report.txt"
+        report_file_name = os.path.splitext(os.path.basename(file_name))[0] + "_report.json"
         report_blob = bucket.blob(report_file_name)
-        report_blob.upload_from_string(report_text)
+        # Upload the JSON data
+        report_blob.upload_from_string(
+            data=json.dumps(report_json, indent=2),
+            content_type="application/json"
+        )
         print(f"-> Report saved to gs://{FINAL_DB_BUCKET}/{report_file_name}")
+
     except Exception as e:
-        print(f"❌ Error generating report: {e}")
-    
-    # ChromaDB Indexing
+        print(f"❌ Error generating JSON report: {e}")
+    # --- END OF NEW STEP ---
+
+
+    # --- ChromaDB Indexing (remains the same) ---
     print("-> Step 3: Chunking document for RAG...")
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    chunks = text_splitter.split_text(extracted_text)
+    # ... (rest of the ChromaDB indexing code is the same)
+    chunks = [extracted_text[i:i + 1000] for i in range(0, len(extracted_text), 900)]
     print(f"-> Document split into {len(chunks)} chunks.")
     
     print("-> Step 4: Creating embeddings...")
-    embedding_values = embedding_model.embed_documents(chunks)
+    embeddings = embedding_model.get_embeddings(chunks)
+    embedding_values = [e.values for e in embeddings]
     print("-> Embeddings created.")
 
     print("-> Step 5: Saving to ChromaDB and uploading to GCS...")
