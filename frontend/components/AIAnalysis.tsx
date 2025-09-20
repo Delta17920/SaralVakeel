@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Clock,
   Brain,
   Shield,
   TrendingUp,
   AlertTriangle,
   CheckCircle,
-  Clock,
-  FileText,
   BarChart3,
   Zap,
   Target,
