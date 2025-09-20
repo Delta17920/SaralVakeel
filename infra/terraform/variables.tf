@@ -1,7 +1,14 @@
-# variables.tf - Declares all input variables for our Terraform configuration
-
 variable "gcp_project_id" {
-  description = "The GCP Project ID to deploy resources into."
+  description = "The ID of your Google Cloud project."
   type        = string
-  # No default value is set, so Terraform will require this variable.
+}
+
+variable "region" {
+  description = "The primary region for your resources."
+  type        = string
+  default     = "asia-south1"
+}
+variable "user_email" {
+  description = "The email address of the user who will be deploying the functions."
+  type        = string
 }

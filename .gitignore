@@ -11,7 +11,7 @@
 
 # State files contain sensitive infrastructure details and should never be committed
 /infra/terraform/*.tfstate
-/infra/terraform/*.tfstate.*.backup
+/infra/terraform/*.tfstate.backup
 
 # Your specific variable values should not be committed
 /infra/terraform/*.tfvars
