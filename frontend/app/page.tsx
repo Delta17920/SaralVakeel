@@ -1,31 +1,64 @@
 'use client';
-
 import React, { useState } from 'react';
 import LegalDocumentUploader from "../components/LegalDocumentUploader";
 import AIAnalysis from "../components/AIAnalysis";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
+import { DocumentReport } from '../components/DocumentReport';
+import ReportsList from '../components/ReportsList';
 
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  const [uploadedFilesCount] = useState(5); // You can manage this state as needed
+  const [uploadedFilesCount] = useState(5);
+  
+  // Add state for report view
+  const [selectedReportFilename, setSelectedReportFilename] = useState<string | null>(null);
+  const [showReport, setShowReport] = useState(false);
 
-  const themeClasses = isDarkMode 
-    ? 'bg-gray-950 text-white' 
+  const themeClasses = isDarkMode
+    ? 'bg-gray-950 text-white'
     : 'bg-slate-50 text-gray-900';
+
+  // Handle viewing detailed report
+  const handleViewReport = (filename: string) => {
+    setSelectedReportFilename(filename);
+    setShowReport(true);
+  };
+
+  // Handle going back from report
+  const handleBackFromReport = () => {
+    setShowReport(false);
+    setSelectedReportFilename(null);
+  };
 
   // Function to render the active component based on selected tab
   const renderActiveComponent = () => {
+    // If showing report, render DocumentReport
+    if (showReport) {
+      return (
+        <DocumentReport 
+          isDarkMode={isDarkMode}
+          filename={selectedReportFilename || undefined}
+          onBack={handleBackFromReport}
+        />
+      );
+    }
+
     switch (activeTab) {
       case 'overview':
       case 'documents':
         return <LegalDocumentUploader />;
       case 'analysis':
-        return <AIAnalysis isDarkMode={isDarkMode} />;
+        return (
+          <AIAnalysis 
+            isDarkMode={isDarkMode} 
+            onViewReport={handleViewReport}
+          />
+        );
       case 'compliance':
         return (
           <div className="p-8">
@@ -37,12 +70,10 @@ export default function Home() {
         );
       case 'reports':
         return (
-          <div className="p-8">
-            <h1 className="text-3xl font-bold mb-4">Reports</h1>
-            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-              Reporting features coming soon...
-            </p>
-          </div>
+          <ReportsList 
+          isDarkMode={isDarkMode}
+          onViewReport={handleViewReport}
+          />
         );
       case 'team':
         return (
@@ -66,7 +97,7 @@ export default function Home() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
-      
+     
       <div className="flex">
         <Sidebar
           isDarkMode={isDarkMode}
@@ -76,7 +107,7 @@ export default function Home() {
           setActiveTab={setActiveTab}
           uploadedFilesCount={uploadedFilesCount}
         />
-        
+       
         <main className="flex-1">
           {renderActiveComponent()}
           <Footer isDarkMode={isDarkMode} />
