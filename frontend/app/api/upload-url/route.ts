@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   const [url] = await file.getSignedUrl({
     version: 'v4',
     action: 'write',
-    expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+    expires: Date.now() + 15 * 60 * 1000, // 15 minute
     contentType,
   });
 
