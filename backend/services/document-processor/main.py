@@ -74,6 +74,7 @@ def process_document_for_chroma(event, context):
     - "keyTerms": A list of JSON objects, where each object represents a key financial or temporal term and has the keys "term" (e.g., "Monthly Rent"), "value" (e.g., "$1500"), and "details" (e.g., "Due on the 1st of each month").
     - "obligations": A list of strings detailing the primary responsibilities and duties of the main party (e.g., the Tenant).
     - "risks": A list of strings identifying clauses that are potentially unfavorable, ambiguous, or require special attention.
+    - "risk score": A decimal risk score out of 10.
 
     DOCUMENT TEXT:
     ---
