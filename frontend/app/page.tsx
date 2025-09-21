@@ -50,8 +50,13 @@ export default function Home() {
 
     switch (activeTab) {
       case 'overview':
-      case 'documents':
-        return <LegalDocumentUploader />;
+case 'documents':
+  return (
+    <LegalDocumentUploader 
+      isDarkMode={isDarkMode}
+      onViewReport={handleViewReport}
+    />
+  );
       case 'analysis':
         return (
           <AIAnalysis 
@@ -99,13 +104,16 @@ export default function Home() {
       />
      
       <div className="flex">
+    
         <Sidebar
-          isDarkMode={isDarkMode}
-          sidebarExpanded={sidebarExpanded}
-          setSidebarExpanded={setSidebarExpanded}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          uploadedFilesCount={uploadedFilesCount}
+        isDarkMode={isDarkMode}
+        sidebarExpanded={sidebarExpanded}
+        setSidebarExpanded={setSidebarExpanded}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        uploadedFilesCount={uploadedFilesCount}
+        showReport={showReport}
+        onBackFromReport={handleBackFromReport}
         />
        
         <main className="flex-1">

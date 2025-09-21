@@ -36,12 +36,7 @@ const Navbar: React.FC<NavbarProps> = ({
                 <Scale className="w-6 h-6 text-white" />
               </div>
               <div>
-                <VideoText
-                  src='/sample.mp4'
-                  className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent"
-                >
-                  LegalFlow Pro
-                </VideoText>
+                <p>LegalFlow</p>
                 <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                   Enterprise Legal Platform
                 </p>

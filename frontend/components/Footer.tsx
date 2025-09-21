@@ -10,7 +10,7 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
       isDarkMode ? 'border-gray-800' : 'border-gray-200'
     }`}>
       <p className={`text-sm ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-        © 2024 LegalFlow Pro. All rights reserved. | Built with enterprise-grade security and AI.
+        © 2025 LegalFlow Pro. All rights reserved. | Built with enterprise-grade security and AI.
       </p>
     </div>
   );
