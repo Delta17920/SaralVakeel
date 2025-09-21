@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { Storage } from '@google-cloud/storage';
 
-const storage = new Storage({ keyFilename: 'service-account.json' });
-const bucket = storage.bucket('lexi-simplify-uploads-v4');
+const storage = new Storage({
+  projectId: process.env.GCP_PROJECT_ID,
+  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+});
+const bucket = storage.bucket(process.env.FINAL_DB_BUCKET!);
 
 export async function GET() {
   try {
