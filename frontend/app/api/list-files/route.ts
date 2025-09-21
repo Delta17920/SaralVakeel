@@ -5,7 +5,7 @@ import { Storage } from '@google-cloud/storage';
 const storage = new Storage({ keyFilename: 'service-account.json' });
 const bucket = storage.bucket('lexi-simplify-uploads-v4');
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const [files] = await bucket.getFiles();
     const fileNames = files.map(f => f.name);

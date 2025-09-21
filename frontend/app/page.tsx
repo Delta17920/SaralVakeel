@@ -11,7 +11,6 @@ import AppOverview from '../components/AppOverview';
 
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [uploadedFilesCount] = useState(5);
