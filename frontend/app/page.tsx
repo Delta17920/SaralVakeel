@@ -7,6 +7,7 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import { DocumentReport } from '../components/DocumentReport';
 import ReportsList from '../components/ReportsList';
+import AppOverview from '../components/AppOverview';
 
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -50,6 +51,9 @@ export default function Home() {
 
     switch (activeTab) {
       case 'overview':
+        return (
+          <AppOverview isDarkMode={isDarkMode}/>
+        );
 case 'documents':
   return (
     <LegalDocumentUploader 
@@ -99,8 +103,6 @@ case 'documents':
       <Navbar
         isDarkMode={isDarkMode}
         setIsDarkMode={setIsDarkMode}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
       />
      
       <div className="flex">

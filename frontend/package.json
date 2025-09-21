@@ -10,11 +10,12 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^7.17.1",
+    "@tabler/icons-react": "^3.35.0",
     "axios": "^1.12.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.544.0",
-    "motion": "^12.23.14",
+    "motion": "^12.23.16",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",

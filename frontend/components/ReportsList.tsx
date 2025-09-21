@@ -70,7 +70,7 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
               title: fileData.data?.documentTitle || filename.replace(/\.[^/.]+$/, ''),
               documentType: fileData.data?.documentType || 'Document',
               createdAt: fileData.data?.completedAt ? new Date(fileData.data.completedAt) : new Date(),
-              riskScore: fileData.data?.riskScore || (Math.random() * 10).toFixed(1),
+              riskScore: fileData.data?.['risk score'] || fileData.data?.risk_score || 0,
               findings: fileData.data?.findings || Math.floor(Math.random() * 25),
               status: fileData.data?.status || 'complete',
               summary: fileData.data?.summary || 'Analysis completed successfully.',
@@ -150,89 +150,126 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
       }
     });
 
-  const ReportCard = ({ report }: { report: ReportItem }) => {
-    const riskLevel = getRiskLevel(parseFloat(report.riskScore.toString()));
-    
-    return (
-      <div className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group ${
-        isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-      }`}>
-        {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-start space-x-3">
-            <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
-              <FileText className="w-5 h-5 text-blue-600" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-lg mb-1 truncate">{report.title}</h3>
-              <div className="flex items-center space-x-2 mb-2">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
-                }`}>
-                  {report.documentType}
-                </span>
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(report.status)}`}>
-                  {report.status === 'complete' && <CheckCircle className="w-3 h-3 mr-1" />}
-                  {report.status === 'warning' && <AlertTriangle className="w-3 h-3 mr-1" />}
-                  {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
-                </span>
-              </div>
+  const ReportCard = ({ report, onViewReport}: { report: ReportItem, onViewReport?: (filename: string) => void }) => {
+  const riskLevel = getRiskLevel(parseFloat(report.riskScore.toString()));
+
+  return (
+    <div
+      className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group ${
+        isDarkMode
+          ? 'bg-gray-900 border-gray-800'
+          : 'bg-white border-gray-200 shadow-lg'
+      }`}
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start space-x-3">
+          <div
+            className={`p-2 rounded-lg ${
+              isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'
+            }`}
+          >
+            <FileText className="w-5 h-5 text-blue-600" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-lg mb-1 break-words">
+              {report.title}
+            </h3>
+            <div className="flex items-center space-x-2 mb-2">
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  isDarkMode
+                    ? 'bg-gray-800 text-gray-300'
+                    : 'bg-gray-100 text-gray-600'
+                }`}
+              >
+                {report.documentType}
+              </span>
+              <span
+                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                  report.status
+                )}`}
+              >
+                {report.status === 'complete' && (
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                )}
+                {report.status === 'warning' && (
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                )}
+                {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+              </span>
             </div>
           </div>
-          
-          <button className={`p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 ${
+        </div>
+
+        <button
+          className={`p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 ${
             isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-          }`}>
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
+          }`}
+        >
+          <MoreHorizontal className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div
+          className={`text-center p-3 rounded-xl ${
+            isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+          }`}
+        >
+          <p className={`text-lg font-bold ${riskLevel.color}`}>
+            {report.riskScore}
+          </p>
+          <p className="text-xs text-gray-500">Risk Score</p>
         </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-            <p className={`text-lg font-bold ${riskLevel.color}`}>{report.riskScore}</p>
-            <p className="text-xs text-gray-500">Risk Score</p>
-          </div>
-          <div className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-            <p className="text-lg font-bold">{report.findings}</p>
-            <p className="text-xs text-gray-500">Findings</p>
-          </div>
-          <div className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-            <p className="text-lg font-bold">{report.obligations}</p>
-            <p className="text-xs text-gray-500">Tasks</p>
-          </div>
-        </div>
-
-        {/* Summary */}
-        <p className={`text-sm mb-4 line-clamp-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-          {report.summary}
-        </p>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-2 text-sm text-gray-500">
-            <Calendar className="w-4 h-4" />
-            <span>{report.createdAt.toLocaleDateString()}</span>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <button className={`p-2 rounded-lg transition-colors ${
-              isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-            }`}>
-              <Download className="w-4 h-4" />
-            </button>
-            <button 
-              onClick={() => onViewReport?.(report.filename)}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg hover:from-blue-700 hover:to-violet-700 transition-all duration-200"
-            >
-              <Eye className="w-4 h-4" />
-              <span className="font-medium">View Report</span>
-            </button>
-          </div>
+        <div
+          className={`text-center p-3 rounded-xl ${
+            isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+          }`}
+        >
+          <p className="text-lg font-bold">{report.obligations}</p>
+          <p className="text-xs text-gray-500">Tasks</p>
         </div>
       </div>
-    );
-  };
+
+      {/* Summary */}
+      <p
+        className={`text-sm mb-4 line-clamp-2 ${
+          isDarkMode ? 'text-gray-400' : 'text-gray-600'
+        }`}
+      >
+        {report.summary}
+      </p>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center space-x-2 text-sm text-gray-500">
+          <Calendar className="w-4 h-4" />
+          <span>{report.createdAt.toLocaleDateString()}</span>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <button
+            className={`p-2 rounded-lg transition-colors ${
+              isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+            }`}
+          >
+            <Download className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onViewReport?.(report.filename)}
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg hover:from-blue-700 hover:to-violet-700 transition-all duration-200"
+          >
+            <Eye className="w-4 h-4" />
+            <span className="font-medium">View Report</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
   const ReportRow = ({ report }: { report: ReportItem }) => {
     const riskLevel = getRiskLevel(parseFloat(report.riskScore.toString()));
@@ -260,7 +297,7 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
                 </span>
               </div>
               <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {report.createdAt.toLocaleDateString()} • {report.findings} findings
+                {report.createdAt.toLocaleDateString()} 
               </p>
             </div>
           </div>

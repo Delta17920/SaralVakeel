@@ -27,14 +27,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   setSidebarExpanded,
   activeTab,
   setActiveTab,
-  uploadedFilesCount,
   showReport = false,
   onBackFromReport
 }) => {
   const navigationItems = [
     { id: 'overview', icon: BarChart3, label: 'Overview', count: null },
-    { id: 'documents', icon: FileText, label: 'Documents', count: uploadedFilesCount },
-    { id: 'analysis', icon: Brain, label: 'AI Analysis', count: 3 },
+    { id: 'documents', icon: FileText, label: 'Documents', count: null },
+    { id: 'analysis', icon: Brain, label: 'AI Analysis', count: null },
     { id: 'compliance', icon: Shield, label: 'Compliance', count: null },
     { id: 'reports', icon: PieChart, label: 'Reports', count: null },
     { id: 'team', icon: Users, label: 'Team', count: null },

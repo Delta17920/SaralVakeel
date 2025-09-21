@@ -401,7 +401,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
           </div>
         ) : (
           <AnimatedList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {uploadedFiles.slice(-3).map((file) => (
+            {uploadedFiles.slice(-6).map((file) => (
   <div
     key={file.id}
     onClick={() => onViewReport?.(file.name)}
@@ -436,30 +436,6 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
         >
           <Download className="w-4 h-4" />
         </button>
-      </div>
-    </div>
-
-    {/* Risk Score Badge */}
-    {file.riskScore && file.riskScore > 0 && (
-      <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium border mb-4 ${getRiskColor(file.riskScore)}`}>
-        <div className="w-2 h-2 rounded-full bg-current"></div>
-        <span>Risk Score: {file.riskScore}/10</span>
-      </div>
-    )}
-
-    {/* Document Stats */}
-    <div className="grid grid-cols-3 gap-3 mb-4">
-      <div className={`text-center p-3 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-        <p className="text-lg font-bold">{file.pages || 0}</p>
-        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Pages</p>
-      </div>
-      <div className={`text-center p-3 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-        <p className="text-lg font-bold">{((file.words || 0) / 1000).toFixed(1)}k</p>
-        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Words</p>
-      </div>
-      <div className={`text-center p-3 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-        <p className="text-lg font-bold">{file.readingTime || 0}m</p>
-        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Read</p>
       </div>
     </div>
 
