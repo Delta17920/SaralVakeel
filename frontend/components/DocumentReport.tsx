@@ -44,6 +44,7 @@ interface DocumentData {
     role?: string;
   }>;
   risks: string[];
+  risk_score: number
 }
 
 export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, filename, onBack }) => {
@@ -56,7 +57,8 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
     keyTerms: [],
     obligations: [],
     parties: [],
-    risks: []
+    risks: [],
+    risk_score: 0,
   });
 
   // Fetch document data when filename is provided
@@ -86,7 +88,8 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
             "The document does not explicitly specify error handling or input validation requirements.",
             "The document does not define the format or structure of the input data for the processes (arrival time and burst time).",
             "The document does not specify whether preemptive or non-preemptive SJF is required."
-          ]
+          ],
+          risk_score: 5.0,
         });
         return;
       }
@@ -109,7 +112,8 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           keyTerms: fileData.data?.keyTerms || [],
           obligations: fileData.data?.obligations || [],
           parties: fileData.data?.parties || [],
-          risks: fileData.data?.risks || []
+          risks: fileData.data?.risks || [],
+          risk_score: fileData.data?.['risk score'] || fileData.data?.risk_score || 0,
         };
         
         setDocumentData(mappedData);
@@ -123,7 +127,8 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           keyTerms: [],
           obligations: [],
           parties: [],
-          risks: ["Failed to load document analysis data"]
+          risks: ["Failed to load document analysis data"],
+          risk_score: 0,
         });
       } finally {
         setIsLoading(false);
@@ -136,7 +141,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
   const [documentDataState] = useState<DocumentData>(documentData);
 
   // Calculate metrics
-  const riskScore = (documentData.risks.length * 2.5).toFixed(1);
+  const riskScore = documentData.risk_score
   const completionScore = Math.max(0, 100 - (documentData.risks.length * 15));
   const obligationsCount = documentData.obligations.length;
   const partiesCount = documentData.parties.length;
@@ -148,7 +153,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
     return { level: 'Low', color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-900/20' };
   };
 
-  const riskLevel = getRiskLevel(parseFloat(riskScore));
+  const riskLevel = getRiskLevel(riskScore);
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Eye },

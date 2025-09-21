@@ -19,7 +19,9 @@ import {
   Minus,
   Filter,
   Calendar,
-  Search
+  Search,
+  FileText,
+  AlertCircle
 } from 'lucide-react';
 
 interface AIAnalysisProps {
@@ -37,6 +39,8 @@ interface AnalysisCard {
   completedAt?: Date;
   category: string;
   keyInsights: string[];
+  obligationsCount: number;
+  risksCount: number;
 }
 
 interface MetricCard {
@@ -56,6 +60,10 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [analysisCards, setAnalysisCards] = useState<AnalysisCard[]>([]);
+  const [fileCount, setFileCount] = useState<number>(0);
+  const [totalRiskScore, setTotalRiskScore] = useState<number>(0);
+  const [totalObligationsCount, setTotalObligationsCount] = useState<number>(0);
+  const [totalRisksCount, setTotalRisksCount] = useState<number>(0);
 
  useEffect(() => {
   async function fetchJsonFiles() {
@@ -63,36 +71,46 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
     try {
       const res = await fetch('/api/list-json-files');
       const data = await res.json();
-      console.log("JSON files: ", data);
-      
       const filenames: string[] = data.files;
+      setFileCount(filenames.length);
 
       const cards: AnalysisCard[] = await Promise.all(
         filenames.map(async (file, index) => {
-          try {
-            const fileRes = await fetch(`/api/fetch-json?filename=${encodeURIComponent(file)}`);
-            const fileData = await fileRes.json();
-            console.log("File Data: ", fileData);
-            
-            return {
-              id: (index + 1).toString(),
-              title: file.replace(/\.[^/.]+$/, ''), // remove extension
-              status: 'complete', // default or from JSON if available
-              progress: 100,
-              findings: fileData.data.findings ?? Math.floor(Math.random() * 25),
-              riskScore: fileData.data.riskScore ?? parseFloat((Math.random() * 10).toFixed(1)),
-              completedAt: fileData.data.completedAt ? new Date(fileData.data.completedAt) : new Date(),
-              category: fileData.data.category ?? 'Auto Analysis',
-              keyInsights: fileData.data.keyInsights ?? ['Insight 1', 'Insight 2']
-            } as AnalysisCard;
-          } catch (err) {
-            console.error(`Failed to fetch content for ${file}`, err);
-            return null;
-          }
+          const fileRes = await fetch(`/api/fetch-json?filename=${encodeURIComponent(file)}`);
+          const fileData = await fileRes.json();
+          const riskScore = fileData.data?.['risk score'] ?? fileData.data?.risk_score ?? 0;
+          const obligationsCount = fileData.data?.obligations?.length ?? 0;
+          const risksCount = fileData.data?.risks?.length ?? 0;
+          
+          return {
+            id: (index + 1).toString(),
+            title: file.replace(/\.[^/.]+$/, ''),
+            status: 'complete',
+            progress: 100,
+            findings: fileData.data.findings ?? Math.floor(Math.random() * 25),
+            riskScore,
+            obligationsCount,
+            risksCount,
+            completedAt: fileData.data.completedAt ? new Date(fileData.data.completedAt) : new Date(),
+            category: fileData.data.category ?? 'Auto Analysis',
+            keyInsights: fileData.data.keyInsights ?? ['Insight 1', 'Insight 2']
+          } as AnalysisCard;
         })
       );
 
-      setAnalysisCards(cards.filter(Boolean) as AnalysisCard[]);
+      const filteredCards = cards.filter(Boolean) as AnalysisCard[];
+      setAnalysisCards(filteredCards);
+
+      // calculate totals
+      const totalRisk = filteredCards.reduce((sum, card) => sum + (card?.riskScore ?? 0), 0);
+      const totalObligations = filteredCards.reduce((sum, card) => sum + (card?.obligationsCount ?? 0), 0);
+      const totalRisks = filteredCards.reduce((sum, card) => sum + (card?.risksCount ?? 0), 0);
+
+      // set with 2 decimal points for riskScore, counts usually integers so no need
+      setTotalRiskScore(Number(totalRisk.toFixed(2)));
+      setTotalObligationsCount(totalObligations);
+      setTotalRisksCount(totalRisks);
+
     } catch (err) {
       console.error('Failed to fetch JSON files', err);
     } finally {
@@ -103,10 +121,12 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
   fetchJsonFiles();
 }, []);
 
+
+
   const metrics: MetricCard[] = [
     {
       title: 'Total Analyses',
-      value: 847,
+      value: fileCount,
       change: 12.5,
       trend: 'up',
       icon: Brain,
@@ -114,8 +134,8 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
       bgColor: 'bg-blue-50 dark:bg-blue-900/20'
     },
     {
-      title: 'Risk Issues Found',
-      value: 163,
+      title: 'Average Risk Score',
+      value: (totalRiskScore/fileCount).toFixed(2),
       change: -8.2,
       trend: 'down',
       icon: AlertTriangle,
@@ -123,20 +143,20 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
       bgColor: 'bg-amber-50 dark:bg-amber-900/20'
     },
     {
-      title: 'Avg Processing Time',
-      value: '4.2m',
+      title: 'Total Obligations',
+      value: totalObligationsCount,
       change: -15.3,
       trend: 'down',
-      icon: Clock,
+      icon: FileText, // Changed from Clock to FileText for obligations
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-50 dark:bg-emerald-900/20'
     },
     {
-      title: 'Accuracy Score',
-      value: '98.7%',
+      title: 'Total Risks',
+      value: totalRisksCount,
       change: 2.1,
       trend: 'up',
-      icon: Target,
+      icon: AlertCircle, // Changed from Target to AlertCircle for risks
       color: 'text-purple-600',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20'
     }
@@ -464,10 +484,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-                    <p className="text-2xl font-bold">{analysis.findings}</p>
-                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Findings</p>
-                  </div>
+                 
                   <div className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
                     <p className={`text-2xl font-bold ${getRiskScoreColor(analysis.riskScore)}`}>
                       {analysis.riskScore}
@@ -475,32 +492,19 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
                     <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Risk Score</p>
                   </div>
                   <div className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-                    <p className="text-2xl font-bold">
-                      {analysis.completedAt ? 
-                        Math.round((new Date().getTime() - analysis.completedAt.getTime()) / (1000 * 60 * 60)) : 
-                        '--'
-                      }h
+                    <p className={`text-2xl font-bold ${getRiskScoreColor(analysis.obligationsCount)}`}>
+                      {analysis.obligationsCount}
                     </p>
-                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Hours Ago</p>
+                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Obligations</p>
+                  </div>
+                  <div className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                    <p className={`text-2xl font-bold ${getRiskScoreColor(analysis.risksCount)}`}>
+                      {analysis.risksCount}
+                    </p>
+                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Risks</p>
                   </div>
                 </div>
 
-                {/* Key Insights */}
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm mb-2">Key Insights:</h4>
-                  <div className="space-y-1">
-                    {analysis.keyInsights.map((insight, idx) => (
-                      <div key={idx} className="flex items-start space-x-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
-                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                          {insight}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Action Button */}
                 {/* Action Button */}
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <button 
