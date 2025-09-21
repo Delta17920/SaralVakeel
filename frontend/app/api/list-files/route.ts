@@ -1,5 +1,4 @@
-// app/api/list-files/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { Storage } from '@google-cloud/storage';
 
 const storage = new Storage({ keyFilename: 'service-account.json' });

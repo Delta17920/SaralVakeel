@@ -109,14 +109,6 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     }
   };
 
-  // Calculate statistics from real data
-  const stats = {
-    totalFiles: uploadedFiles.length,
-    totalPages: uploadedFiles.reduce((sum, file) => sum + (file.pages || 0), 0),
-    totalWords: uploadedFiles.reduce((sum, file) => sum + (file.words || 0), 0),
-    totalHours: Math.round(uploadedFiles.reduce((sum, file) => sum + (file.readingTime || 0), 0) / 60)
-  };
-
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -137,12 +129,6 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
       default:
         return <File className="w-5 h-5 text-gray-500" />;
     }
-  };
-
-  const getRiskColor = (score: number) => {
-    if (score >= 8) return 'text-red-600 bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800';
-    if (score >= 6) return 'text-amber-600 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800';
-    return 'text-green-600 bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800';
   };
 
   const handleDrag = useCallback((e: React.DragEvent) => {

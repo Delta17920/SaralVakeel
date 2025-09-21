@@ -2,13 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Clock,
   Brain,
-  Shield,
-  TrendingUp,
   AlertTriangle,
   CheckCircle,
-  BarChart3,
-  Zap,
-  Target,
   Activity,
   Eye,
   Download,
@@ -17,8 +12,6 @@ import {
   ArrowUp,
   ArrowDown,
   Minus,
-  Filter,
-  Calendar,
   Search,
   FileText,
   AlertCircle

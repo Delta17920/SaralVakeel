@@ -131,8 +131,6 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
     fetchDocumentData();
   }, [filename]);
 
-  const [documentDataState] = useState<DocumentData>(documentData);
-
   // Calculate metrics
 
   const riskScore = documentData.risk_score
