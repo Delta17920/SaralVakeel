@@ -5,9 +5,6 @@ import {
   AlertTriangle,
   Users,
   CheckCircle,
-  Clock,
-  TrendingUp,
-  BarChart3,
   Eye,
   Download,
   ArrowLeft,
@@ -16,12 +13,8 @@ import {
   Brain,
   BookOpen,
   AlertCircle,
-  Calendar,
   Tag,
-  Zap,
   Activity,
-  Search,
-  Filter,
   Star,
   Share2
 } from 'lucide-react';
@@ -142,7 +135,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
 
   // Calculate metrics
   const riskScore = documentData.risk_score
-  const completionScore = Math.max(0, 100 - (documentData.risks.length * 15));
+  const completionScore = 100;
   const obligationsCount = documentData.obligations.length;
   const partiesCount = documentData.parties.length;
 

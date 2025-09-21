@@ -4,18 +4,13 @@ import {
   Eye,
   Download,
   Search,
-  Filter,
   Calendar,
-  Clock,
   AlertTriangle,
   CheckCircle,
   BarChart3,
   RefreshCw,
   Grid,
   List,
-  ArrowRight,
-  Star,
-  Share2,
   MoreHorizontal,
   TrendingUp
 } from 'lucide-react';

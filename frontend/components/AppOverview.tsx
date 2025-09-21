@@ -6,21 +6,13 @@ import {
   Shield,
   CheckCircle,
   AlertTriangle,
-  Users,
   BarChart3,
-  Clock,
-  ArrowRight,
   Play,
   Pause,
   ChevronRight,
-  Star,
   Zap,
   Target,
   Award,
-  TrendingUp,
-  Eye,
-  Download,
-  RefreshCw
 } from 'lucide-react';
 import { Spotlight } from './ui/spotlight';
 
