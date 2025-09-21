@@ -4,7 +4,7 @@ import { Storage } from '@google-cloud/storage';
 
 const storage = new Storage({
   projectId: process.env.GCP_PROJECT_ID,
-  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  credentials: JSON.parse(process.env.GCP_SERVICE_ACCOUNT_KEY!),
 });
 const bucket = storage.bucket(process.env.FINAL_DB_BUCKET!);
 
