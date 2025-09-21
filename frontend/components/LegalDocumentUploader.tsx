@@ -6,17 +6,10 @@ import {
   FileText, 
   File, 
   CheckCircle, 
-  AlertCircle, 
-  Clock, 
+  AlertCircle,  
   BarChart3,
   Eye,
   Download,
-  Plus,
-  Brain,
-  Shield,
-  TrendingUp,
-  Activity,
-  Award,
   ChevronRight
 } from 'lucide-react';
 
