@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SVGProps } from 'react';
 import {
   Clock,
   Brain,
@@ -41,7 +42,7 @@ interface MetricCard {
   value: string | number;
   change: number;
   trend: 'up' | 'down' | 'stable';
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<SVGProps<SVGSVGElement>>;
   color: string;
   bgColor: string;
 }

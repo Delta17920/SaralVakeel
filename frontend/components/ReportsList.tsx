@@ -473,7 +473,7 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
         <div className="flex items-center space-x-3">
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as 'date' | 'risk' | 'title')}
             className={`px-3 py-2 rounded-lg border transition-colors ${
               isDarkMode
                 ? 'bg-gray-800 border-gray-700 text-white'
@@ -487,7 +487,7 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
 
           <select
             value={filterBy}
-            onChange={(e) => setFilterBy(e.target.value as any)}
+            onChange={(e) => setFilterBy(e.target.value as 'all' | 'high-risk' | 'recent')}
             className={`px-3 py-2 rounded-lg border transition-colors ${
               isDarkMode
                 ? 'bg-gray-800 border-gray-700 text-white'

@@ -148,16 +148,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     setDragActive(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    const files = Array.from(e.dataTransfer.files);
-    handleFiles(files);
-  }, []);
-
-  const handleFiles = async (files: File[]) => {
+   const handleFiles = async (files: File[]) => {
     if (files.length === 0) return;
 
     setIsUploading(true);
@@ -222,6 +213,15 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
       fetchUploadedFiles();
     }, 2000);
   };
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    handleFiles(files);
+  }, [handleFiles]);
 
   // Loading skeleton
   if (isLoading) {

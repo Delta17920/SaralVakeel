@@ -333,7 +333,7 @@ const AppOverview: React.FC<OverviewProps> = ({ isDarkMode = false }) => {
           <div className="text-center space-y-2">
             <h2 className="text-2xl sm:text-3xl font-bold">See It In Action</h2>
             <p className={`text-base sm:text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} break-words`}>
-              Here's what you get from our AI analysis
+              Here&apos;s what you get from our AI analysis
             </p>
           </div>
 
