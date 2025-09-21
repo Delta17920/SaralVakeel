@@ -44,7 +44,7 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'risk' | 'title'>('date');
   const [filterBy, setFilterBy] = useState<'all' | 'high-risk' | 'recent'>('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {

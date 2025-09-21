@@ -95,7 +95,9 @@ export function VideoText({
     return () => window.removeEventListener("resize", updateSvgMask);
   }, [content, fontSize, fontWeight, textAnchor, dominantBaseline, fontFamily]);
 
-  const dataUrlMask = `url("data:image/svg+xml,${encodeURIComponent(svgMask)}")`;
+  const svgBase64 = btoa(unescape(encodeURIComponent(svgMask)));
+const dataUrlMask = `url("data:image/svg+xml;base64,${svgBase64}")`;
+
 
   return (
     <Component className={cn(`relative size-full`, className)}>

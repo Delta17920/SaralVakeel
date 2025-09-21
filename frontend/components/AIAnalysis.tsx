@@ -61,20 +61,18 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
   async function fetchJsonFiles() {
     setIsLoading(true);
     try {
-      // 1️⃣ Get JSON filenames
       const res = await fetch('/api/list-json-files');
       const data = await res.json();
-      console.log(data);
+      console.log("JSON files: ", data);
       
       const filenames: string[] = data.files;
 
-      // 2️⃣ Fetch JSON content for each file
       const cards: AnalysisCard[] = await Promise.all(
         filenames.map(async (file, index) => {
           try {
             const fileRes = await fetch(`/api/fetch-json?filename=${encodeURIComponent(file)}`);
             const fileData = await fileRes.json();
-            console.log(fileData);
+            console.log("File Data: ", fileData);
             
             return {
               id: (index + 1).toString(),
@@ -424,7 +422,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-lg mb-2">{analysis.title}</h3>
+                    <h3 className="font-semibold text-lg mb-2">{analysis.title.slice(0, -7)}</h3>
                     <div className="flex items-center space-x-4">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(analysis.status)}`}>
                         {analysis.status === 'processing' && <Clock className="w-3 h-3 mr-1" />}
