@@ -102,7 +102,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           documentTitle: fileData.data?.documentTitle || filename.replace(/\.[^/.]+$/, ''),
           documentType: fileData.data?.documentType || 'Document',
           summary: fileData.data?.summary || 'No summary available.',
-          keyTerms: fileData.data?.keyTerms || [],
+          keyTerms: fileData.data?.keyTerms?.map((item: { term: string }) => item.term) || [],
           obligations: fileData.data?.obligations || [],
           parties: fileData.data?.parties || [],
           risks: fileData.data?.risks || [],
