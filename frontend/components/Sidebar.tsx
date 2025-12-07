@@ -1,139 +1,148 @@
 import React from 'react';
-import { 
-  BarChart3,
-  FileText,
-  Brain,
-  Shield,
-  PieChart,
-  Users,
-  Menu,
-  ArrowLeft
-} from 'lucide-react';
 
 interface SidebarProps {
   isDarkMode: boolean;
   sidebarExpanded: boolean;
-  setSidebarExpanded: (expanded: boolean) => void;
+  setSidebarExpanded: (value: boolean) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   uploadedFilesCount: number;
-  showReport?: boolean;
-  onBackFromReport?: () => void;
+  showReport: boolean;
+  onBackFromReport: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
+export default function Sidebar({
   isDarkMode,
   sidebarExpanded,
   setSidebarExpanded,
   activeTab,
   setActiveTab,
-  showReport = false,
+  uploadedFilesCount,
+  showReport,
   onBackFromReport
-}) => {
-  const navigationItems = [
-    { id: 'overview', icon: BarChart3, label: 'Overview', count: null },
-    { id: 'documents', icon: FileText, label: 'Documents', count: null },
-    { id: 'analysis', icon: Brain, label: 'AI Analysis', count: null },
-    { id: 'compliance', icon: Shield, label: 'Compliance', count: null },
-    { id: 'reports', icon: PieChart, label: 'Reports', count: null },
-    { id: 'team', icon: Users, label: 'Team', count: null },
+}: SidebarProps) {
+  const menuItems = [
+    { id: 'documents', icon: '📄', label: 'Documents', badge: uploadedFilesCount },
+    { id: 'analysis', icon: '🔍', label: 'AI Analysis' },
+    { id: 'reports', icon: '📈', label: 'Reports' },
+    { id: 'compliance', icon: '✓', label: 'Compliance' },
+    { id: 'team', icon: '👥', label: 'Team' },
   ];
 
-  const handleNavigation = (itemId: string) => {
-    // If we're in a detailed report view and user clicks navigation,
-    // we should go back to the list first, then navigate
-    if (showReport && onBackFromReport) {
-      onBackFromReport();
+  const handleTabClick = (tabId: string) => {
+    setActiveTab(tabId);
+    // Close sidebar on mobile after selection
+    if (window.innerWidth < 1024) {
+      setSidebarExpanded(false);
     }
-    setActiveTab(itemId);
   };
 
   return (
-    <aside className={`${
-      sidebarExpanded ? 'w-72' : 'w-16'
-    } ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'} border-r transition-all duration-300 h-screen sticky top-16 overflow-y-auto`}>
+    <aside
+      className={`
+        ${isDarkMode ? 'bg-[#1A1C20]' : 'bg-white'} 
+        border-r ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#E2E2E8]'}
+        fixed lg:static
+        top-0 left-0 h-screen
+        transition-transform duration-300 ease-in-out
+        ${sidebarExpanded ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        w-64
+        z-40
+        overflow-y-auto
+      `}
+    >
       <div className="p-6">
-        <button
-          onClick={() => setSidebarExpanded(!sidebarExpanded)}
-          className={`mb-6 p-2 rounded-lg transition-colors ${
-            isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-          }`}
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-        
-        {sidebarExpanded && (
-          <>
-            {/* Back button when viewing detailed report */}
-            {showReport && onBackFromReport && (
-              <button
-                onClick={onBackFromReport}
-                className={`w-full flex items-center space-x-3 p-3 rounded-xl mb-4 transition-all duration-200 ${
-                  isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-                }`}
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span className="font-medium">Back to Reports</span>
-              </button>
-            )}
+        {/* Close button for mobile */}
+        <div className="flex justify-between items-center mb-6 lg:hidden">
+          <div className="flex items-center gap-2">
+            <span className={`font-bold text-xl ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
+                Saral Vakeel
+            </span>
+          </div>
+          <button
+            onClick={() => setSidebarExpanded(false)}
+            className={`p-2 rounded-lg ${isDarkMode ? 'hover:bg-[#2B2E35]' : 'hover:bg-[#E2E2E8]'}`}
+          >
+            <svg 
+              className={`w-6 h-6 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M6 18L18 6M6 6l12 12" 
+              />
+            </svg>
+          </button>
+        </div>
 
-            <nav className="space-y-2">
-              {navigationItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleNavigation(item.id)}
-                  disabled={showReport && item.id !== 'reports'} // Disable other nav when in report view
-                  className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 group gradient-sweep ${
-                    activeTab === item.id && !showReport
-                      ? 'active text-white shadow-lg'
-                      : showReport && item.id !== 'reports'
-                      ? isDarkMode 
-                        ? 'text-gray-600 cursor-not-allowed opacity-50' 
-                        : 'text-gray-400 cursor-not-allowed opacity-50'
-                      : isDarkMode
-                      ? 'hover:bg-gray-800 text-gray-300'
-                      : 'hover:bg-gray-50 text-gray-600'
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </div>
-                  {item.count !== null && (
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      activeTab === item.id && !showReport
-                        ? 'bg-white/20 text-white'
-                        : isDarkMode
-                        ? 'bg-gray-700 text-gray-300'
-                        : 'bg-gray-200 text-gray-600'
-                    }`}>
-                      {item.count}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </nav>
-
-            {/* Current view indicator */}
-            {showReport && (
-              <div className={`mt-6 p-3 rounded-xl border-l-4 border-blue-500 ${
-                isDarkMode ? 'bg-gray-800/50' : 'bg-blue-50/50'
-              }`}>
-                <div className="flex items-center space-x-2">
-                  <FileText className="w-4 h-4 text-blue-600" />
-                  <span className={`text-sm font-medium ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
-                    Viewing Report
-                  </span>
-                </div>
-              </div>
-            )}
-          </>
+        {/* Back button when viewing report */}
+        {showReport && (
+          <button
+            onClick={onBackFromReport}
+            className={`
+              w-full mb-4 px-4 py-2 rounded-lg flex items-center gap-2
+              ${isDarkMode ? 'bg-[#2B2E35] hover:bg-[#3B3E45] text-[#ECEDEE]' : 'bg-[#E2E2E8] hover:bg-[#D2D2D8] text-[#1C1F26]'}
+              transition-colors
+            `}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Reports
+          </button>
         )}
+
+        {/* Menu Items */}
+        <nav className="space-y-2">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleTabClick(item.id)}
+              className={`
+                w-full px-4 py-3 rounded-lg flex items-center justify-between
+                transition-colors
+                ${activeTab === item.id
+                  ? isDarkMode
+                    ? 'bg-[#222B53] text-[#4FC4C4]'
+                    : 'bg-[#E8F4F8] text-[#2F3C7E]'
+                  : isDarkMode
+                    ? 'text-[#B4B7BD] hover:bg-[#2B2E35]'
+                    : 'text-[#4E535E] hover:bg-[#F5F5F7]'
+                }
+              `}
+            >
+              <div className="flex items-center gap-3">
+                <span className="font-medium">{item.label}</span>
+              </div>
+              {item.badge !== undefined && (
+                <span className={`
+                  px-2 py-1 rounded-full text-xs font-semibold
+                  ${isDarkMode ? 'bg-[#4FC4C4] text-[#1C1F26]' : 'bg-[#2F3C7E] text-white'}
+                `}>
+                  {item.badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
+
+        {/* Settings at bottom */}
+        <div className="mt-8 pt-8 border-t border-[#2B2E35]">
+          <button
+            className={`
+              w-full px-4 py-3 rounded-lg flex items-center gap-3
+              ${isDarkMode ? 'text-[#B4B7BD] hover:bg-[#2B2E35]' : 'text-[#4E535E] hover:bg-[#F5F5F7]'}
+              transition-colors
+            `}
+          >
+            <span className="font-medium">Settings</span>
+          </button>
+        </div>
       </div>
     </aside>
   );
-};
-
-export default Sidebar;
+}

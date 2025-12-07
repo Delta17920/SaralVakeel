@@ -46,12 +46,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch files from API on component mount
-  useEffect(() => {
-    fetchUploadedFiles();
-  }, []);
-
-  const fetchUploadedFiles = async () => {
+  const fetchUploadedFiles = useCallback(async () => {
     setIsLoading(true);
     try {
       // Get list of JSON files
@@ -107,7 +102,12 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch files from API on component mount
+  useEffect(() => {
+    fetchUploadedFiles();
+  }, [fetchUploadedFiles]);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -148,7 +148,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     setDragActive(false);
   }, []);
 
-   const handleFiles = async (files: File[]) => {
+  const handleFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
 
     setIsUploading(true);
@@ -212,7 +212,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     setTimeout(() => {
       fetchUploadedFiles();
     }, 2000);
-  };
+  }, [fetchUploadedFiles]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -381,73 +381,73 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
         ) : (
           <AnimatedList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {uploadedFiles.slice(-6).map((file) => (
-  <div
-    key={file.id}
-    onClick={() => onViewReport?.(file.name)}
-    className={`group p-6 rounded-2xl border transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer ${
-      isDarkMode ? 'bg-gray-900 border-gray-800 hover:border-gray-700' : 'bg-white border-gray-200 hover:border-gray-300 shadow-lg'
-    }`}
-  >
-    {/* Header */}
-    <div className="flex items-start justify-between mb-4">
-      <div className="flex items-center space-x-3 flex-1 min-w-0">
-        {getFileIcon(file.type)}
-        <div className="min-w-0">
-          <h3 className="font-semibold truncate text-sm" title={file.name}>
-            {file.name.replace(/\.[^/.]+$/, '')}
-          </h3>
-          <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            {file.category}
-          </p>
-        </div>
-      </div>
-      
-      <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-        <button 
-          onClick={(e) => e.stopPropagation()}
-          className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
-        >
-          <Eye className="w-4 h-4" />
-        </button>
-        <button 
-          onClick={(e) => e.stopPropagation()}
-          className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
-        >
-          <Download className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
+              <div
+                key={file.id}
+                onClick={() => onViewReport?.(file.name)}
+                className={`group p-6 rounded-2xl border transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer ${
+                  isDarkMode ? 'bg-gray-900 border-gray-800 hover:border-gray-700' : 'bg-white border-gray-200 hover:border-gray-300 shadow-lg'
+                }`}
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-3 flex-1 min-w-0">
+                    {getFileIcon(file.type)}
+                    <div className="min-w-0">
+                      <h3 className="font-semibold truncate text-sm" title={file.name}>
+                        {file.name.replace(/\.[^/.]+$/, '')}
+                      </h3>
+                      <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {file.category}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <button 
+                      onClick={(e) => e.stopPropagation()}
+                      className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={(e) => e.stopPropagation()}
+                      className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
 
-    {/* Footer */}
-    <div className="flex items-center justify-between">
-      <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-        {file.uploadDate.toLocaleDateString()} • {formatFileSize(file.size)}
-      </div>
-      
-      <div className="flex items-center space-x-2">
-        {file.status === 'processing' ? (
-          <div className="flex items-center space-x-2 text-yellow-500">
-            <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
-            <span className="text-xs font-medium">Processing</span>
-          </div>
-        ) : file.status === 'complete' ? (
-          <div className="flex items-center space-x-2 text-green-500">
-            <CheckCircle className="w-4 h-4" />
-            <span className="text-xs font-medium">Complete</span>
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2 text-red-500">
-            <AlertCircle className="w-4 h-4" />
-            <span className="text-xs font-medium">Error</span>
-          </div>
-        )}
-      </div>
-    </div>
+                {/* Footer */}
+                <div className="flex items-center justify-between">
+                  <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                    {file.uploadDate.toLocaleDateString()} • {formatFileSize(file.size)}
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    {file.status === 'processing' ? (
+                      <div className="flex items-center space-x-2 text-yellow-500">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+                        <span className="text-xs font-medium">Processing</span>
+                      </div>
+                    ) : file.status === 'complete' ? (
+                      <div className="flex items-center space-x-2 text-green-500">
+                        <CheckCircle className="w-4 h-4" />
+                        <span className="text-xs font-medium">Complete</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2 text-red-500">
+                        <AlertCircle className="w-4 h-4" />
+                        <span className="text-xs font-medium">Error</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-    {/* Click indicator overlay */}
-    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600/0 to-violet-600/0 group-hover:from-blue-600/5 group-hover:to-violet-600/5 transition-all duration-300 pointer-events-none" />
-  </div>
-))}
+                {/* Click indicator overlay */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600/0 to-violet-600/0 group-hover:from-blue-600/5 group-hover:to-violet-600/5 transition-all duration-300 pointer-events-none" />
+              </div>
+            ))}
           </AnimatedList>
         )}
       </div>

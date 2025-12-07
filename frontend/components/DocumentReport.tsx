@@ -11,7 +11,6 @@ import {
   ChevronRight,
   Target,
   Brain,
-  BookOpen,
   AlertCircle,
   Tag,
   Activity,
@@ -41,7 +40,7 @@ interface DocumentData {
 }
 
 export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, filename, onBack }) => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('documents');
   const [isLoading, setIsLoading] = useState(false);
   const [documentData, setDocumentData] = useState<DocumentData>({
     documentTitle: "Loading...",
@@ -365,54 +364,6 @@ if (isLoading) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {activeTab === 'overview' && (
-            <div className="space-y-6">
-              {/* Document Summary */}
-              <div className={`p-6 rounded-2xl border ${
-                isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-              }`}>
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
-                    <BookOpen className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold">Document Summary</h3>
-                </div>
-                <div className={`p-4 rounded-xl border-l-4 border-blue-500 ${
-                  isDarkMode ? 'bg-gray-800' : 'bg-blue-50/50'
-                }`}>
-                  <p className={`leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {documentData.summary}
-                  </p>
-                </div>
-              </div>
-
-              {/* Quick Stats */}
-              <div className={`p-6 rounded-2xl border ${
-                isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-              }`}>
-                <h3 className="text-xl font-semibold mb-6">Analysis Overview</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-600" />
-                      <span className="font-medium">Risk Assessment</span>
-                    </div>
-                    <p className="text-2xl font-bold text-amber-600">{documentData.risks.length} Issues</p>
-                    <p className="text-sm text-gray-500">Identified risks</p>
-                  </div>
-                  <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="font-medium">Action Items</span>
-                    </div>
-                    <p className="text-2xl font-bold text-green-600">{documentData.obligations.length} Tasks</p>
-                    <p className="text-sm text-gray-500">Required obligations</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === 'obligations' && (
             <div className={`p-6 rounded-2xl border ${
               isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'

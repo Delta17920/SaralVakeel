@@ -345,7 +345,7 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text ${isDarkMode ? 'text-black' : 'text-white'}">
             Analysis Reports
           </h1>
           <p className={`mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -364,28 +364,34 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
             <RefreshCw className="w-5 h-5" />
           </button>
           
-          <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-md transition-all duration-200 ${
-                viewMode === 'grid' 
-                  ? 'bg-white dark:bg-gray-700 shadow-sm' 
-                  : 'hover:bg-gray-200 dark:hover:bg-gray-700'
-              }`}
-            >
-              <Grid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-md transition-all duration-200 ${
-                viewMode === 'list' 
-                  ? 'bg-white dark:bg-gray-700 shadow-sm' 
-                  : 'hover:bg-gray-200 dark:hover:bg-gray-700'
-              }`}
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
+          <div className="flex items-center bg-gray-200 dark:bg-gray-900 rounded-lg p-1">
+  <button
+    onClick={() => setViewMode('grid')}
+    className={`
+      p-2 rounded-md transition-all duration-200
+      ${viewMode === 'grid'
+        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
+      }
+    `}
+  >
+    <Grid className="w-4 h-4" />
+  </button>
+
+  <button
+    onClick={() => setViewMode('list')}
+    className={`
+      p-2 rounded-md transition-all duration-200
+      ${viewMode === 'list'
+        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
+      }
+    `}
+  >
+    <List className="w-4 h-4" />
+  </button>
+</div>
+
         </div>
       </div>
 

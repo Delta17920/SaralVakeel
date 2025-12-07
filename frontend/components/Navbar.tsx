@@ -1,66 +1,81 @@
 import React from 'react';
-import {
-  Sun,
-  Moon,
-  User,
-  Scale
-} from 'lucide-react';
 
 interface NavbarProps {
   isDarkMode: boolean;
-  setIsDarkMode: (darkMode: boolean) => void;
+  setIsDarkMode: (value: boolean) => void;
+  sidebarExpanded?: boolean;
+  setSidebarExpanded?: (value: boolean) => void;
+  setShowLandingPage?: (value: boolean) => void;
+  showLandingPage?: boolean;
 }
 
-const Navbar: React.FC<NavbarProps> = ({
-  isDarkMode,
-  setIsDarkMode
-}) => {
+export default function Navbar({ isDarkMode, setIsDarkMode, sidebarExpanded, setSidebarExpanded, setShowLandingPage }: NavbarProps) {
   return (
-    <nav className={`border-b backdrop-blur-xl bg-white/10 border-white/20 transition-all duration-300 sticky top-0 z-50 ${
-      isDarkMode
-        ? 'bg-black/10 border-white/10'
-        : 'bg-white/10 border-black/10'
-    }`}>
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-sm bg-white/20 border border-white/30">
-                <Scale className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className={`font-semibold font-sans ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Saral Vakeel
-                </p>
-                <p className={`text-xs font-sans ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Enterprise Legal Platform
-                </p>
-              </div>
-            </div>
-          </div>
-         
-          <div className="flex items-center space-x-3">
+    <nav className={`${isDarkMode ? 'bg-[#1A1C20]' : 'bg-white'} border-b ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#E2E2E8]'} sticky top-0 z-20`}>
+      <div className="px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          {/* Hamburger Menu Button */}
+          {setSidebarExpanded && (
             <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`p-3 rounded-xl transition-all duration-300 backdrop-blur-sm bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/30 ${
-                isDarkMode
-                  ? 'text-yellow-400 shadow-lg'
-                  : 'text-gray-600 shadow-md'
-              }`}
+              onClick={() => setSidebarExpanded(!sidebarExpanded)}
+              className={`p-2 rounded-lg ${isDarkMode ? 'hover:bg-[#2B2E35]' : 'hover:bg-[#E2E2E8]'} transition-colors`}
+              aria-label="Toggle sidebar"
             >
-              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              <svg 
+                className={`w-6 h-6 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M4 6h16M4 12h16M4 18h16" 
+                />
+              </svg>
             </button>
-           
-            <div className={`p-3 rounded-xl backdrop-blur-sm bg-white/10 border border-white/20 shadow-lg ${
-              isDarkMode ? 'text-white' : 'text-gray-700'
-            }`}>
-              <User className="w-5 h-5" />
-            </div>
+          )}
+          
+          {/* Logo and Brand */}
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowLandingPage(true)} className={`font-bold text-xl cursor-pointer ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
+              Saral Vakeel
+            </button>
           </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {/* Search Bar */}
+          <div className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-lg ${isDarkMode ? 'bg-[#2B2E35]' : 'bg-[#F5F5F7]'}`}>
+            <svg 
+              className={`w-5 h-5 ${isDarkMode ? 'text-[#8F939A]' : 'text-[#8A909A]'}`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+              />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search documents..."
+              className={`bg-transparent outline-none w-64 ${isDarkMode ? 'text-[#ECEDEE] placeholder-[#8F939A]' : 'text-[#1C1F26] placeholder-[#8A909A]'}`}
+            />
+          </div>
+          {/* Dark Mode Toggle */}
+          <button 
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`p-2 rounded-lg ${isDarkMode ? 'border border-white bg-[#2B2E35] hover:bg-[#3B3E45]' : 'border border-black bg-[#E2E2E8] hover:bg-[#D2D2D8]'} transition-colors`}
+              >
+                {isDarkMode ? 'Light' : 'Dark'}
+              </button>
         </div>
       </div>
     </nav>
   );
-};
-
-export default Navbar;
+}
