@@ -247,7 +247,7 @@ export default function Home() {
                 : 'bg-[#2F3C7E] hover:bg-[#222B53] text-white shadow-[#2F3C7E]/20'}
             `}
           >
-            Get Started
+            Main Menu
           </motion.button>
 
           <motion.button
