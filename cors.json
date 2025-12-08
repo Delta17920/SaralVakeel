@@ -1,9 +1,0 @@
-[
-  {
-    "origin": ["http://localhost:3000", "https://*.lexi-simplify.app", "https://saral-vakeel.vercel.app"],
-    "method": ["PUT", "POST", "GET"],
-    "responseHeader": ["Content-Type", "Authorization"],
-    "maxAgeSeconds": 3600
-  }
-]
-
