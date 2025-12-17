@@ -59,8 +59,23 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
         throw error;
       }
 
+      interface DocumentRecord {
+        id: string;
+        content?: string;
+        metadata: {
+          completedAt?: string;
+          pages?: number;
+          words?: number;
+          readingTime?: number;
+          riskScore?: number;
+          'risk score'?: number;
+          risk_score?: number;
+          documentType?: string;
+        } | null;
+      }
+
       // Map Supabase data to UploadedFile interface
-      const filesData: UploadedFile[] = data.map((doc: any) => {
+      const filesData: UploadedFile[] = (data as DocumentRecord[]).map((doc) => {
         const metadata = doc.metadata || {};
         return {
           id: doc.id, // Using filename as ID for now as per schema

@@ -114,7 +114,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           documentTitle: fileData.documentTitle || filename.replace(/\.[^/.]+$/, ''),
           documentType: fileData.documentType || 'Document',
           summary: fileData.summary || 'No summary available.',
-          keyTerms: fileData.keyTerms?.map((item: any) => typeof item === 'string' ? item : item.term) || [],
+          keyTerms: fileData.keyTerms?.map((item: string | { term: string }) => typeof item === 'string' ? item : item.term) || [],
           obligations: fileData.obligations || [],
           parties: fileData.parties || [],
           risks: fileData.risks || [],
@@ -143,7 +143,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
     const fetchPdfUrl = async () => {
       if (!filename) return;
       try {
-        const { data, error } = await supabase.storage
+        const { data } = await supabase.storage
           .from('pdfs')
           .createSignedUrl(filename, 3600);
 

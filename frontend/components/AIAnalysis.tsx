@@ -44,10 +44,25 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
 
         if (error) throw error;
 
-        const filenames: string[] = data.map((d: any) => d.id);
+        interface DocumentRecord {
+          id: string;
+          metadata: {
+            riskScore?: number;
+            'risk score'?: number;
+            risk_score?: number;
+            obligations?: string[];
+            risks?: string[];
+            findings?: number;
+            completedAt?: string;
+            category?: string;
+            keyInsights?: string[];
+          } | null;
+        }
+
+        const filenames: string[] = (data as DocumentRecord[]).map((d) => d.id);
         setFileCount(filenames.length);
 
-        const cards: AnalysisCard[] = data.map((doc: any, index: number) => {
+        const cards: AnalysisCard[] = (data as DocumentRecord[]).map((doc, index: number) => {
           const fileData = doc.metadata || {};
           const riskScore = fileData.riskScore ?? fileData['risk score'] ?? fileData.risk_score ?? 0;
           const obligationsCount = fileData.obligations?.length ?? 0;

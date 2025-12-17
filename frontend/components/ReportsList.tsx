@@ -56,7 +56,22 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
 
       if (error) throw error;
 
-      const reportsData: ReportItem[] = data.map((doc: any) => {
+      interface DocumentRecord {
+        id: string;
+        metadata: {
+          documentTitle?: string;
+          documentType?: string;
+          completedAt?: string;
+          'risk score'?: number;
+          risk_score?: number;
+          findings?: number;
+          summary?: string;
+          obligations?: string[];
+          parties?: { name: string; type: string; role?: string }[];
+        } | null;
+      }
+
+      const reportsData: ReportItem[] = (data as DocumentRecord[]).map((doc) => {
         const metadata = doc.metadata || {};
         return {
           filename: doc.id,
@@ -144,8 +159,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
     return (
       <div
         className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group ${isDarkMode
-            ? 'bg-gray-900 border-gray-800'
-            : 'bg-white border-gray-200 shadow-lg'
+          ? 'bg-gray-900 border-gray-800'
+          : 'bg-white border-gray-200 shadow-lg'
           }`}
       >
         {/* Header */}
@@ -164,8 +179,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
               <div className="flex items-center space-x-2 mb-2">
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode
-                      ? 'bg-gray-800 text-gray-300'
-                      : 'bg-gray-100 text-gray-600'
+                    ? 'bg-gray-800 text-gray-300'
+                    : 'bg-gray-100 text-gray-600'
                     }`}
                 >
                   {report.documentType}
@@ -446,8 +461,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={`pl-10 pr-4 py-2 w-72 rounded-xl border transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${isDarkMode
-                ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
-                : 'bg-gray-50 border-gray-200 placeholder-gray-500'
+              ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
+              : 'bg-gray-50 border-gray-200 placeholder-gray-500'
               }`}
           />
         </div>
@@ -457,8 +472,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'date' | 'risk' | 'title')}
             className={`px-3 py-2 rounded-lg border transition-colors ${isDarkMode
-                ? 'bg-gray-800 border-gray-700 text-white'
-                : 'bg-white border-gray-200'
+              ? 'bg-gray-800 border-gray-700 text-white'
+              : 'bg-white border-gray-200'
               }`}
           >
             <option value="date">Sort by Date</option>
@@ -470,8 +485,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
             value={filterBy}
             onChange={(e) => setFilterBy(e.target.value as 'all' | 'high-risk' | 'recent')}
             className={`px-3 py-2 rounded-lg border transition-colors ${isDarkMode
-                ? 'bg-gray-800 border-gray-700 text-white'
-                : 'bg-white border-gray-200'
+              ? 'bg-gray-800 border-gray-700 text-white'
+              : 'bg-white border-gray-200'
               }`}
           >
             <option value="all">All Reports</option>

@@ -10,9 +10,8 @@ interface HowItWorksProps {
 const UploadDocuments = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isComplete: boolean }) => {
   return (
     <div
-      className={`p-6 rounded-xl h-full flex flex-col justify-center relative transition-all duration-500 ${
-        isDarkMode ? 'bg-[#1C1F26]' : 'bg-slate-100 shadow-md'
-      }`}
+      className={`p-6 rounded-xl h-full flex flex-col justify-center relative transition-all duration-500 ${isDarkMode ? 'bg-[#1C1F26]' : 'bg-slate-100 shadow-md'
+        }`}
     >
       {/* Checkmark overlay */}
       {isComplete && (
@@ -26,14 +25,14 @@ const UploadDocuments = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isCo
           </svg>
         </motion.div>
       )}
-      
+
       <p className={`font-bold text-2xl mb-3 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
         Upload Documents
       </p>
 
       <p className={`font-normal text-base ${isDarkMode ? 'text-gray-400' : 'text-slate-600'}`}>
         Securely upload contracts, agreements, and legal documents for instant analysis.
-        Our platform supports multiple file formats and ensures your documents are encrypted 
+        Our platform supports multiple file formats and ensures your documents are encrypted
         and protected throughout the process.
       </p>
     </div>
@@ -43,9 +42,8 @@ const UploadDocuments = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isCo
 const AIAnalysis = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isComplete: boolean }) => {
   return (
     <div
-      className={`p-6 rounded-xl h-full flex flex-col justify-center relative transition-all duration-500 ${
-        isDarkMode ? 'bg-[#1C1F26]' : 'bg-slate-100 shadow-md'
-      }`}
+      className={`p-6 rounded-xl h-full flex flex-col justify-center relative transition-all duration-500 ${isDarkMode ? 'bg-[#1C1F26]' : 'bg-slate-100 shadow-md'
+        }`}
     >
       {/* Checkmark overlay */}
       {isComplete && (
@@ -59,7 +57,7 @@ const AIAnalysis = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isComplet
           </svg>
         </motion.div>
       )}
-      
+
       <p className={`font-bold text-2xl mb-3 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
         AI Analysis
       </p>
@@ -76,9 +74,8 @@ const AIAnalysis = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isComplet
 const GetInsights = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isComplete: boolean }) => {
   return (
     <div
-      className={`p-6 rounded-xl h-full flex flex-col justify-center relative transition-all duration-500 ${
-        isDarkMode ? 'bg-[#1C1F26]' : 'bg-slate-100 shadow-md'
-      }`}
+      className={`p-6 rounded-xl h-full flex flex-col justify-center relative transition-all duration-500 ${isDarkMode ? 'bg-[#1C1F26]' : 'bg-slate-100 shadow-md'
+        }`}
     >
       {/* Checkmark overlay */}
       {isComplete && (
@@ -92,7 +89,7 @@ const GetInsights = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isComple
           </svg>
         </motion.div>
       )}
-      
+
       <p className={`font-bold text-2xl mb-3 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
         Get Insights
       </p>
@@ -117,7 +114,7 @@ type Card = {
   thumbnail: string;
 };
 
-const LayoutGrid = ({ cards, isDarkMode }: { cards: Card[]; isDarkMode: boolean }) => {
+const LayoutGrid = ({ cards }: { cards: Card[]; isDarkMode?: boolean }) => {
   const [selected, setSelected] = useState<Card | null>(null);
   const [activeCard, setActiveCard] = useState<number>(0);
   const [completedCards, setCompletedCards] = useState<Set<number>>(new Set());
@@ -126,21 +123,21 @@ const LayoutGrid = ({ cards, isDarkMode }: { cards: Card[]; isDarkMode: boolean 
     const interval = setInterval(() => {
       setActiveCard((prev) => {
         const next = (prev + 1) % cards.length;
-        
+
         // Mark the current card as complete before moving to next
         setCompletedCards(prevCompleted => {
           const newCompleted = new Set(prevCompleted);
           newCompleted.add(prev);
           return newCompleted;
         });
-        
+
         // Clear all completed cards when restarting the cycle
         if (next === 0) {
           setTimeout(() => {
             setCompletedCards(new Set());
           }, 1000);
         }
-        
+
         return next;
       });
     }, 2000); // 2 seconds per card
@@ -157,7 +154,7 @@ const LayoutGrid = ({ cards, isDarkMode }: { cards: Card[]; isDarkMode: boolean 
       {cards.map((card, i) => {
         const isActive = activeCard === i;
         const isComplete = completedCards.has(i);
-        
+
         return (
           <div key={i} className={cn(card.className, "")}>
             <motion.div
@@ -195,7 +192,7 @@ const LayoutGrid = ({ cards, isDarkMode }: { cards: Card[]; isDarkMode: boolean 
                   />
                 </motion.div>
               )}
-              
+
               {/* Subtle border glow when complete */}
               {isComplete && (
                 <motion.div
@@ -207,7 +204,7 @@ const LayoutGrid = ({ cards, isDarkMode }: { cards: Card[]; isDarkMode: boolean 
                   }}
                 />
               )}
-              
+
               {selected?.id === card.id ? (
                 <SelectedCard selected={selected} />
               ) : (
@@ -298,13 +295,13 @@ export function HowItWorks({ isDarkMode }: HowItWorksProps) {
           <span className={`text-sm font-semibold ${isDarkMode ? 'text-[#4FC4C4]' : 'text-[#2F3C7E]'} uppercase tracking-wider`}>
             How it works
           </span>
-        <h2 className={`text-4xl md:text-4xl font-bold mt-4 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
-          We help legal teams analyze documents reliably and efficiently
-        </h2>
-        <p className={`text-lg ${isDarkMode ? 'text-[#B4B7BD]' : 'text-[#4E535E]'} mt-4 max-w-2xl mx-auto`}>
-          Upload your legal documents and get AI-powered analysis based on your team&apos;s needs and compliance requirements.
-        </p>
-      </div>
+          <h2 className={`text-4xl md:text-4xl font-bold mt-4 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
+            We help legal teams analyze documents reliably and efficiently
+          </h2>
+          <p className={`text-lg ${isDarkMode ? 'text-[#B4B7BD]' : 'text-[#4E535E]'} mt-4 max-w-2xl mx-auto`}>
+            Upload your legal documents and get AI-powered analysis based on your team&apos;s needs and compliance requirements.
+          </p>
+        </div>
       </div>
       <div className="h-[500px] w-full overflow-visible">
         <LayoutGrid cards={cards} isDarkMode={isDarkMode} />
