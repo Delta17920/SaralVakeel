@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import { SVGProps } from 'react';
 import {
   Clock, Brain, AlertTriangle, CheckCircle, Activity, Eye, Download, RefreshCw,
@@ -37,29 +38,30 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
     async function fetchJsonFiles() {
       setIsLoading(true);
       try {
-        const res = await fetch('/api/list-json-files');
-        const data = await res.json();
-        const filenames: string[] = data.files;
+        const { data, error } = await supabase
+          .from('documents')
+          .select('*');
+
+        if (error) throw error;
+
+        const filenames: string[] = data.map((d: any) => d.id);
         setFileCount(filenames.length);
 
-        const cards: AnalysisCard[] = await Promise.all(
-          filenames.map(async (file, index) => {
-            const fileRes = await fetch(`/api/fetch-json?filename=${encodeURIComponent(file)}`);
-            const fileData = await fileRes.json();
-            const riskScore = fileData.data?.['risk score'] ?? fileData.data?.risk_score ?? 0;
-            const obligationsCount = fileData.data?.obligations?.length ?? 0;
-            const risksCount = fileData.data?.risks?.length ?? 0;
-            
-            return {
-              id: (index + 1).toString(), title: file.replace(/\.[^/.]+$/, ''), status: 'complete',
-              progress: 100, findings: fileData.data.findings ?? Math.floor(Math.random() * 25),
-              riskScore, obligationsCount, risksCount,
-              completedAt: fileData.data.completedAt ? new Date(fileData.data.completedAt) : new Date(),
-              category: fileData.data.category ?? 'Auto Analysis',
-              keyInsights: fileData.data.keyInsights ?? ['Insight 1', 'Insight 2']
-            } as AnalysisCard;
-          })
-        );
+        const cards: AnalysisCard[] = data.map((doc: any, index: number) => {
+          const fileData = doc.metadata || {};
+          const riskScore = fileData.riskScore ?? fileData['risk score'] ?? fileData.risk_score ?? 0;
+          const obligationsCount = fileData.obligations?.length ?? 0;
+          const risksCount = fileData.risks?.length ?? 0;
+
+          return {
+            id: (index + 1).toString(), title: doc.id.replace(/\.[^/.]+$/, ''), status: 'complete',
+            progress: 100, findings: fileData.findings ?? 0,
+            riskScore, obligationsCount, risksCount,
+            completedAt: fileData.completedAt ? new Date(fileData.completedAt) : new Date(),
+            category: fileData.category ?? 'Auto Analysis',
+            keyInsights: fileData.keyInsights ?? ['Insight 1', 'Insight 2']
+          } as AnalysisCard;
+        });
 
         const filteredCards = cards.filter(Boolean) as AnalysisCard[];
         setAnalysisCards(filteredCards);
@@ -72,7 +74,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
         setTotalObligationsCount(totalObligations);
         setTotalRisksCount(totalRisks);
       } catch (err) {
-        console.error('Failed to fetch JSON files', err);
+        console.error('Failed to fetch analysis data', err);
       } finally {
         setIsLoading(false);
       }
@@ -81,14 +83,22 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
   }, []);
 
   const metrics: MetricCard[] = [
-    { title: 'Total Analyses', value: fileCount, change: 12.5, trend: 'up', icon: Brain,
-      color: 'text-[#1ABC9C]', bgColor: 'bg-[#1ABC9C]/10' },
-    { title: 'Average Risk Score', value: (totalRiskScore/fileCount).toFixed(2), change: -8.2, trend: 'down', icon: AlertTriangle,
-      color: isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]', bgColor: isDarkMode ? 'bg-[#D4AC0D]/10' : 'bg-[#F1C40F]/10' },
-    { title: 'Total Obligations', value: totalObligationsCount, change: -15.3, trend: 'down', icon: FileText,
-      color: isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]', bgColor: isDarkMode ? 'bg-[#27AE60]/10' : 'bg-[#2ECC71]/10' },
-    { title: 'Total Risks', value: totalRisksCount, change: 2.1, trend: 'up', icon: AlertCircle,
-      color: 'text-[#1ABC9C]', bgColor: 'bg-[#1ABC9C]/10' }
+    {
+      title: 'Total Analyses', value: fileCount, change: 12.5, trend: 'up', icon: Brain,
+      color: 'text-[#1ABC9C]', bgColor: 'bg-[#1ABC9C]/10'
+    },
+    {
+      title: 'Average Risk Score', value: (totalRiskScore / fileCount).toFixed(2), change: -8.2, trend: 'down', icon: AlertTriangle,
+      color: isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]', bgColor: isDarkMode ? 'bg-[#D4AC0D]/10' : 'bg-[#F1C40F]/10'
+    },
+    {
+      title: 'Total Obligations', value: totalObligationsCount, change: -15.3, trend: 'down', icon: FileText,
+      color: isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]', bgColor: isDarkMode ? 'bg-[#27AE60]/10' : 'bg-[#2ECC71]/10'
+    },
+    {
+      title: 'Total Risks', value: totalRisksCount, change: 2.1, trend: 'up', icon: AlertCircle,
+      color: 'text-[#1ABC9C]', bgColor: 'bg-[#1ABC9C]/10'
+    }
   ];
 
   const riskDistribution = [

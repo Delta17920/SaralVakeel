@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import ChatInterface from './ChatInterface';
 import {
   FileText,
   Shield,
@@ -15,7 +17,8 @@ import {
   Tag,
   Activity,
   Star,
-  Share2
+  Share2,
+  MessageSquare
 } from 'lucide-react';
 
 interface ReportProps {
@@ -40,7 +43,7 @@ interface DocumentData {
 }
 
 export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, filename, onBack }) => {
-  const [activeTab, setActiveTab] = useState('documents');
+  const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(false);
   const [documentData, setDocumentData] = useState<DocumentData>({
     documentTitle: "Loading...",
@@ -87,27 +90,33 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
       }
 
       setIsLoading(true);
+      setIsLoading(true);
       try {
-        const response = await fetch(`/api/fetch-json?filename=${encodeURIComponent(filename)}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch document: ${response.statusText}`);
+        const { data, error } = await supabase
+          .from('documents')
+          .select('*')
+          .eq('id', filename)
+          .single();
+
+        if (error) {
+          throw new Error(`Failed to fetch document: ${error.message}`);
         }
-        
-        const fileData = await response.json();
+
+        const fileData = data.metadata || {};
         console.log('Fetched document data:', fileData);
-        
-        // Map the API response to our component structure
+
+        // Map the Supabase response to our component structure
         const mappedData: DocumentData = {
-          documentTitle: fileData.data?.documentTitle || filename.replace(/\.[^/.]+$/, ''),
-          documentType: fileData.data?.documentType || 'Document',
-          summary: fileData.data?.summary || 'No summary available.',
-          keyTerms: fileData.data?.keyTerms?.map((item: { term: string }) => item.term) || [],
-          obligations: fileData.data?.obligations || [],
-          parties: fileData.data?.parties || [],
-          risks: fileData.data?.risks || [],
-          risk_score: fileData.data?.['risk score'] || fileData.data?.risk_score || 0,
+          documentTitle: fileData.documentTitle || filename.replace(/\.[^/.]+$/, ''),
+          documentType: fileData.documentType || 'Document',
+          summary: fileData.summary || 'No summary available.',
+          keyTerms: fileData.keyTerms?.map((item: any) => typeof item === 'string' ? item : item.term) || [],
+          obligations: fileData.obligations || [],
+          parties: fileData.parties || [],
+          risks: fileData.risks || [],
+          risk_score: fileData.riskScore ?? fileData['risk score'] ?? fileData.risk_score ?? 0,
         };
-        
+
         setDocumentData(mappedData);
       } catch (error) {
         console.error('Error fetching document data:', error);
@@ -148,6 +157,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Eye },
+    { id: 'chat', label: 'Ask AI', icon: MessageSquare },
     { id: 'obligations', label: 'Obligations', icon: CheckCircle },
     { id: 'risks', label: 'Risk Analysis', icon: AlertTriangle },
     { id: 'parties', label: 'Parties', icon: Users },
@@ -190,97 +200,92 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
   ];
 
   // In DocumentReport component, update the JSX to show skeleton while isLoading is true
-if (isLoading) {
-  return (
-    <div className="min-h-screen p-8 max-w-7xl mx-auto space-y-8">
-      <div className="animate-pulse space-y-8">
-        {/* Header Skeleton */}
-        <div className="flex items-start space-x-4">
-          <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
-          <div className="flex-1">
-            <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/2 mb-2"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/4"></div>
-          </div>
-        </div>
-
-        {/* Metrics Grid Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className={`p-6 rounded-2xl border ${
-              isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
-            }`}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
-                <div className="w-4 h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
-              </div>
-              <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-2/3 mb-1"></div>
-              <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-1/2"></div>
-            </div>
-          ))}
-        </div>
-
-        {/* Tab Navigation Skeleton */}
-        <div className="flex space-x-2">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-10 bg-gray-200 dark:bg-gray-800 rounded-xl w-24"></div>
-          ))}
-        </div>
-
-        {/* Content Area Skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className={`p-6 rounded-2xl border ${
-              isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
-            }`}>
-              <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-1/3 mb-6"></div>
-              <div className="space-y-3">
-                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-4/5"></div>
-              </div>
+  if (isLoading) {
+    return (
+      <div className="min-h-screen p-8 max-w-7xl mx-auto space-y-8">
+        <div className="animate-pulse space-y-8">
+          {/* Header Skeleton */}
+          <div className="flex items-start space-x-4">
+            <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+            <div className="flex-1">
+              <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/2 mb-2"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/4"></div>
             </div>
           </div>
-          
-          <div className="space-y-6">
-            <div className={`p-6 rounded-2xl border ${
-              isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
-            }`}>
-              <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-1/2 mb-4"></div>
-              <div className="space-y-3">
-                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+
+          {/* Metrics Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+                }`}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+                  <div className="w-4 h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                </div>
+                <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-2/3 mb-1"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tab Navigation Skeleton */}
+          <div className="flex space-x-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-10 bg-gray-200 dark:bg-gray-800 rounded-xl w-24"></div>
+            ))}
+          </div>
+
+          {/* Content Area Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+                }`}>
+                <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-1/3 mb-6"></div>
+                <div className="space-y-3">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-4/5"></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+                }`}>
+                <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-1/2 mb-4"></div>
+                <div className="space-y-3">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="min-h-screen p-8 max-w-7xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
         <div className="flex items-start space-x-4">
-          <button 
+          <button
             onClick={onBack}
-            className={`p-3 rounded-xl transition-all duration-200 hover:scale-105 ${
-              isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'
-            }`}
+            className={`p-3 rounded-xl transition-all duration-200 hover:scale-105 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'
+              }`}
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          
+
           <div>
             <div className="flex items-center space-x-3 mb-2">
               <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
                 <FileText className="w-5 h-5 text-blue-600" />
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
-              }`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
+                }`}>
                 {documentData.documentType}
               </span>
             </div>
@@ -294,9 +299,8 @@ if (isLoading) {
         </div>
 
         <div className="flex items-center space-x-3">
-          <button className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${
-            isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-white hover:bg-gray-50 border border-gray-200'
-          }`}>
+          <button className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-white hover:bg-gray-50 border border-gray-200'
+            }`}>
             <Share2 className="w-4 h-4" />
             <span className="font-medium">Share</span>
           </button>
@@ -312,9 +316,8 @@ if (isLoading) {
         {metrics.map((metric, index) => (
           <div
             key={index}
-            className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-105 group ${
-              isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-            }`}
+            className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-105 group ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+              }`}
             style={{
               animationDelay: `${index * 100}ms`,
               animation: 'fadeInUp 0.6s ease-out forwards'
@@ -326,7 +329,7 @@ if (isLoading) {
               </div>
               <Star className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
             </div>
-            
+
             <div className="space-y-2">
               <p className="text-2xl font-bold">{metric.value}</p>
               <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -346,13 +349,12 @@ if (isLoading) {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg'
-                : isDarkMode
+            className={`flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${activeTab === tab.id
+              ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg'
+              : isDarkMode
                 ? 'text-gray-300 hover:bg-gray-800'
                 : 'text-gray-600 hover:bg-gray-100'
-            }`}
+              }`}
           >
             <tab.icon className="w-4 h-4" />
             <span>{tab.label}</span>
@@ -364,29 +366,73 @@ if (isLoading) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
+          {activeTab === 'overview' && (
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+              }`}>
+              <div className="flex items-center space-x-3 mb-6">
+                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
+                  <FileText className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold">Executive Summary</h3>
+              </div>
+
+              <div className={`prose max-w-none ${isDarkMode ? 'prose-invert' : ''}`}>
+                <p className={`leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {documentData.summary}
+                </p>
+              </div>
+
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={`p-4 rounded-xl border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                  <h4 className="font-semibold mb-2 flex items-center">
+                    <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                    Key Strengths
+                  </h4>
+                  <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <li>• Clear definition of parties</li>
+                    <li>• Standard termination clauses</li>
+                  </ul>
+                </div>
+                <div className={`p-4 rounded-xl border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                  <h4 className="font-semibold mb-2 flex items-center">
+                    <AlertTriangle className="w-4 h-4 mr-2 text-amber-500" />
+                    Attention Needed
+                  </h4>
+                  <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <li>• Review liability caps</li>
+                    <li>• Check compliance requirements</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'chat' && (
+            <div className="lg:col-span-2">
+              <ChatInterface documentId={filename || ''} isDarkMode={isDarkMode} />
+            </div>
+          )}
+
           {activeTab === 'obligations' && (
-            <div className={`p-6 rounded-2xl border ${
-              isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-            }`}>
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+              }`}>
               <div className="flex items-center space-x-3 mb-6">
                 <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-900/30' : 'bg-green-50'}`}>
                   <CheckCircle className="w-5 h-5 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold">Obligations & Requirements</h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
-                }`}>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
+                  }`}>
                   {documentData.obligations.length} items
                 </span>
               </div>
-              
+
               <div className="space-y-4">
                 {documentData.obligations.map((obligation, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${
-                      isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-green-600/50' : 'bg-green-50/50 border-green-200 hover:border-green-300'
-                    }`}
+                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-green-600/50' : 'bg-green-50/50 border-green-200 hover:border-green-300'
+                      }`}
                   >
                     <div className="flex items-start space-x-3">
                       <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500`}>
@@ -397,9 +443,8 @@ if (isLoading) {
                           {obligation}
                         </p>
                       </div>
-                      <button className={`p-1 rounded-lg transition-colors ${
-                        isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-green-100'
-                      }`}>
+                      <button className={`p-1 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-green-100'
+                        }`}>
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -410,9 +455,8 @@ if (isLoading) {
           )}
 
           {activeTab === 'risks' && (
-            <div className={`p-6 rounded-2xl border ${
-              isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-            }`}>
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+              }`}>
               <div className="flex items-center space-x-3 mb-6">
                 <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-red-900/30' : 'bg-red-50'}`}>
                   <AlertTriangle className="w-5 h-5 text-red-600" />
@@ -422,14 +466,13 @@ if (isLoading) {
                   {riskLevel.level} Risk Level
                 </span>
               </div>
-              
+
               <div className="space-y-4">
                 {documentData.risks.map((risk, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${
-                      isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-red-600/50' : 'bg-red-50/50 border-red-200 hover:border-red-300'
-                    }`}
+                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-red-600/50' : 'bg-red-50/50 border-red-200 hover:border-red-300'
+                      }`}
                   >
                     <div className="flex items-start space-x-3">
                       <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center">
@@ -440,11 +483,10 @@ if (isLoading) {
                           <span className={`font-medium ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}>
                             Risk #{index + 1}
                           </span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            index === 0 ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${index === 0 ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
                             index === 1 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
-                            'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                          }`}>
+                              'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                            }`}>
                             {index === 0 ? 'High' : index === 1 ? 'Medium' : 'Low'}
                           </span>
                         </div>
@@ -460,28 +502,25 @@ if (isLoading) {
           )}
 
           {activeTab === 'parties' && (
-            <div className={`p-6 rounded-2xl border ${
-              isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-            }`}>
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+              }`}>
               <div className="flex items-center space-x-3 mb-6">
                 <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-purple-900/30' : 'bg-purple-50'}`}>
                   <Users className="w-5 h-5 text-purple-600" />
                 </div>
                 <h3 className="text-xl font-semibold">Involved Parties</h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
-                }`}>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
+                  }`}>
                   {documentData.parties.length} parties
                 </span>
               </div>
-              
+
               <div className="space-y-4">
                 {documentData.parties.map((party, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${
-                      isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-purple-600/50' : 'bg-purple-50/50 border-purple-200 hover:border-purple-300'
-                    }`}
+                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-purple-600/50' : 'bg-purple-50/50 border-purple-200 hover:border-purple-300'
+                      }`}
                   >
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
@@ -490,15 +529,13 @@ if (isLoading) {
                       <div className="flex-1">
                         <h4 className="font-semibold">{party.name}</h4>
                         <div className="flex items-center space-x-2 mt-1">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
-                          }`}>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
+                            }`}>
                             {party.type}
                           </span>
                           {party.role && (
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              isDarkMode ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-700'
-                            }`}>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-700'
+                              }`}>
                               {party.role}
                             </span>
                           )}
@@ -512,30 +549,27 @@ if (isLoading) {
           )}
 
           {activeTab === 'terms' && (
-            <div className={`p-6 rounded-2xl border ${
-              isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-            }`}>
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+              }`}>
               <div className="flex items-center space-x-3 mb-6">
                 <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
                   <Tag className="w-5 h-5 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold">Key Terms & Concepts</h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
-                }`}>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
+                  }`}>
                   {documentData.keyTerms.length} terms
                 </span>
               </div>
-              
+
               <div className="flex flex-wrap gap-3">
                 {documentData.keyTerms.map((term, index) => (
                   <div
                     key={index}
-                    className={`px-4 py-2 rounded-xl border transition-all duration-200 hover:scale-105 cursor-pointer ${
-                      isDarkMode 
-                        ? 'bg-gray-800 border-gray-700 hover:border-blue-600/50 text-gray-300' 
-                        : 'bg-blue-50 border-blue-200 hover:border-blue-300 text-blue-800'
-                    }`}
+                    className={`px-4 py-2 rounded-xl border transition-all duration-200 hover:scale-105 cursor-pointer ${isDarkMode
+                      ? 'bg-gray-800 border-gray-700 hover:border-blue-600/50 text-gray-300'
+                      : 'bg-blue-50 border-blue-200 hover:border-blue-300 text-blue-800'
+                      }`}
                   >
                     <span className="font-medium">{term}</span>
                   </div>
@@ -548,21 +582,20 @@ if (isLoading) {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Analysis Summary */}
-          <div className={`p-6 rounded-2xl border ${
-            isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-          }`}>
+          <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+            }`}>
             <div className="flex items-center space-x-3 mb-4">
               <Activity className="w-5 h-5 text-blue-600" />
               <h3 className="font-semibold">Analysis Summary</h3>
             </div>
-            
+
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Completion</span>
                 <span className="text-sm font-bold text-green-600">{completionScore}%</span>
               </div>
               <div className={`w-full h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-1000"
                   style={{ width: `${completionScore}%` }}
                 />
@@ -588,24 +621,21 @@ if (isLoading) {
           </div>
 
           {/* Quick Actions */}
-          <div className={`p-6 rounded-2xl border ${
-            isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-          }`}>
+          <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+            }`}>
             <h3 className="font-semibold mb-4">Quick Actions</h3>
             <div className="space-y-3">
               <button className="w-full flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white hover:from-blue-700 hover:to-violet-700 transition-all duration-200">
                 <Download className="w-4 h-4" />
                 <span className="font-medium">Export Report</span>
               </button>
-              <button className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 ${
-                isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200'
-              }`}>
+              <button className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                }`}>
                 <Brain className="w-4 h-4" />
                 <span className="font-medium">Re-analyze</span>
               </button>
-              <button className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 ${
-                isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200'
-              }`}>
+              <button className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200'
+                }`}>
                 <Share2 className="w-4 h-4" />
                 <span className="font-medium">Share Results</span>
               </button>
@@ -613,9 +643,8 @@ if (isLoading) {
           </div>
 
           {/* Related Documents */}
-          <div className={`p-6 rounded-2xl border ${
-            isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-          }`}>
+          <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+            }`}>
             <h3 className="font-semibold mb-4">Related Documents</h3>
             <div className="space-y-3">
               {[
@@ -625,9 +654,8 @@ if (isLoading) {
               ].map((doc, index) => (
                 <div
                   key={index}
-                  className={`p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] cursor-pointer ${
-                    isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-blue-600/50' : 'bg-gray-50 border-gray-200 hover:border-blue-300'
-                  }`}
+                  className={`p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] cursor-pointer ${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-blue-600/50' : 'bg-gray-50 border-gray-200 hover:border-blue-300'
+                    }`}
                 >
                   <div className="flex items-start space-x-3">
                     <FileText className="w-4 h-4 text-blue-600 mt-0.5" />
@@ -658,5 +686,6 @@ if (isLoading) {
           }
         }
       `}</style>
-      </div>
-  )}
+    </div>
+  )
+}

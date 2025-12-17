@@ -24,7 +24,7 @@ __pycache__/
 *.pyc
 
 # Local secrets file
-.env
+.env.*
 
 
 # OS-specific files

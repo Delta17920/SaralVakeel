@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import {
   FileText,
   Eye,
@@ -49,37 +50,29 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
   const fetchReports = async () => {
     setIsLoading(true);
     try {
-      // Fetch list of JSON files
-      const response = await fetch('/api/list-json-files');
-      const data = await response.json();
-      
-      // Fetch details for each file
-      const reportsData = await Promise.all(
-        data.files.map(async (filename: string) => {
-          try {
-            const fileResponse = await fetch(`/api/fetch-json?filename=${encodeURIComponent(filename)}`);
-            const fileData = await fileResponse.json();
-            
-            return {
-              filename,
-              title: fileData.data?.documentTitle || filename.replace(/\.[^/.]+$/, ''),
-              documentType: fileData.data?.documentType || 'Document',
-              createdAt: fileData.data?.completedAt ? new Date(fileData.data.completedAt) : new Date(),
-              riskScore: fileData.data?.['risk score'] || fileData.data?.risk_score || 0,
-              findings: fileData.data?.findings || Math.floor(Math.random() * 25),
-              status: fileData.data?.status || 'complete',
-              summary: fileData.data?.summary || 'Analysis completed successfully.',
-              obligations: fileData.data?.obligations?.length || 0,
-              parties: fileData.data?.parties?.length || 0
-            } as ReportItem;
-          } catch (error) {
-            console.error(`Failed to fetch ${filename}:`, error);
-            return null;
-          }
-        })
-      );
+      const { data, error } = await supabase
+        .from('documents')
+        .select('*');
 
-      setReports(reportsData.filter(Boolean) as ReportItem[]);
+      if (error) throw error;
+
+      const reportsData: ReportItem[] = data.map((doc: any) => {
+        const metadata = doc.metadata || {};
+        return {
+          filename: doc.id,
+          title: metadata.documentTitle || doc.id.replace(/\.[^/.]+$/, ''),
+          documentType: metadata.documentType || 'Document',
+          createdAt: metadata.completedAt ? new Date(metadata.completedAt) : new Date(),
+          riskScore: metadata['risk score'] || metadata.risk_score || 0,
+          findings: metadata.findings || 0,
+          status: 'complete',
+          summary: metadata.summary || 'Analysis completed successfully.',
+          obligations: metadata.obligations?.length || 0,
+          parties: metadata.parties?.length || 0
+        };
+      });
+
+      setReports(reportsData);
     } catch (error) {
       console.error('Failed to fetch reports:', error);
     } finally {
@@ -119,8 +112,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
   const filteredReports = reports
     .filter(report => {
       const matchesSearch = report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          report.documentType.toLowerCase().includes(searchQuery.toLowerCase());
-      
+        report.documentType.toLowerCase().includes(searchQuery.toLowerCase());
+
       let matchesFilter = true;
       if (filterBy === 'high-risk') {
         matchesFilter = parseFloat(report.riskScore.toString()) >= 6;
@@ -129,7 +122,7 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
         oneDayAgo.setDate(oneDayAgo.getDate() - 1);
         matchesFilter = report.createdAt >= oneDayAgo;
       }
-      
+
       return matchesSearch && matchesFilter;
     })
     .sort((a, b) => {
@@ -145,146 +138,136 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
       }
     });
 
-  const ReportCard = ({ report, onViewReport}: { report: ReportItem, onViewReport?: (filename: string) => void }) => {
-  const riskLevel = getRiskLevel(parseFloat(report.riskScore.toString()));
+  const ReportCard = ({ report, onViewReport }: { report: ReportItem, onViewReport?: (filename: string) => void }) => {
+    const riskLevel = getRiskLevel(parseFloat(report.riskScore.toString()));
 
-  return (
-    <div
-      className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group ${
-        isDarkMode
-          ? 'bg-gray-900 border-gray-800'
-          : 'bg-white border-gray-200 shadow-lg'
-      }`}
-    >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start space-x-3">
-          <div
-            className={`p-2 rounded-lg ${
-              isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'
-            }`}
-          >
-            <FileText className="w-5 h-5 text-blue-600" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-lg mb-1 break-words">
-              {report.title}
-            </h3>
-            <div className="flex items-center space-x-2 mb-2">
-              <span
-                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  isDarkMode
-                    ? 'bg-gray-800 text-gray-300'
-                    : 'bg-gray-100 text-gray-600'
+    return (
+      <div
+        className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group ${isDarkMode
+            ? 'bg-gray-900 border-gray-800'
+            : 'bg-white border-gray-200 shadow-lg'
+          }`}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start space-x-3">
+            <div
+              className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'
                 }`}
-              >
-                {report.documentType}
-              </span>
-              <span
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-                  report.status
-                )}`}
-              >
-                {report.status === 'complete' && (
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                )}
-                {report.status === 'warning' && (
-                  <AlertTriangle className="w-3 h-3 mr-1" />
-                )}
-                {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
-              </span>
+            >
+              <FileText className="w-5 h-5 text-blue-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-lg mb-1 break-words">
+                {report.title}
+              </h3>
+              <div className="flex items-center space-x-2 mb-2">
+                <span
+                  className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode
+                      ? 'bg-gray-800 text-gray-300'
+                      : 'bg-gray-100 text-gray-600'
+                    }`}
+                >
+                  {report.documentType}
+                </span>
+                <span
+                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                    report.status
+                  )}`}
+                >
+                  {report.status === 'complete' && (
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                  )}
+                  {report.status === 'warning' && (
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                  )}
+                  {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <button
-          className={`p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 ${
-            isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-          }`}
-        >
-          <MoreHorizontal className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div
-          className={`text-center p-3 rounded-xl ${
-            isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
-          }`}
-        >
-          <p className={`text-lg font-bold ${riskLevel.color}`}>
-            {report.riskScore}
-          </p>
-          <p className="text-xs text-gray-500">Risk Score</p>
-        </div>
-        <div
-          className={`text-center p-3 rounded-xl ${
-            isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
-          }`}
-        >
-          <p className="text-lg font-bold">{report.obligations}</p>
-          <p className="text-xs text-gray-500">Tasks</p>
-        </div>
-      </div>
-
-      {/* Summary */}
-      <p
-        className={`text-sm mb-4 line-clamp-2 ${
-          isDarkMode ? 'text-gray-400' : 'text-gray-600'
-        }`}
-      >
-        {report.summary}
-      </p>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex items-center space-x-2 text-sm text-gray-500">
-          <Calendar className="w-4 h-4" />
-          <span>{report.createdAt.toLocaleDateString()}</span>
-        </div>
-
-        <div className="flex items-center space-x-2">
           <button
-            className={`p-2 rounded-lg transition-colors ${
-              isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+            className={`p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+              }`}
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div
+            className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+              }`}
+          >
+            <p className={`text-lg font-bold ${riskLevel.color}`}>
+              {report.riskScore}
+            </p>
+            <p className="text-xs text-gray-500">Risk Score</p>
+          </div>
+          <div
+            className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
+              }`}
+          >
+            <p className="text-lg font-bold">{report.obligations}</p>
+            <p className="text-xs text-gray-500">Tasks</p>
+          </div>
+        </div>
+
+        {/* Summary */}
+        <p
+          className={`text-sm mb-4 line-clamp-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'
             }`}
-          >
-            <Download className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => onViewReport?.(report.filename)}
-            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg hover:from-blue-700 hover:to-violet-700 transition-all duration-200"
-          >
-            <Eye className="w-4 h-4" />
-            <span className="font-medium">View Report</span>
-          </button>
+        >
+          {report.summary}
+        </p>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-2 text-sm text-gray-500">
+            <Calendar className="w-4 h-4" />
+            <span>{report.createdAt.toLocaleDateString()}</span>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <button
+              className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+                }`}
+            >
+              <Download className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onViewReport?.(report.filename)}
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg hover:from-blue-700 hover:to-violet-700 transition-all duration-200"
+            >
+              <Eye className="w-4 h-4" />
+              <span className="font-medium">View Report</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 
   const ReportRow = ({ report }: { report: ReportItem }) => {
     const riskLevel = getRiskLevel(parseFloat(report.riskScore.toString()));
-    
+
     return (
-      <div className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.01] hover:shadow-lg ${
-        isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
-      }`}>
+      <div className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.01] hover:shadow-lg ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+        }`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 flex-1 min-w-0">
             <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
               <FileText className="w-4 h-4 text-blue-600" />
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-3">
                 <h3 className="font-semibold truncate">{report.title}</h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
-                }`}>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
+                  }`}>
                   {report.documentType}
                 </span>
                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(report.status)}`}>
@@ -292,18 +275,18 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
                 </span>
               </div>
               <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {report.createdAt.toLocaleDateString()} 
+                {report.createdAt.toLocaleDateString()}
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <div className="text-right">
               <p className={`font-semibold ${riskLevel.color}`}>{report.riskScore}</p>
               <p className="text-xs text-gray-500">Risk Score</p>
             </div>
-            
-            <button 
+
+            <button
               onClick={() => onViewReport?.(report.filename)}
               className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg hover:from-blue-700 hover:to-violet-700 transition-all duration-200"
             >
@@ -323,9 +306,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
           <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/3"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className={`p-6 rounded-2xl border ${
-                isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
-              }`}>
+              <div key={i} className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+                }`}>
                 <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4 mb-4"></div>
                 <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-1/2 mb-6"></div>
                 <div className="space-y-2">
@@ -357,49 +339,47 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className={`p-2 rounded-lg transition-all duration-200 ${
-              isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
-            } ${isRefreshing ? 'animate-spin' : ''}`}
+            className={`p-2 rounded-lg transition-all duration-200 ${isDarkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
+              } ${isRefreshing ? 'animate-spin' : ''}`}
           >
             <RefreshCw className="w-5 h-5" />
           </button>
-          
+
           <div className="flex items-center bg-gray-200 dark:bg-gray-900 rounded-lg p-1">
-  <button
-    onClick={() => setViewMode('grid')}
-    className={`
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`
       p-2 rounded-md transition-all duration-200
       ${viewMode === 'grid'
-        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-      }
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
+                }
     `}
-  >
-    <Grid className="w-4 h-4" />
-  </button>
+            >
+              <Grid className="w-4 h-4" />
+            </button>
 
-  <button
-    onClick={() => setViewMode('list')}
-    className={`
+            <button
+              onClick={() => setViewMode('list')}
+              className={`
       p-2 rounded-md transition-all duration-200
       ${viewMode === 'list'
-        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
-      }
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'
+                }
     `}
-  >
-    <List className="w-4 h-4" />
-  </button>
-</div>
+            >
+              <List className="w-4 h-4" />
+            </button>
+          </div>
 
         </div>
       </div>
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className={`p-6 rounded-2xl border ${
-          isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-        }`}>
+        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+          }`}>
           <div className="flex items-center space-x-3 mb-4">
             <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30">
               <BarChart3 className="w-5 h-5 text-blue-600" />
@@ -410,9 +390,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
           <p className="text-sm text-gray-500 mt-1">All time</p>
         </div>
 
-        <div className={`p-6 rounded-2xl border ${
-          isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-        }`}>
+        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+          }`}>
           <div className="flex items-center space-x-3 mb-4">
             <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/30">
               <AlertTriangle className="w-5 h-5 text-red-600" />
@@ -425,9 +404,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
           <p className="text-sm text-gray-500 mt-1">Requires attention</p>
         </div>
 
-        <div className={`p-6 rounded-2xl border ${
-          isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-        }`}>
+        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+          }`}>
           <div className="flex items-center space-x-3 mb-4">
             <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/30">
               <CheckCircle className="w-5 h-5 text-green-600" />
@@ -440,9 +418,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
           <p className="text-sm text-gray-500 mt-1">Analysis complete</p>
         </div>
 
-        <div className={`p-6 rounded-2xl border ${
-          isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
-        }`}>
+        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+          }`}>
           <div className="flex items-center space-x-3 mb-4">
             <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/30">
               <TrendingUp className="w-5 h-5 text-purple-600" />
@@ -450,8 +427,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
             <span className="font-semibold">Avg Risk Score</span>
           </div>
           <p className="text-2xl font-bold text-purple-600">
-            {reports.length > 0 ? 
-              (reports.reduce((acc, r) => acc + parseFloat(r.riskScore.toString()), 0) / reports.length).toFixed(1) 
+            {reports.length > 0 ?
+              (reports.reduce((acc, r) => acc + parseFloat(r.riskScore.toString()), 0) / reports.length).toFixed(1)
               : '0.0'
             }
           </p>
@@ -468,23 +445,21 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
             placeholder="Search reports..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className={`pl-10 pr-4 py-2 w-72 rounded-xl border transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${
-              isDarkMode 
-                ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400' 
+            className={`pl-10 pr-4 py-2 w-72 rounded-xl border transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${isDarkMode
+                ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
                 : 'bg-gray-50 border-gray-200 placeholder-gray-500'
-            }`}
+              }`}
           />
         </div>
-        
+
         <div className="flex items-center space-x-3">
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'date' | 'risk' | 'title')}
-            className={`px-3 py-2 rounded-lg border transition-colors ${
-              isDarkMode
+            className={`px-3 py-2 rounded-lg border transition-colors ${isDarkMode
                 ? 'bg-gray-800 border-gray-700 text-white'
                 : 'bg-white border-gray-200'
-            }`}
+              }`}
           >
             <option value="date">Sort by Date</option>
             <option value="risk">Sort by Risk</option>
@@ -494,11 +469,10 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
           <select
             value={filterBy}
             onChange={(e) => setFilterBy(e.target.value as 'all' | 'high-risk' | 'recent')}
-            className={`px-3 py-2 rounded-lg border transition-colors ${
-              isDarkMode
+            className={`px-3 py-2 rounded-lg border transition-colors ${isDarkMode
                 ? 'bg-gray-800 border-gray-700 text-white'
                 : 'bg-white border-gray-200'
-            }`}
+              }`}
           >
             <option value="all">All Reports</option>
             <option value="high-risk">High Risk Only</option>
@@ -517,8 +491,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
           </p>
         </div>
       ) : (
-        <div className={viewMode === 'grid' 
-          ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
+        <div className={viewMode === 'grid'
+          ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
           : 'space-y-4'
         }>
           {filteredReports.map((report) => (
