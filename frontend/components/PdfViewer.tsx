@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 
 // Fix for Next.js/Webpack worker loading
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// Fix for Next.js/Webpack worker loading
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs`;
 
 interface PdfViewerProps {
     url: string;

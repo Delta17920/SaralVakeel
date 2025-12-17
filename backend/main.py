@@ -62,8 +62,9 @@ else:
 if not GOOGLE_API_KEY:
     print("Error: GOOGLE_API_KEY is missing.")
 
-# 1. Embeddings Model (for Vectors)
-embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=GOOGLE_API_KEY)
+# 1. Initialize Embeddings (Gemini)
+# Using text-embedding-004 for better performance and newer quotas
+embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=GOOGLE_API_KEY)
 
 # 2. LLM Model (for Chat)
 # Using Gemini 2.5 Flash as requested by user
