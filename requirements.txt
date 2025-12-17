@@ -5,6 +5,7 @@ supabase
 pdfplumber
 python-dotenv
 langchain
+langchain-text-splitters
 langchain-community
 langchain-google-genai
 google-generativeai
