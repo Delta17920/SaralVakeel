@@ -28,6 +28,14 @@ from dotenv import load_dotenv
 
 # --- RAG / LangChain Imports ---
 import pdfplumber
+import langchain
+print(f"DEBUG: LangChain Version: {langchain.__version__}")
+try:
+    import langchain.chains
+    print("DEBUG: langchain.chains imported successfully")
+except ImportError as e:
+    print(f"DEBUG: langchain.chains FAILED: {e}")
+
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
