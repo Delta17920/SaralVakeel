@@ -66,8 +66,8 @@ if not GOOGLE_API_KEY:
 embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=GOOGLE_API_KEY)
 
 # 2. LLM Model (for Chat)
-# Using Gemini 1.5 Flash for speed/cost effectiveness, acts as our "Analyst"
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.1)
+# Using Gemini 2.5 Flash as requested by user
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.1)
 
 
 app = FastAPI()
