@@ -3,13 +3,14 @@ import { Send, User, Bot, AlertCircle, Loader2 } from 'lucide-react';
 
 interface Citation {
     page: number;
+    text?: string;
     preview: string;
 }
 
 interface ChatInterfaceProps {
     documentId: string;
     isDarkMode: boolean;
-    onCitationClick?: (page: number) => void;
+    onCitationClick?: (page: number, text?: string) => void;
 }
 
 interface Message {
@@ -121,16 +122,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentId, isDarkMode, o
                     >
                         <div className={`flex max-w-[90%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                             <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mx-2 ${msg.role === 'user'
-                                    ? 'bg-blue-600'
-                                    : (isDarkMode ? 'bg-gray-800' : 'bg-gray-100')
+                                ? 'bg-blue-600'
+                                : (isDarkMode ? 'bg-gray-800' : 'bg-gray-100')
                                 }`}>
                                 {msg.role === 'user' ? <User className="w-5 h-5 text-white" /> : <Bot className="w-5 h-5 text-blue-500" />}
                             </div>
 
                             <div className={`flex flex-col`}>
                                 <div className={`p-3 rounded-2xl text-sm ${msg.role === 'user'
-                                        ? 'bg-blue-600 text-white rounded-br-none'
-                                        : (isDarkMode ? 'bg-gray-800 text-gray-200 rounded-bl-none' : 'bg-gray-100 text-gray-800 rounded-bl-none')
+                                    ? 'bg-blue-600 text-white rounded-br-none'
+                                    : (isDarkMode ? 'bg-gray-800 text-gray-200 rounded-bl-none' : 'bg-gray-100 text-gray-800 rounded-bl-none')
                                     }`}>
                                     <div className="whitespace-pre-wrap">{msg.content}</div>
                                 </div>
@@ -141,7 +142,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentId, isDarkMode, o
                                         {msg.citations.map((cite, idx) => (
                                             <button
                                                 key={idx}
-                                                onClick={() => onCitationClick?.(cite.page)}
+                                                onClick={() => onCitationClick?.(cite.page, cite.text)}
                                                 className="flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors border border-blue-200"
                                             >
                                                 <AlertCircle className="w-3 h-3 mr-1" />
@@ -179,8 +180,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentId, isDarkMode, o
                         placeholder="Ask a question..."
                         disabled={isLoading}
                         className={`flex-1 p-3 rounded-xl border focus:ring-2 focus:ring-blue-500 outline-none transition-all ${isDarkMode
-                                ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500'
-                                : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400'
+                            ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500'
+                            : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400'
                             }`}
                     />
                     <button

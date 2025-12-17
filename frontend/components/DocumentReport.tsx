@@ -59,6 +59,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
 
   const [activePdfPage, setActivePdfPage] = useState(1);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [highlightedText, setHighlightedText] = useState<string | undefined>(undefined);
 
   // Fetch document data when filename is provided
   useEffect(() => {
@@ -452,7 +453,10 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
                   <ChatInterface
                     documentId={filename || ''}
                     isDarkMode={isDarkMode}
-                    onCitationClick={(page) => setActivePdfPage(page)}
+                    onCitationClick={(page, text) => {
+                      setActivePdfPage(page);
+                      setHighlightedText(text);
+                    }}
                   />
                 </div>
                 {/* Right: PDF */}
@@ -462,6 +466,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
                       <PdfViewer
                         url={pdfUrl}
                         pageNumber={activePdfPage}
+                        highlightText={highlightedText}
                         onPageChange={(page) => setActivePdfPage(page)}
                       />
                     ) : (

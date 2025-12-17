@@ -11,9 +11,10 @@ interface PdfViewerProps {
     url: string;
     pageNumber?: number;
     onPageChange?: (page: number) => void;
+    highlightText?: string;
 }
 
-const PdfViewer: React.FC<PdfViewerProps> = ({ url, pageNumber = 1, onPageChange }) => {
+const PdfViewer: React.FC<PdfViewerProps> = ({ url, pageNumber = 1, onPageChange, highlightText }) => {
     const [numPages, setNumPages] = useState<number | null>(null);
     const [scale, setScale] = useState(1.0);
     const [containerWidth, setContainerWidth] = useState<number>(0);
@@ -109,6 +110,22 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, pageNumber = 1, onPageChange
                             renderTextLayer={true}
                             renderAnnotationLayer={false}
                             className="bg-white"
+                            // @ts-expect-error react-pdf types are strict about string return, but JSX works for highlighting
+                            customTextRenderer={({ str }) => {
+                                if (!highlightText) return str;
+                                // Simple exact match highlighting
+                                // Note: This is fragile across text items but works for single-line matches
+                                const parts = str.split(new RegExp(`(${highlightText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+                                return (
+                                    <>
+                                        {parts.map((part, index) =>
+                                            part.toLowerCase() === highlightText.toLowerCase() ?
+                                                <mark key={index} className="bg-yellow-200 text-black">{part}</mark> :
+                                                part
+                                        )}
+                                    </>
+                                );
+                            }}
                         />
                     </Document>
                 ) : (
