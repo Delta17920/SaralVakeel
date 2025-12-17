@@ -1,30 +1,18 @@
 # This entire folder contains downloaded libraries and is recreated from requirements.txt
-/venv/
-
-# Terraform files
-##########################
-# The .terraform folder contains local provider plugins and modules
-/infra/terraform/.terraform/
-
-# The lock file ensures consistent provider versions between developers
-/infra/terraform/.terraform.lock.hcl
-
-# State files contain sensitive infrastructure details and should never be committed
-/infra/terraform/*.tfstate
-/infra/terraform/*.tfstate.backup
-
-# Your specific variable values should not be committed
-/infra/terraform/*.tfvars
-
-
-# General Python files
-##########################
-# Compiled Python files
-__pycache__/
-*.pyc
-
 # Local secrets file
+.env
 .env.*
+*.env
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Distribution / Build
+dist/
+build/
+*.egg-info/
 
 
 # OS-specific files
