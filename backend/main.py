@@ -114,11 +114,11 @@ async def process_document(file: UploadFile = File(...)):
         # We process page by page to ensure chunks don't cross page boundaries
         # and to accurately assign page numbers.
         try:
-            with pdfplumber.open(temp_filename) as pdf:
+            with pdfplumber.open(temp_filename) as pdf:                # 1. Processing PDF with Granular Chunks
                 text_splitter = RecursiveCharacterTextSplitter(
-                    chunk_size=1000, 
-                    chunk_overlap=100,
-                    separators=["\n\n", "\n", " ", ""]
+                    chunk_size=400, # Smaller chunks for "pinpoint" citations
+                    chunk_overlap=50,
+                    separators=["\n\n", "\n", ".", " ", ""]
                 )
                 
                 for i, page in enumerate(pdf.pages):
@@ -166,14 +166,50 @@ async def process_document(file: UploadFile = File(...)):
 
         # 3. Generate Basic Report Metadata
         # (Simplified for speed, can be enhanced with LLM summary if needed)
-        report_json = {
-            "documentTitle": file.filename,
-            "documentType": "Uploaded Document",
-            "summary": "Document processed for RAG (Page-Level Citations Enabled).",
-            "riskScore": 5, # Placeholder
-            "risks": ["Content available for AI Analysis"],
-            "obligations": []
-        }
+        # 3. Generate Detailed Report Metadata via Gemini
+        print("DEBUG: Generating document analysis...")
+        analysis_prompt = f"""
+        Analyze the following legal document and extract key metadata in JSON format.
+        Document Text (truncated):
+        {full_text[:30000]}
+        
+        Return ONLY valid JSON with this structure:
+        {{
+            "documentTitle": "Inferred Title",
+            "documentType": "Type of Contract/Doc",
+            "summary": "3-5 sentence executive summary",
+            "keyTerms": ["list", "of", "key", "terms"],
+            "obligations": ["list", "of", "key", "obligations"],
+            "parties": [
+                {{"name": "Party A", "type": "Individual/Company", "role": "Buyer/Seller etc"}}
+            ],
+            "risks": ["list", "of", "potential", "risks"],
+            "riskScore": 1-10 (number)
+        }}
+        """
+        
+        try:
+            analysis_response = llm.invoke(analysis_prompt)
+            # Clean up code blocks if present
+            content_str = analysis_response.content.replace('```json', '').replace('```', '').strip()
+            report_json = json.loads(content_str)
+            
+            # Ensure required fields exist
+            if "documentTitle" not in report_json: report_json["documentTitle"] = file.filename
+            
+        except Exception as analysis_err:
+            print(f"Analysis Error: {analysis_err}")
+            # Fallback
+            report_json = {
+                "documentTitle": file.filename,
+                "documentType": "Uploaded Document",
+                "summary": "Analysis failed. However, RAG search is active.",
+                "riskScore": 0,
+                "risks": [],
+                "obligations": [],
+                "keyTerms": [],
+                "parties": []
+            }
         
         # Save metadata to 'documents' table
         data = {
@@ -237,6 +273,7 @@ async def query_document(payload: QueryRequest):
             if page_num and page_num not in seen_pages:
                 citations.append({
                     "page": page_num,
+                    "text": doc.page_content, # Full text for highlighting
                     "preview": doc.page_content[:100] + "..."
                 })
                 seen_pages.add(page_num)
