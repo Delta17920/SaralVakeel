@@ -161,6 +161,8 @@ async def process_document(file: UploadFile = File(...)):
             )
         except Exception as vec_err:
              print(f"Vector Store Error: {vec_err}")
+        
+        print(f"DEBUG: Successfully inserted {len(docs)} chunks into 'document_chunks' table.")
 
         # 3. Generate Basic Report Metadata
         # (Simplified for speed, can be enhanced with LLM summary if needed)

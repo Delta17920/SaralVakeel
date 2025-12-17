@@ -459,7 +459,11 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
                 <div className="w-1/2 bg-gray-100 p-4">
                   <div className="h-full rounded-xl overflow-hidden shadow-sm bg-white">
                     {pdfUrl ? (
-                      <PdfViewer url={pdfUrl} pageNumber={activePdfPage} />
+                      <PdfViewer
+                        url={pdfUrl}
+                        pageNumber={activePdfPage}
+                        onPageChange={(page) => setActivePdfPage(page)}
+                      />
                     ) : (
                       <div className="flex items-center justify-center h-full text-gray-400">
                         Loading PDF...
