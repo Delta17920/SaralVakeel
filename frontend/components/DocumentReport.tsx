@@ -427,24 +427,46 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           )}
 
           {activeTab === 'chat' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[700px]">
-              {/* Left: Chat */}
-              <div className="h-full">
-                <ChatInterface
-                  documentId={filename || ''}
-                  isDarkMode={isDarkMode}
-                  onCitationClick={(page) => setActivePdfPage(page)}
-                />
+            // Full screen split view
+            <div className="fixed inset-0 z-50 bg-white dark:bg-gray-900 flex flex-col">
+              {/* Toolbar */}
+              <div className="h-16 border-b flex items-center justify-between px-6 bg-white dark:bg-gray-900">
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => setActiveTab('overview')}
+                    className="p-2 hover:bg-gray-100 rounded-lg"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                  <h2 className="font-semibold text-lg">{documentData.documentTitle}</h2>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-500">Ask AI Mode</span>
+                </div>
               </div>
-              {/* Right: PDF Viewer */}
-              <div className="h-full rounded-2xl border bg-gray-50 overflow-hidden">
-                {pdfUrl ? (
-                  <PdfViewer url={pdfUrl} pageNumber={activePdfPage} />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-gray-400">
-                    Loading Document Viewer...
+
+              {/* Split Content */}
+              <div className="flex-1 flex overflow-hidden">
+                {/* Left: Chat */}
+                <div className="w-1/2 border-r p-0">
+                  <ChatInterface
+                    documentId={filename || ''}
+                    isDarkMode={isDarkMode}
+                    onCitationClick={(page) => setActivePdfPage(page)}
+                  />
+                </div>
+                {/* Right: PDF */}
+                <div className="w-1/2 bg-gray-100 p-4">
+                  <div className="h-full rounded-xl overflow-hidden shadow-sm bg-white">
+                    {pdfUrl ? (
+                      <PdfViewer url={pdfUrl} pageNumber={activePdfPage} />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400">
+                        Loading PDF...
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           )}

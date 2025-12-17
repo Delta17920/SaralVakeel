@@ -2,7 +2,7 @@
 fastapi==0.124.4
 uvicorn==0.38.0
 python-multipart==0.0.20
-supabase==2.27.0
+supabase==2.6.0
 pdfplumber==0.11.8
 python-dotenv==1.2.1
 langchain==0.2.17
