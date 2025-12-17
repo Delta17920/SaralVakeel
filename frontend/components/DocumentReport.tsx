@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import ChatInterface from './ChatInterface';
+import PdfViewer from './PdfViewer';
 import {
   FileText,
   Shield,
@@ -56,6 +57,9 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
     risk_score: 0,
   });
 
+  const [activePdfPage, setActivePdfPage] = useState(1);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
   // Fetch document data when filename is provided
   useEffect(() => {
     const fetchDocumentData = async () => {
@@ -89,7 +93,6 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
         return;
       }
 
-      setIsLoading(true);
       setIsLoading(true);
       try {
         const { data, error } = await supabase
@@ -136,7 +139,23 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
       }
     };
 
+    const fetchPdfUrl = async () => {
+      if (!filename) return;
+      try {
+        const { data, error } = await supabase.storage
+          .from('pdfs')
+          .createSignedUrl(filename, 3600);
+
+        if (data?.signedUrl) {
+          setPdfUrl(data.signedUrl);
+        }
+      } catch (e) {
+        console.error("Error fetching PDF URL:", e);
+      }
+    };
+
     fetchDocumentData();
+    fetchPdfUrl();
   }, [filename]);
 
   // Calculate metrics
@@ -408,8 +427,25 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           )}
 
           {activeTab === 'chat' && (
-            <div className="lg:col-span-2">
-              <ChatInterface documentId={filename || ''} isDarkMode={isDarkMode} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[700px]">
+              {/* Left: Chat */}
+              <div className="h-full">
+                <ChatInterface
+                  documentId={filename || ''}
+                  isDarkMode={isDarkMode}
+                  onCitationClick={(page) => setActivePdfPage(page)}
+                />
+              </div>
+              {/* Right: PDF Viewer */}
+              <div className="h-full rounded-2xl border bg-gray-50 overflow-hidden">
+                {pdfUrl ? (
+                  <PdfViewer url={pdfUrl} pageNumber={activePdfPage} />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-gray-400">
+                    Loading Document Viewer...
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
