@@ -40,8 +40,8 @@ export default function Sidebar({
       className={`
         ${isDarkMode ? 'bg-[#1A1C20]' : 'bg-white'} 
         border-r ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#E2E2E8]'}
-        fixed lg:static
-        top-0 left-0 h-screen
+        fixed lg:sticky
+        top-0 lg:top-[73px] left-0 h-screen lg:h-[calc(100vh-73px)]
         transition-transform duration-300 ease-in-out
         ${sidebarExpanded ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         w-64
@@ -72,17 +72,17 @@ export default function Sidebar({
             onClick={() => setSidebarExpanded(false)}
             className={`p-2 rounded-lg ${isDarkMode ? 'hover:bg-[#2B2E35]' : 'hover:bg-[#E2E2E8]'}`}
           >
-            <svg 
-              className={`w-6 h-6 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`} 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className={`w-6 h-6 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M6 18L18 6M6 6l12 12" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
               />
             </svg>
           </button>
