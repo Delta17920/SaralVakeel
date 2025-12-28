@@ -164,6 +164,22 @@ async def process_document(file: UploadFile = File(...)):
         
         print(f"DEBUG: Successfully inserted {len(docs)} chunks into 'document_chunks' table.")
 
+        # 2a. Upload actual PDF to Supabase Storage (for frontend viewer)
+        try:
+            with open(temp_filename, "rb") as f:
+                file_content = f.read()
+                # Upsert option (overwrite if exists) is safest
+                supabase.storage.from_("pdfs").upload(
+                    path=file.filename,
+                    file=file_content,
+                    file_options={"content-type": "application/pdf", "upsert": "true"}
+                )
+            print(f"DEBUG: Successfully uploaded '{file.filename}' to 'pdfs' bucket.")
+        except Exception as storage_err:
+             print(f"Storage Upload Error: {storage_err}")
+             # Don't fail the whole process if storage upload fails (e.g. bucket doesn't exist yet)
+             # User might need to create 'pdfs' bucket manually if not verified.
+
         # 3. Generate Basic Report Metadata
         # (Simplified for speed, can be enhanced with LLM summary if needed)
         # 3. Generate Detailed Report Metadata via Gemini
@@ -197,6 +213,9 @@ async def process_document(file: UploadFile = File(...)):
             # Ensure required fields exist
             if "documentTitle" not in report_json: report_json["documentTitle"] = file.filename
             
+            # Add file size
+            report_json["fileSize"] = os.path.getsize(temp_filename)
+            
         except Exception as analysis_err:
             print(f"Analysis Error: {analysis_err}")
             # Fallback
@@ -208,7 +227,8 @@ async def process_document(file: UploadFile = File(...)):
                 "risks": [],
                 "obligations": [],
                 "keyTerms": [],
-                "parties": []
+                "parties": [],
+                "fileSize": os.path.getsize(temp_filename) if os.path.exists(temp_filename) else 0
             }
         
         # Save metadata to 'documents' table

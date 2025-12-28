@@ -71,6 +71,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
           'risk score'?: number;
           risk_score?: number;
           documentType?: string;
+          fileSize?: number;
         } | null;
       }
 
@@ -80,7 +81,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
         return {
           id: doc.id, // Using filename as ID for now as per schema
           name: doc.id,
-          size: doc.content ? doc.content.length : 0, // Using content length as proxy for size
+          size: metadata.fileSize || (doc.content ? doc.content.length : 0), // Use real size if available
           type: doc.id.split('.').pop()?.toLowerCase() || 'unknown',
           uploadDate: doc.created_at ? new Date(doc.created_at) : new Date(),
           pages: metadata.pages || 0,
