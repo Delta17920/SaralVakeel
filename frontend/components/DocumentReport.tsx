@@ -167,10 +167,10 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
   const partiesCount = documentData.parties.length;
 
   const getRiskLevel = (score: number) => {
-    if (score >= 8) return { level: 'High', color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-900/20' };
-    if (score >= 6) return { level: 'Medium', color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' };
-    if (score >= 4) return { level: 'Low-Medium', color: 'text-yellow-600', bg: 'bg-yellow-50 dark:bg-yellow-900/20' };
-    return { level: 'Low', color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-900/20' };
+    if (score >= 8) return { level: 'High', color: isDarkMode ? 'text-[#C0392B]' : 'text-[#E74C3C]', bg: isDarkMode ? 'bg-[#C0392B]/10' : 'bg-[#E74C3C]/10' };
+    if (score >= 6) return { level: 'Medium', color: isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]', bg: isDarkMode ? 'bg-[#D4AC0D]/10' : 'bg-[#F1C40F]/10' };
+    if (score >= 4) return { level: 'Low-Medium', color: isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]', bg: isDarkMode ? 'bg-[#D4AC0D]/10' : 'bg-[#F1C40F]/10' };
+    return { level: 'Low', color: isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]', bg: isDarkMode ? 'bg-[#27AE60]/10' : 'bg-[#2ECC71]/10' };
   };
 
   const riskLevel = getRiskLevel(riskScore);
@@ -198,24 +198,24 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
       value: `${completionScore}%`,
       subtitle: 'Analysis Complete',
       icon: Target,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/20'
+      color: 'text-[#1ABC9C]',
+      bgColor: 'bg-[#1ABC9C]/10'
     },
     {
       title: 'Obligations Found',
       value: obligationsCount,
       subtitle: 'Action Items',
       icon: CheckCircle,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50 dark:bg-purple-900/20'
+      color: isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]',
+      bgColor: isDarkMode ? 'bg-[#27AE60]/10' : 'bg-[#2ECC71]/10'
     },
     {
       title: 'Parties Involved',
       value: partiesCount,
       subtitle: 'Stakeholders',
       icon: Users,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20'
+      color: 'text-[#1ABC9C]',
+      bgColor: 'bg-[#1ABC9C]/10'
     }
   ];
 
@@ -226,25 +226,25 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
         <div className="animate-pulse space-y-8">
           {/* Header Skeleton */}
           <div className="flex items-start space-x-4">
-            <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+            <div className={`w-12 h-12 rounded-xl ${isDarkMode ? 'bg-[#161B22]' : 'bg-[#E3E7EE]'}`}></div>
             <div className="flex-1">
-              <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/2 mb-2"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-lg w-1/4"></div>
+              <div className={`h-8 rounded-lg w-1/2 mb-2 ${isDarkMode ? 'bg-[#161B22]' : 'bg-[#E3E7EE]'}`}></div>
+              <div className={`h-4 rounded-lg w-1/4 ${isDarkMode ? 'bg-[#161B22]' : 'bg-[#E3E7EE]'}`}></div>
             </div>
           </div>
 
           {/* Metrics Grid Skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+              <div key={i} className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE]'
                 }`}>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
-                  <div className="w-4 h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                  <div className={`w-12 h-12 rounded-xl ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+                  <div className={`w-4 h-4 rounded ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
                 </div>
-                <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-2/3 mb-1"></div>
-                <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-1/2"></div>
+                <div className={`h-8 rounded mb-2 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+                <div className={`h-4 rounded w-2/3 mb-1 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+                <div className={`h-3 rounded w-1/2 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
               </div>
             ))}
           </div>
@@ -252,31 +252,31 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           {/* Tab Navigation Skeleton */}
           <div className="flex space-x-2">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-10 bg-gray-200 dark:bg-gray-800 rounded-xl w-24"></div>
+              <div key={i} className={`h-10 rounded-xl w-24 ${isDarkMode ? 'bg-[#161B22]' : 'bg-[#E3E7EE]'}`}></div>
             ))}
           </div>
 
           {/* Content Area Skeleton */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
-              <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+              <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE]'
                 }`}>
-                <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-1/3 mb-6"></div>
+                <div className={`h-6 rounded w-1/3 mb-6 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
                 <div className="space-y-3">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-4/5"></div>
+                  <div className={`h-4 rounded ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+                  <div className={`h-4 rounded w-5/6 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+                  <div className={`h-4 rounded w-4/5 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
                 </div>
               </div>
             </div>
 
             <div className="space-y-6">
-              <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+              <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE]'
                 }`}>
-                <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-1/2 mb-4"></div>
+                <div className={`h-5 rounded w-1/2 mb-4 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
                 <div className="space-y-3">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+                  <div className={`h-4 rounded ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+                  <div className={`h-4 rounded w-3/4 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
                 </div>
               </div>
             </div>
@@ -293,7 +293,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
         <div className="flex items-start space-x-4">
           <button
             onClick={onBack}
-            className={`p-3 rounded-xl transition-all duration-200 hover:scale-105 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'
+            className={`p-3 rounded-xl transition-all duration-200 hover:scale-105 ${isDarkMode ? 'bg-[#161B22] hover:bg-[#0F1A2E]' : 'bg-[#F7F9FC] hover:bg-[#E3E7EE]'
               }`}
           >
             <ArrowLeft className="w-6 h-6" />
@@ -301,30 +301,30 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
 
           <div>
             <div className="flex items-center space-x-3 mb-2">
-              <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
-                <FileText className="w-5 h-5 text-blue-600" />
+              <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#1ABC9C]/10' : 'bg-[#1ABC9C]/10'}`}>
+                <FileText className="w-5 h-5 text-[#1ABC9C]" />
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-[#161B22] text-[#AEB6C3]' : 'bg-[#F7F9FC] text-[#4A5568]'
                 }`}>
                 {documentData.documentType}
               </span>
             </div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>
               {isLoading ? 'Loading...' : documentData.documentTitle}
             </h1>
-            <p className={`mt-2 text-lg ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p className={`mt-2 text-lg ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
               {isLoading ? 'Fetching analysis report...' : 'Detailed Analysis Report'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center space-x-3">
-          <button className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-white hover:bg-gray-50 border border-gray-200'
+          <button className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${isDarkMode ? 'bg-[#161B22] hover:bg-[#0F1A2E] text-[#E8EDF5]' : 'bg-[#FFFFFF] hover:bg-[#F7F9FC] border border-[#E3E7EE]'
             }`}>
             <Share2 className="w-4 h-4" />
             <span className="font-medium">Share</span>
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl hover:from-blue-700 hover:to-violet-700 transition-all duration-200">
+          <button className="flex items-center space-x-2 px-4 py-2 bg-[#1ABC9C] text-white rounded-xl hover:bg-[#17A085] transition-all duration-200">
             <Download className="w-4 h-4" />
             <span className="font-medium">Export PDF</span>
           </button>
@@ -336,7 +336,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
         {metrics.map((metric, index) => (
           <div
             key={index}
-            className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-105 group ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+            className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-105 group ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'
               }`}
             style={{
               animationDelay: `${index * 100}ms`,
@@ -347,12 +347,12 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
               <div className={`p-3 rounded-xl ${metric.bgColor} group-hover:scale-110 transition-transform duration-200`}>
                 <metric.icon className={`w-6 h-6 ${metric.color}`} />
               </div>
-              <Star className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+              <Star className={`w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`} />
             </div>
 
             <div className="space-y-2">
               <p className="text-2xl font-bold">{metric.value}</p>
-              <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              <p className={`text-sm font-medium ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
                 {metric.title}
               </p>
               <p className={`text-xs ${metric.color}`}>
@@ -370,10 +370,10 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${activeTab === tab.id
-              ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg'
+              ? 'bg-[#1ABC9C] text-white shadow-lg'
               : isDarkMode
-                ? 'text-gray-300 hover:bg-gray-800'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'text-[#AEB6C3] hover:bg-[#161B22]'
+                : 'text-[#4A5568] hover:bg-[#F7F9FC]'
               }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -387,38 +387,38 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {activeTab === 'overview' && (
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'
               }`}>
               <div className="flex items-center space-x-3 mb-6">
-                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
-                  <FileText className="w-5 h-5 text-blue-600" />
+                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#1ABC9C]/10' : 'bg-[#1ABC9C]/10'}`}>
+                  <FileText className="w-5 h-5 text-[#1ABC9C]" />
                 </div>
                 <h3 className="text-xl font-semibold">Executive Summary</h3>
               </div>
 
               <div className={`prose max-w-none ${isDarkMode ? 'prose-invert' : ''}`}>
-                <p className={`leading-relaxed ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p className={`leading-relaxed ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
                   {documentData.summary}
                 </p>
               </div>
 
               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className={`p-4 rounded-xl border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                <div className={`p-4 rounded-xl border ${isDarkMode ? 'bg-[#0D1117] border-[#262C35]' : 'bg-[#F7F9FC] border-[#E3E7EE]'}`}>
                   <h4 className="font-semibold mb-2 flex items-center">
-                    <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                    <CheckCircle className={`w-4 h-4 mr-2 ${isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]'}`} />
                     Key Strengths
                   </h4>
-                  <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
                     <li>• Clear definition of parties</li>
                     <li>• Standard termination clauses</li>
                   </ul>
                 </div>
-                <div className={`p-4 rounded-xl border ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'}`}>
+                <div className={`p-4 rounded-xl border ${isDarkMode ? 'bg-[#0D1117] border-[#262C35]' : 'bg-[#F7F9FC] border-[#E3E7EE]'}`}>
                   <h4 className="font-semibold mb-2 flex items-center">
-                    <AlertTriangle className="w-4 h-4 mr-2 text-amber-500" />
+                    <AlertTriangle className={`w-4 h-4 mr-2 ${isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]'}`} />
                     Attention Needed
                   </h4>
-                  <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <ul className={`space-y-2 text-sm ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
                     <li>• Review liability caps</li>
                     <li>• Check compliance requirements</li>
                   </ul>
@@ -481,14 +481,14 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           )}
 
           {activeTab === 'obligations' && (
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'
               }`}>
               <div className="flex items-center space-x-3 mb-6">
-                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-900/30' : 'bg-green-50'}`}>
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#27AE60]/10' : 'bg-[#2ECC71]/10'}`}>
+                  <CheckCircle className={`w-5 h-5 ${isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]'}`} />
                 </div>
                 <h3 className="text-xl font-semibold">Obligations & Requirements</h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-[#161B22] text-[#AEB6C3]' : 'bg-[#F7F9FC] text-[#4A5568]'
                   }`}>
                   {documentData.obligations.length} items
                 </span>
@@ -498,19 +498,19 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
                 {documentData.obligations.map((obligation, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-green-600/50' : 'bg-green-50/50 border-green-200 hover:border-green-300'
+                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${isDarkMode ? 'bg-[#0D1117] border-[#262C35] hover:border-[#27AE60]/50' : 'bg-[#2ECC71]/5 border-[#2ECC71]/20 hover:border-[#2ECC71]/30'
                       }`}
                   >
                     <div className="flex items-start space-x-3">
-                      <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500`}>
+                      <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${isDarkMode ? 'bg-[#27AE60]' : 'bg-[#2ECC71]'}`}>
                         {index + 1}
                       </div>
                       <div className="flex-1">
-                        <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <p className={`${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
                           {obligation}
                         </p>
                       </div>
-                      <button className={`p-1 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-green-100'
+                      <button className={`p-1 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#2ECC71]/10'
                         }`}>
                         <ChevronRight className="w-4 h-4" />
                       </button>
@@ -522,11 +522,11 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           )}
 
           {activeTab === 'risks' && (
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'
               }`}>
               <div className="flex items-center space-x-3 mb-6">
-                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-red-900/30' : 'bg-red-50'}`}>
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#C0392B]/10' : 'bg-[#E74C3C]/10'}`}>
+                  <AlertTriangle className={`w-5 h-5 ${isDarkMode ? 'text-[#C0392B]' : 'text-[#E74C3C]'}`} />
                 </div>
                 <h3 className="text-xl font-semibold">Risk Analysis</h3>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${riskLevel.bg} ${riskLevel.color}`}>
@@ -538,26 +538,26 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
                 {documentData.risks.map((risk, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-red-600/50' : 'bg-red-50/50 border-red-200 hover:border-red-300'
+                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${isDarkMode ? 'bg-[#0D1117] border-[#262C35] hover:border-[#C0392B]/50' : 'bg-[#E74C3C]/5 border-[#E74C3C]/20 hover:border-[#E74C3C]/30'
                       }`}
                   >
                     <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center">
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isDarkMode ? 'bg-[#C0392B]' : 'bg-[#E74C3C]'}`}>
                         <AlertCircle className="w-4 h-4 text-white" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
-                          <span className={`font-medium ${isDarkMode ? 'text-red-400' : 'text-red-700'}`}>
+                          <span className={`font-medium ${isDarkMode ? 'text-[#C0392B]' : 'text-[#E74C3C]'}`}>
                             Risk #{index + 1}
                           </span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${index === 0 ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                            index === 1 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
-                              'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${index === 0 ? (isDarkMode ? 'bg-[#C0392B]/10 text-[#C0392B]' : 'bg-[#E74C3C]/10 text-[#E74C3C]') :
+                            index === 1 ? (isDarkMode ? 'bg-[#D4AC0D]/10 text-[#D4AC0D]' : 'bg-[#F1C40F]/10 text-[#F1C40F]') :
+                              (isDarkMode ? 'bg-[#D4AC0D]/10 text-[#D4AC0D]' : 'bg-[#F1C40F]/10 text-[#F1C40F]')
                             }`}>
                             {index === 0 ? 'High' : index === 1 ? 'Medium' : 'Low'}
                           </span>
                         </div>
-                        <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <p className={`${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
                           {risk}
                         </p>
                       </div>
@@ -569,14 +569,14 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           )}
 
           {activeTab === 'parties' && (
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'
               }`}>
               <div className="flex items-center space-x-3 mb-6">
-                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-purple-900/30' : 'bg-purple-50'}`}>
-                  <Users className="w-5 h-5 text-purple-600" />
+                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#1ABC9C]/10' : 'bg-[#1ABC9C]/10'}`}>
+                  <Users className="w-5 h-5 text-[#1ABC9C]" />
                 </div>
                 <h3 className="text-xl font-semibold">Involved Parties</h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-[#161B22] text-[#AEB6C3]' : 'bg-[#F7F9FC] text-[#4A5568]'
                   }`}>
                   {documentData.parties.length} parties
                 </span>
@@ -586,22 +586,22 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
                 {documentData.parties.map((party, index) => (
                   <div
                     key={index}
-                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-purple-600/50' : 'bg-purple-50/50 border-purple-200 hover:border-purple-300'
+                    className={`p-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] ${isDarkMode ? 'bg-[#0D1117] border-[#262C35] hover:border-[#1ABC9C]/50' : 'bg-[#1ABC9C]/5 border-[#1ABC9C]/20 hover:border-[#1ABC9C]/30'
                       }`}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1ABC9C] flex items-center justify-center">
                         <span className="text-white font-semibold">{party.name.charAt(0)}</span>
                       </div>
                       <div className="flex-1">
                         <h4 className="font-semibold">{party.name}</h4>
                         <div className="flex items-center space-x-2 mt-1">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-[#0D1117] text-[#AEB6C3]' : 'bg-[#F7F9FC] text-[#4A5568]'
                             }`}>
                             {party.type}
                           </span>
                           {party.role && (
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-100 text-purple-700'
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-[#1ABC9C]/10 text-[#1ABC9C]' : 'bg-[#1ABC9C]/10 text-[#1ABC9C]'
                               }`}>
                               {party.role}
                             </span>
@@ -616,14 +616,14 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           )}
 
           {activeTab === 'terms' && (
-            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+            <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'
               }`}>
               <div className="flex items-center space-x-3 mb-6">
-                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-900/30' : 'bg-blue-50'}`}>
-                  <Tag className="w-5 h-5 text-blue-600" />
+                <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#1ABC9C]/10' : 'bg-[#1ABC9C]/10'}`}>
+                  <Tag className="w-5 h-5 text-[#1ABC9C]" />
                 </div>
                 <h3 className="text-xl font-semibold">Key Terms & Concepts</h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 text-gray-600'
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isDarkMode ? 'bg-[#161B22] text-[#AEB6C3]' : 'bg-[#F7F9FC] text-[#4A5568]'
                   }`}>
                   {documentData.keyTerms.length} terms
                 </span>
@@ -634,8 +634,8 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
                   <div
                     key={index}
                     className={`px-4 py-2 rounded-xl border transition-all duration-200 hover:scale-105 cursor-pointer ${isDarkMode
-                      ? 'bg-gray-800 border-gray-700 hover:border-blue-600/50 text-gray-300'
-                      : 'bg-blue-50 border-blue-200 hover:border-blue-300 text-blue-800'
+                      ? 'bg-[#0D1117] border-[#262C35] hover:border-[#1ABC9C]/50 text-[#AEB6C3]'
+                      : 'bg-[#1ABC9C]/5 border-[#1ABC9C]/20 hover:border-[#1ABC9C]/30 text-[#1ABC9C]'
                       }`}
                   >
                     <span className="font-medium">{term}</span>
@@ -649,38 +649,38 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Analysis Summary */}
-          <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+          <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'
             }`}>
             <div className="flex items-center space-x-3 mb-4">
-              <Activity className="w-5 h-5 text-blue-600" />
+              <Activity className="w-5 h-5 text-[#1ABC9C]" />
               <h3 className="font-semibold">Analysis Summary</h3>
             </div>
 
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Completion</span>
-                <span className="text-sm font-bold text-green-600">{completionScore}%</span>
+                <span className={`text-sm font-bold ${isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]'}`}>{completionScore}%</span>
               </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
+              <div className={`w-full h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#E3E7EE]'}`}>
                 <div
-                  className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full transition-all duration-1000"
+                  className={`h-full rounded-full transition-all duration-1000 ${isDarkMode ? 'bg-[#27AE60]' : 'bg-[#2ECC71]'}`}
                   style={{ width: `${completionScore}%` }}
                 />
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className={`mt-6 pt-4 border-t ${isDarkMode ? 'border-[#262C35]' : 'border-[#E3E7EE]'}`}>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Document Type:</span>
+                  <span className={`${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`}>Document Type:</span>
                   <span className="font-medium">{documentData.documentType}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Analysis Date:</span>
+                  <span className={`${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`}>Analysis Date:</span>
                   <span className="font-medium">{new Date().toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Processing Time:</span>
+                  <span className={`${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`}>Processing Time:</span>
                   <span className="font-medium">2.3 seconds</span>
                 </div>
               </div>
@@ -688,20 +688,20 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           </div>
 
           {/* Quick Actions */}
-          <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+          <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'
             }`}>
             <h3 className="font-semibold mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white hover:from-blue-700 hover:to-violet-700 transition-all duration-200">
+              <button className="w-full flex items-center space-x-3 p-3 rounded-xl bg-[#1ABC9C] text-white hover:bg-[#17A085] transition-all duration-200">
                 <Download className="w-4 h-4" />
                 <span className="font-medium">Export Report</span>
               </button>
-              <button className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200'
+              <button className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 ${isDarkMode ? 'bg-[#0D1117] hover:bg-[#0F1A2E] text-[#E8EDF5]' : 'bg-[#F7F9FC] hover:bg-[#E3E7EE]'
                 }`}>
                 <Brain className="w-4 h-4" />
                 <span className="font-medium">Re-analyze</span>
               </button>
-              <button className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200'
+              <button className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 ${isDarkMode ? 'bg-[#0D1117] hover:bg-[#0F1A2E] text-[#E8EDF5]' : 'bg-[#F7F9FC] hover:bg-[#E3E7EE]'
                 }`}>
                 <Share2 className="w-4 h-4" />
                 <span className="font-medium">Share Results</span>
@@ -710,7 +710,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           </div>
 
           {/* Related Documents */}
-          <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'
+          <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'
             }`}>
             <h3 className="font-semibold mb-4">Related Documents</h3>
             <div className="space-y-3">
@@ -721,16 +721,16 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
               ].map((doc, index) => (
                 <div
                   key={index}
-                  className={`p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] cursor-pointer ${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-blue-600/50' : 'bg-gray-50 border-gray-200 hover:border-blue-300'
+                  className={`p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] cursor-pointer ${isDarkMode ? 'bg-[#0D1117] border-[#262C35] hover:border-[#1ABC9C]/50' : 'bg-[#F7F9FC] border-[#E3E7EE] hover:border-[#1ABC9C]/30'
                     }`}
                 >
                   <div className="flex items-start space-x-3">
-                    <FileText className="w-4 h-4 text-blue-600 mt-0.5" />
+                    <FileText className="w-4 h-4 text-[#1ABC9C] mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{doc.name}</p>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs text-gray-500">{doc.type}</span>
-                        <span className="text-xs font-medium text-blue-600">{doc.similarity}% similar</span>
+                        <span className={`text-xs ${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`}>{doc.type}</span>
+                        <span className="text-xs font-medium text-[#1ABC9C]">{doc.similarity}% similar</span>
                       </div>
                     </div>
                   </div>

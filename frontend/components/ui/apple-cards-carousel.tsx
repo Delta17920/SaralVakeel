@@ -288,7 +288,7 @@ export const BlurImage = ({ src, className, alt }: BlurImageProps) => {
           "object-cover transition duration-300",
           isLoading ? "blur-sm scale-105" : "blur-0 scale-100"
         )}
-        onLoadingComplete={() => setIsLoading(false)}
+        onLoad={() => setIsLoading(false)}
         sizes="(max-width: 768px) 288px, 384px"
         priority={false}
       />
