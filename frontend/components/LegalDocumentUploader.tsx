@@ -150,7 +150,17 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     fetch(`${API_URL}/`).catch(() => console.log('Warming up server...'));
   }, []);
 
-  const uploadFileWithRetry = async (url: string, formData: FormData, retries = 3): Promise<any> => {
+  interface UploadResponse {
+    status: string;
+    report?: {
+      riskScore?: number;
+      'risk score'?: number;
+      risk_score?: number;
+      documentType?: string;
+    };
+  }
+
+  const uploadFileWithRetry = async (url: string, formData: FormData, retries = 3): Promise<UploadResponse> => {
     for (let i = 0; i < retries; i++) {
       try {
         const response = await fetch(url, { method: 'POST', body: formData });
