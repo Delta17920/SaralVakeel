@@ -46,6 +46,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
 
         interface DocumentRecord {
           id: string;
+          created_at: string;
           metadata: {
             riskScore?: number;
             'risk score'?: number;
@@ -53,7 +54,6 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
             obligations?: string[];
             risks?: string[];
             findings?: number;
-            completedAt?: string;
             category?: string;
             keyInsights?: string[];
           } | null;
@@ -72,7 +72,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
             id: (index + 1).toString(), title: doc.id.replace(/\.[^/.]+$/, ''), status: 'complete',
             progress: 100, findings: fileData.findings ?? 0,
             riskScore, obligationsCount, risksCount,
-            completedAt: fileData.completedAt ? new Date(fileData.completedAt) : new Date(),
+            completedAt: doc.created_at ? new Date(doc.created_at) : new Date(),
             category: fileData.category ?? 'Auto Analysis',
             keyInsights: fileData.keyInsights ?? ['Insight 1', 'Insight 2']
           } as AnalysisCard;
@@ -116,12 +116,26 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
     }
   ];
 
-  const riskDistribution = [
-    { level: 'Critical', count: 23, percentage: 14, color: isDarkMode ? 'bg-[#C0392B]' : 'bg-[#E74C3C]' },
-    { level: 'High', count: 45, percentage: 28, color: isDarkMode ? 'bg-[#D4AC0D]' : 'bg-[#F1C40F]' },
-    { level: 'Medium', count: 67, percentage: 41, color: isDarkMode ? 'bg-[#D4AC0D]' : 'bg-[#F1C40F]' },
-    { level: 'Low', count: 28, percentage: 17, color: isDarkMode ? 'bg-[#27AE60]' : 'bg-[#2ECC71]' }
-  ];
+  // Dynamic Risk Distribution
+  const calculateDistribution = () => {
+    const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+    analysisCards.forEach(c => {
+      if (c.riskScore >= 8) counts.critical++;
+      else if (c.riskScore >= 6) counts.high++;
+      else if (c.riskScore >= 4) counts.medium++;
+      else counts.low++;
+    });
+    const total = analysisCards.length || 1;
+
+    return [
+      { level: 'Critical', count: counts.critical, percentage: Math.round((counts.critical / total) * 100), color: isDarkMode ? 'bg-[#C0392B]' : 'bg-[#E74C3C]' },
+      { level: 'High', count: counts.high, percentage: Math.round((counts.high / total) * 100), color: isDarkMode ? 'bg-[#D4AC0D]' : 'bg-[#F1C40F]' },
+      { level: 'Medium', count: counts.medium, percentage: Math.round((counts.medium / total) * 100), color: isDarkMode ? 'bg-[#D4AC0D]' : 'bg-[#F1C40F]' },
+      { level: 'Low', count: counts.low, percentage: Math.round((counts.low / total) * 100), color: isDarkMode ? 'bg-[#27AE60]' : 'bg-[#2ECC71]' }
+    ];
+  };
+
+  const riskDistribution = calculateDistribution();
 
   const getStatusColor = (status: string) => {
     const colors = {
@@ -333,21 +347,11 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
               </div>
             </div>
             <div className="space-y-3">
-              {[
-                { name: 'Patent Applications.pdf', progress: 78, eta: '2m' },
-                { name: 'Supply Agreement.docx', progress: 45, eta: '5m' },
-                { name: 'Licensing Terms.pdf', progress: 23, eta: '8m' }
-              ].map((item, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium truncate">{item.name}</span>
-                    <span className={`text-xs ${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`}>{item.eta} left</span>
-                  </div>
-                  <div className={`w-full h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#E3E7EE]'}`}>
-                    <div className="h-full bg-[#1ABC9C] rounded-full transition-all duration-300" style={{ width: `${item.progress}%` }} />
-                  </div>
-                </div>
-              ))}
+              {/* Dynamic Queue Placeholder - Future: Connect to Websocket/Real Status */}
+              <div className={`text-center py-6 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                <CheckCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">All documents processed</p>
+              </div>
             </div>
           </div>
         </div>

@@ -58,10 +58,12 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
 
       interface DocumentRecord {
         id: string;
+        created_at: string;
         metadata: {
           documentTitle?: string;
           documentType?: string;
-          completedAt?: string;
+          // ...
+          riskScore?: number;
           'risk score'?: number;
           risk_score?: number;
           findings?: number;
@@ -77,8 +79,8 @@ const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, onViewRep
           filename: doc.id,
           title: metadata.documentTitle || doc.id.replace(/\.[^/.]+$/, ''),
           documentType: metadata.documentType || 'Document',
-          createdAt: metadata.completedAt ? new Date(metadata.completedAt) : new Date(),
-          riskScore: metadata['risk score'] || metadata.risk_score || 0,
+          createdAt: doc.created_at ? new Date(doc.created_at) : new Date(),
+          riskScore: metadata.riskScore || metadata['risk score'] || metadata.risk_score || 0,
           findings: metadata.findings || 0,
           status: 'complete',
           summary: metadata.summary || 'Analysis completed successfully.',

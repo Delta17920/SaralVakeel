@@ -62,8 +62,8 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
       interface DocumentRecord {
         id: string;
         content?: string;
+        created_at: string;
         metadata: {
-          completedAt?: string;
           pages?: number;
           words?: number;
           readingTime?: number;
@@ -82,7 +82,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
           name: doc.id,
           size: doc.content ? doc.content.length : 0, // Using content length as proxy for size
           type: doc.id.split('.').pop()?.toLowerCase() || 'unknown',
-          uploadDate: metadata.completedAt ? new Date(metadata.completedAt) : new Date(),
+          uploadDate: doc.created_at ? new Date(doc.created_at) : new Date(),
           pages: metadata.pages || 0,
           words: metadata.words || 0,
           readingTime: metadata.readingTime || 0,
@@ -144,6 +144,25 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     setDragActive(false);
   }, []);
 
+  // Warm up Render server on mount
+  useEffect(() => {
+    const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://saralvakeel.onrender.com';
+    fetch(`${API_URL}/`).catch(() => console.log('Warming up server...'));
+  }, []);
+
+  const uploadFileWithRetry = async (url: string, formData: FormData, retries = 3): Promise<any> => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const response = await fetch(url, { method: 'POST', body: formData });
+        if (response.ok) return await response.json();
+        if (response.status < 500 && response.status !== 429) throw new Error(response.statusText); // Don't retry client errors
+      } catch (err) {
+        if (i === retries - 1) throw err;
+        await new Promise(res => setTimeout(res, 2000 * (i + 1))); // Exponential backoff
+      }
+    }
+  };
+
   const handleFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
 
@@ -180,16 +199,8 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
       formData.append('file', file);
 
       try {
-        const response = await fetch(`${API_URL}/process-document`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Upload failed: ${response.statusText}`);
-        }
-
-        const result = await response.json();
+        // Use retry logic to handle Render cold starts
+        const result = await uploadFileWithRetry(`${API_URL}/process-document`, formData);
         console.log('Upload success:', result);
 
         setUploadedFiles(prev =>
