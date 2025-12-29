@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import ParticlesBackground from './ParticlesBackground';
+import InteractiveGrid from './InteractiveGrid';
 
 interface HeroSectionProps {
   isDarkMode: boolean;
@@ -11,13 +11,10 @@ const HeroBackground = ({ isDarkMode }: { isDarkMode: boolean }) => (
   <>
     <div className={`absolute inset-0 ${isDarkMode ? 'bg-[#0B0D10]' : 'bg-[#FAFAF9]'}`} />
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `linear-gradient(${isDarkMode ? 'rgba(79, 196, 196, 0.03)' : 'rgba(47, 60, 126, 0.08)'} 1px, transparent 1px), linear-gradient(90deg, ${isDarkMode ? 'rgba(79, 196, 196, 0.03)' : 'rgba(47, 60, 126, 0.08)'} 1px, transparent 1px)`,
-          backgroundSize: '40px 40px',
-        }}
-      />
+
+      {/* Interactive Grid Background (Replacing CSS Grid & Particles) */}
+      <InteractiveGrid isDarkMode={isDarkMode} />
+
       {/* Small Blob 1 - Top Right */}
       <motion.div
         animate={{
@@ -49,9 +46,6 @@ const HeroBackground = ({ isDarkMode }: { isDarkMode: boolean }) => (
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         className={`hidden lg:block absolute top-[40%] right-[20%] w-[200px] h-[200px] rounded-full blur-[50px] transform-gpu opacity-40 ${isDarkMode ? 'bg-[#A21CAF]/20' : 'bg-[#D1FAE5]/50'}`}
       />
-
-      {/* Interactive Web Pattern */}
-      <ParticlesBackground isDarkMode={isDarkMode} />
     </div>
   </>
 );

@@ -29,15 +29,15 @@ export default function ParticlesBackground({ isDarkMode }: ParticlesBackgroundP
         let height = 0;
 
         // Configuration
-        const particleCountMobile = 30; // Reduced count for mobile
+        const particleCountMobile = 15; // Reduced count for mobile
         const particleCountDesktop = 80;
         const connectionDistance = 150;
         const mouseDistance = 200;
         const particleSpeed = 0.5;
 
-        // Colors - Increased opacity for better visibility
-        const colorDot = isDarkMode ? 'rgba(79, 196, 196, 0.8)' : 'rgba(47, 60, 126, 0.8)';
-        const colorLine = isDarkMode ? 'rgba(79, 196, 196, 0.3)' : 'rgba(47, 60, 126, 0.25)';
+        // Colors - defined dynamically in init
+        let activeColorDot = '';
+        let activeColorLine = '';
 
         const init = () => {
             width = canvas.width = window.innerWidth;
@@ -46,6 +46,19 @@ export default function ParticlesBackground({ isDarkMode }: ParticlesBackgroundP
             // Responsive particle count
             const isMobile = width < 768;
             const count = isMobile ? particleCountMobile : particleCountDesktop;
+
+            // Adjust opacities for mobile
+            const opacityDot = isMobile ? 0.4 : 0.8;
+            const opacityLine = isMobile ? 0.15 : (isDarkMode ? 0.3 : 0.25);
+
+            // Update colors based on device type
+            activeColorDot = isDarkMode
+                ? `rgba(79, 196, 196, ${opacityDot})`
+                : `rgba(47, 60, 126, ${opacityDot})`;
+
+            activeColorLine = isDarkMode
+                ? `rgba(79, 196, 196, ${opacityLine})`
+                : `rgba(47, 60, 126, ${opacityLine})`;
 
             particles = [];
             for (let i = 0; i < count; i++) {
@@ -75,7 +88,7 @@ export default function ParticlesBackground({ isDarkMode }: ParticlesBackgroundP
                 // Draw dot
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = colorDot;
+                ctx.fillStyle = activeColorDot;
                 ctx.fill();
 
                 // Connect to other particles
@@ -87,7 +100,7 @@ export default function ParticlesBackground({ isDarkMode }: ParticlesBackgroundP
 
                     if (dist < connectionDistance) {
                         ctx.beginPath();
-                        ctx.strokeStyle = colorLine;
+                        ctx.strokeStyle = activeColorLine;
                         ctx.lineWidth = 1 - dist / connectionDistance;
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(p2.x, p2.y);
@@ -102,7 +115,7 @@ export default function ParticlesBackground({ isDarkMode }: ParticlesBackgroundP
 
                 if (dist < mouseDistance) {
                     ctx.beginPath();
-                    ctx.strokeStyle = colorLine;
+                    ctx.strokeStyle = activeColorLine;
                     ctx.lineWidth = 1 - dist / mouseDistance; // Fades out as it gets further
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(mouseRef.current.x, mouseRef.current.y);
