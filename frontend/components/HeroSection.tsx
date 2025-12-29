@@ -163,7 +163,7 @@ export default function HeroSection({ isDarkMode, setShowLandingPage }: HeroSect
 
               <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 ${isDarkMode ? 'text-white' : 'text-[#1C1F26]'}`}>
                 Legal analysis <br />
-                <span className={`text-transparent bg-clip-text bg-gradient-to-r ${isDarkMode ? 'from-[#4FC4C4] to-[#2F3C7E]' : 'from-[#2F3C7E] to-[#4FC4C4]'}`}>
+                <span className={`text-transparent bg-clip-text bg-gradient-to-r ${isDarkMode ? 'from-[#A21CAF] to-[#4FC4C4]' : 'from-[#2F3C7E] to-[#4FC4C4]'}`}>
                   simplified.
                 </span>
               </h1>
