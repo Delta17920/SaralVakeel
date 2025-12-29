@@ -195,13 +195,13 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
-          <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>AI Analysis Dashboard</h1>
-          <p className={`mt-2 ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Advanced legal document analysis powered by artificial intelligence</p>
+          <h1 className={`text-2xl md:text-3xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>AI Analysis Dashboard</h1>
+          <p className={`mt-2 text-sm md:text-base ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Advanced legal document analysis powered by artificial intelligence</p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
           <select value={selectedTimeframe} onChange={(e) => setSelectedTimeframe(e.target.value)}
             className={`px-3 py-2 rounded-lg border transition-colors ${isDarkMode ? 'bg-[#161B22] border-[#262C35] text-[#E8EDF5]' : 'bg-[#FFFFFF] border-[#E3E7EE] text-[#1C2733]'}`}>
             <option value="1d">Last 24 hours</option>
@@ -237,16 +237,16 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
         ))}
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-        <div className="relative">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+        <div className="relative w-full lg:w-auto">
           <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`} />
           <input type="text" placeholder="Search analyses..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-            className={`pl-10 pr-4 py-2 w-72 rounded-xl border transition-all duration-200 focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] ${isDarkMode ? 'bg-[#161B22] border-[#262C35] text-[#E8EDF5] placeholder-[#7A8291]' : 'bg-[#F7F9FC] border-[#E3E7EE] text-[#1C2733] placeholder-[#7D8693]'}`} />
+            className={`pl-10 pr-4 py-2 w-full lg:w-72 rounded-xl border transition-all duration-200 focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] ${isDarkMode ? 'bg-[#161B22] border-[#262C35] text-[#E8EDF5] placeholder-[#7A8291]' : 'bg-[#F7F9FC] border-[#E3E7EE] text-[#1C2733] placeholder-[#7D8693]'}`} />
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap gap-2 items-center">
           {['all', 'complete', 'processing', 'warning'].map((filter) => (
             <button key={filter} onClick={() => setActiveFilter(filter)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${activeFilter === filter ? 'bg-[#1ABC9C] text-white shadow-lg' : isDarkMode ? 'bg-[#161B22] text-[#AEB6C3] hover:bg-[#0F1A2E]' : 'bg-[#F7F9FC] text-[#4A5568] hover:bg-[#E3E7EE]'}`}>
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-grow sm:flex-grow-0 ${activeFilter === filter ? 'bg-[#1ABC9C] text-white shadow-lg' : isDarkMode ? 'bg-[#161B22] text-[#AEB6C3] hover:bg-[#0F1A2E]' : 'bg-[#F7F9FC] text-[#4A5568] hover:bg-[#E3E7EE]'}`}>
               {filter.charAt(0).toUpperCase() + filter.slice(1)}
             </button>
           ))}

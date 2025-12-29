@@ -103,8 +103,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentId, isDarkMode, o
     return (
         <div className={`flex flex-col h-full rounded-2xl border ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200 shadow-lg'}`}>
             {/* Header */}
-            <div className={`p-4 border-b ${isDarkMode ? 'border-gray-800' : 'border-gray-100'}`}>
-                <h3 className="font-semibold text-lg flex items-center">
+            <div className={`p-4 border-b ${isDarkMode ? 'border-gray-800 bg-gray-900/50' : 'border-gray-100 bg-white'}`}>
+                <h3 className={`font-semibold text-lg flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     <Bot className="w-5 h-5 mr-2 text-blue-500" />
                     Legal Assistant
                 </h3>

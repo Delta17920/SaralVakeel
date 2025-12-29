@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Sun, Moon } from 'lucide-react';
 
 interface NavbarProps {
   isDarkMode: boolean;
@@ -7,9 +8,29 @@ interface NavbarProps {
   setSidebarExpanded?: (value: boolean) => void;
   setShowLandingPage?: (value: boolean) => void;
   showLandingPage?: boolean;
+  isDesktopCollapsed?: boolean;
+  setIsDesktopCollapsed?: (value: boolean) => void;
 }
 
-export default function Navbar({ isDarkMode, setIsDarkMode, sidebarExpanded, setSidebarExpanded, setShowLandingPage }: NavbarProps) {
+export default function Navbar({
+  isDarkMode,
+  setIsDarkMode,
+  sidebarExpanded,
+  setSidebarExpanded,
+  setShowLandingPage,
+  isDesktopCollapsed,
+  setIsDesktopCollapsed
+}: NavbarProps) {
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+
+  const handleMenuClick = () => {
+    if (window.innerWidth >= 1024 && setIsDesktopCollapsed && isDesktopCollapsed !== undefined) {
+      setIsDesktopCollapsed(!isDesktopCollapsed);
+    } else if (setSidebarExpanded && sidebarExpanded !== undefined) {
+      setSidebarExpanded(!sidebarExpanded);
+    }
+  };
+
   return (
     <nav className={`${isDarkMode ? 'bg-[#1A1C20]' : 'bg-white'} border-b ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#E2E2E8]'} sticky top-0 z-20`}>
       <div className="px-6 py-4 flex items-center justify-between">
@@ -17,29 +38,29 @@ export default function Navbar({ isDarkMode, setIsDarkMode, sidebarExpanded, set
           {/* Hamburger Menu Button */}
           {setSidebarExpanded && (
             <button
-              onClick={() => setSidebarExpanded(!sidebarExpanded)}
+              onClick={handleMenuClick}
               className={`p-2 rounded-lg ${isDarkMode ? 'hover:bg-[#2B2E35]' : 'hover:bg-[#E2E2E8]'} transition-colors`}
               aria-label="Toggle sidebar"
             >
-              <svg 
-                className={`w-6 h-6 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`} 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                className={`w-6 h-6 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M4 6h16M4 12h16M4 18h16" 
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
                 />
               </svg>
             </button>
           )}
-          
+
           {/* Logo and Brand */}
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowLandingPage(true)} className={`font-bold text-xl cursor-pointer ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
+            <button onClick={() => setShowLandingPage(true)} className={`font-bold text-xl tracking-tight cursor-pointer ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
               Saral Vakeel
             </button>
           </div>
@@ -47,33 +68,55 @@ export default function Navbar({ isDarkMode, setIsDarkMode, sidebarExpanded, set
 
         <div className="flex items-center gap-4">
           {/* Search Bar */}
-          <div className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-lg ${isDarkMode ? 'bg-[#2B2E35]' : 'bg-[#F5F5F7]'}`}>
-            <svg 
-              className={`w-5 h-5 ${isDarkMode ? 'text-[#8F939A]' : 'text-[#8A909A]'}`} 
-              fill="none" 
-              stroke="currentColor" 
+          <div className={`${showMobileSearch ? 'flex absolute top-20 left-4 right-4 z-30' : 'hidden'} md:flex items-center gap-2 px-4 py-2 rounded-lg ${isDarkMode ? 'bg-[#2B2E35]' : 'bg-[#F5F5F7]'} transition-all`}>
+            <svg
+              className={`w-5 h-5 ${isDarkMode ? 'text-[#8F939A]' : 'text-[#8A909A]'}`}
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
             <input
               type="text"
               placeholder="Search documents..."
-              className={`bg-transparent outline-none w-64 ${isDarkMode ? 'text-[#ECEDEE] placeholder-[#8F939A]' : 'text-[#1C1F26] placeholder-[#8A909A]'}`}
+              className={`bg-transparent outline-none w-full md:w-64 ${isDarkMode ? 'text-[#ECEDEE] placeholder-[#8F939A]' : 'text-[#1C1F26] placeholder-[#8A909A]'}`}
             />
           </div>
+
+          {/* Mobile Search Toggle */}
+          <button
+            onClick={() => setShowMobileSearch(!showMobileSearch)}
+            className={`md:hidden p-2 rounded-lg ${isDarkMode ? 'hover:bg-[#2B2E35]' : 'hover:bg-[#E2E2E8]'}`}
+          >
+            <svg
+              className={`w-5 h-5 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
+
           {/* Dark Mode Toggle */}
-          <button 
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`p-2 rounded-lg ${isDarkMode ? 'border border-white bg-[#2B2E35] hover:bg-[#3B3E45]' : 'border border-black bg-[#E2E2E8] hover:bg-[#D2D2D8]'} transition-colors`}
-              >
-                {isDarkMode ? 'Light' : 'Dark'}
-              </button>
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className={`p-2 rounded-lg transition-all duration-200 ${isDarkMode ? 'bg-[#2B2E35] text-yellow-400 hover:bg-[#3B3E45]' : 'bg-[#E2E2E8] text-slate-700 hover:bg-[#D2D2D8]'}`}
+            aria-label="Toggle theme"
+          >
+            {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
         </div>
       </div>
     </nav>

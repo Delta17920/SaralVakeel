@@ -12,8 +12,6 @@ import {
   Download,
   ChevronRight
 } from 'lucide-react';
-
-import { AnimatedList } from './magicui/animated-list';
 import { supabase } from '@/lib/supabase';
 
 interface UploadedFile {
@@ -29,6 +27,30 @@ interface UploadedFile {
   riskScore?: number;
   category?: string;
 }
+
+interface UploadResponse {
+  status: string;
+  report?: {
+    riskScore?: number;
+    'risk score'?: number;
+    risk_score?: number;
+    documentType?: string;
+  };
+}
+
+const uploadFileWithRetry = async (url: string, formData: FormData, retries = 3): Promise<UploadResponse | undefined> => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, { method: 'POST', body: formData });
+      if (response.ok) return await response.json();
+      if (response.status < 500 && response.status !== 429) throw new Error(response.statusText);
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise(res => setTimeout(res, 2000 * (i + 1)));
+    }
+  }
+  return undefined;
+};
 
 interface LegalDocumentUploaderProps {
   isDarkMode?: boolean;
@@ -151,28 +173,9 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     fetch(`${API_URL}/`).catch(() => console.log('Warming up server...'));
   }, []);
 
-  interface UploadResponse {
-    status: string;
-    report?: {
-      riskScore?: number;
-      'risk score'?: number;
-      risk_score?: number;
-      documentType?: string;
-    };
-  }
 
-  const uploadFileWithRetry = async (url: string, formData: FormData, retries = 3): Promise<UploadResponse> => {
-    for (let i = 0; i < retries; i++) {
-      try {
-        const response = await fetch(url, { method: 'POST', body: formData });
-        if (response.ok) return await response.json();
-        if (response.status < 500 && response.status !== 429) throw new Error(response.statusText); // Don't retry client errors
-      } catch (err) {
-        if (i === retries - 1) throw err;
-        await new Promise(res => setTimeout(res, 2000 * (i + 1))); // Exponential backoff
-      }
-    }
-  };
+
+
 
   const handleFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
@@ -304,11 +307,11 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto">
       {/* Upload Zone */}
       <div className="mb-8">
         <div
-          className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 cursor-pointer ${dragActive
+          className={`border-2 border-dashed rounded-2xl p-6 md:p-12 text-center transition-all duration-300 cursor-pointer ${dragActive
             ? 'border-blue-500 bg-blue-50/80 dark:bg-blue-900/20 scale-105'
             : isDarkMode
               ? 'border-gray-700 hover:border-gray-600 bg-gray-900/50'
@@ -402,7 +405,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
             </p>
           </div>
         ) : (
-          <AnimatedList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {uploadedFiles.slice(0, 6).map((file) => (
               <div
                 key={file.id}
@@ -470,7 +473,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600/0 to-violet-600/0 group-hover:from-blue-600/5 group-hover:to-violet-600/5 transition-all duration-300 pointer-events-none" />
               </div>
             ))}
-          </AnimatedList>
+          </div>
         )}
       </div>
     </div>

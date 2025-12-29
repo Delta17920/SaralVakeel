@@ -9,12 +9,14 @@ import { DocumentReport } from '../components/DocumentReport';
 import { ReportsList } from '@/components/ReportsList';
 import { UseCases } from '../components/UseCases';
 import { HowItWorks } from '../components/HowItWorks';
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 import HeroSection from '@/components/HeroSection';
+import { Sun, Moon } from 'lucide-react';
 
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('documents');
   const [uploadedFilesCount] = useState(0);
   const [showLandingPage, setShowLandingPage] = useState(true);
@@ -91,7 +93,7 @@ export default function Home() {
   // Landing page styling updates (light mode)
   if (showLandingPage) {
     return (
-      <div className={`min-h-screen transition-colors duration-300 ${themeClasses} relative overflow-hidden`}>
+      <div className={`min-h-screen transition-colors duration-300 ${themeClasses} relative overflow-x-hidden`}>
 
         {/* Updated Navbar for light mode */}
         <nav
@@ -121,37 +123,37 @@ export default function Home() {
                   }
                 `}
               >
-                {isDarkMode ? 'Light' : 'Dark'}
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
             </div>
           </div>
         </nav>
 
-       {/* HERO Section */}
-       <div className="-mt-8">
-       <HeroSection isDarkMode={isDarkMode} setShowLandingPage={setShowLandingPage}/>
-       </div>
+        {/* HERO Section */}
+        <div className="-mt-8">
+          <HeroSection isDarkMode={isDarkMode} setShowLandingPage={setShowLandingPage} />
+        </div>
         {/* How It Works - Slide from Left */}
-        <motion.div 
+        <motion.div
           className={`${isDarkMode ? "" : "border-t border-[#D8D2C7]"}`}
           initial={{ opacity: 0, x: -80 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ 
-            duration: 0.7, 
+          transition={{
+            duration: 0.7,
             ease: [0.22, 1, 0.36, 1]
           }}
         >
           <HowItWorks isDarkMode={isDarkMode} />
         </motion.div>
         {/* Use Cases - Scale Effect */}
-        <motion.div 
+        <motion.div
           className={`${isDarkMode ? "" : "border-t border-[#D8D2C7]"}`}
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ 
-            duration: 0.7, 
+          transition={{
+            duration: 0.7,
             ease: [0.16, 1, 0.3, 1]
           }}
         >
@@ -247,6 +249,8 @@ export default function Home() {
         setSidebarExpanded={setSidebarExpanded}
         showLandingPage={showLandingPage}
         setShowLandingPage={setShowLandingPage}
+        isDesktopCollapsed={isDesktopCollapsed}
+        setIsDesktopCollapsed={setIsDesktopCollapsed}
       />
 
       <div className="flex">
@@ -259,6 +263,8 @@ export default function Home() {
           uploadedFilesCount={uploadedFilesCount}
           showReport={showReport}
           onBackFromReport={handleBackFromReport}
+          isDesktopCollapsed={isDesktopCollapsed}
+          setIsDesktopCollapsed={setIsDesktopCollapsed}
         />
 
         {/* MAIN CONTENT */}

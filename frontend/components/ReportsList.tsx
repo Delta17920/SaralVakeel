@@ -104,47 +104,47 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
   };
 
   const getRiskLevel = (score: number) => {
-    if (score >= 8) return { 
-      level: 'High', 
-      color: isDarkMode ? 'text-[#C0392B]' : 'text-[#E74C3C]', 
-      bg: isDarkMode ? 'bg-[#C0392B]/10' : 'bg-[#E74C3C]/10' 
+    if (score >= 8) return {
+      level: 'High',
+      color: isDarkMode ? 'text-[#C0392B]' : 'text-[#E74C3C]',
+      bg: isDarkMode ? 'bg-[#C0392B]/10' : 'bg-[#E74C3C]/10'
     };
-    if (score >= 6) return { 
-      level: 'Medium', 
-      color: isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]', 
-      bg: isDarkMode ? 'bg-[#D4AC0D]/10' : 'bg-[#F1C40F]/10' 
+    if (score >= 6) return {
+      level: 'Medium',
+      color: isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]',
+      bg: isDarkMode ? 'bg-[#D4AC0D]/10' : 'bg-[#F1C40F]/10'
     };
-    if (score >= 4) return { 
-      level: 'Low-Med', 
-      color: isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]', 
-      bg: isDarkMode ? 'bg-[#D4AC0D]/10' : 'bg-[#F1C40F]/10' 
+    if (score >= 4) return {
+      level: 'Low-Med',
+      color: isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]',
+      bg: isDarkMode ? 'bg-[#D4AC0D]/10' : 'bg-[#F1C40F]/10'
     };
-    return { 
-      level: 'Low', 
-      color: isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]', 
-      bg: isDarkMode ? 'bg-[#27AE60]/10' : 'bg-[#2ECC71]/10' 
+    return {
+      level: 'Low',
+      color: isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]',
+      bg: isDarkMode ? 'bg-[#27AE60]/10' : 'bg-[#2ECC71]/10'
     };
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'complete':
-        return isDarkMode 
-          ? 'text-[#27AE60] bg-[#27AE60]/10 border-[#27AE60]/30' 
+        return isDarkMode
+          ? 'text-[#27AE60] bg-[#27AE60]/10 border-[#27AE60]/30'
           : 'text-[#2ECC71] bg-[#2ECC71]/10 border-[#2ECC71]/30';
       case 'processing':
         return 'text-[#1ABC9C] bg-[#1ABC9C]/10 border-[#1ABC9C]/30';
       case 'warning':
-        return isDarkMode 
-          ? 'text-[#D4AC0D] bg-[#D4AC0D]/10 border-[#D4AC0D]/30' 
+        return isDarkMode
+          ? 'text-[#D4AC0D] bg-[#D4AC0D]/10 border-[#D4AC0D]/30'
           : 'text-[#F1C40F] bg-[#F1C40F]/10 border-[#F1C40F]/30';
       case 'error':
-        return isDarkMode 
-          ? 'text-[#C0392B] bg-[#C0392B]/10 border-[#C0392B]/30' 
+        return isDarkMode
+          ? 'text-[#C0392B] bg-[#C0392B]/10 border-[#C0392B]/30'
           : 'text-[#E74C3C] bg-[#E74C3C]/10 border-[#E74C3C]/30';
       default:
-        return isDarkMode 
-          ? 'text-[#7A8291] bg-[#7A8291]/10 border-[#7A8291]/30' 
+        return isDarkMode
+          ? 'text-[#7A8291] bg-[#7A8291]/10 border-[#7A8291]/30'
           : 'text-[#7D8693] bg-[#7D8693]/10 border-[#7D8693]/30';
     }
   };
@@ -303,17 +303,18 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8">
+      <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>Analysis Reports</h1>
-          <p className={`mt-2 ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>View and manage all document analysis reports</p>
+          <h1 className={`text-2xl md:text-3xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>Analysis Reports</h1>
+          <p className={`mt-1 md:mt-2 text-sm md:text-base ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>View and manage all document analysis reports</p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3 self-start md:self-auto">
           <button onClick={handleRefresh} disabled={isRefreshing} className={`p-2 rounded-lg transition-all duration-200 ${isDarkMode ? 'hover:bg-[#161B22]' : 'hover:bg-[#F7F9FC]'} ${isRefreshing ? 'animate-spin' : ''}`}>
             <RefreshCw className="w-5 h-5" />
           </button>
-          <div className={`flex items-center rounded-lg p-1 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#E3E7EE]'}`}>
+          {/* View Mode Toggle - Hidden on mobile, Grid is default */}
+          <div className={`hidden md:flex items-center rounded-lg p-1 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#E3E7EE]'}`}>
             <button onClick={() => setViewMode('grid')} className={`p-2 rounded-md transition-all duration-200 ${viewMode === 'grid' ? (isDarkMode ? 'bg-[#161B22] text-[#E8EDF5] shadow-sm' : 'bg-[#FFFFFF] text-[#1C2733] shadow-sm') : (isDarkMode ? 'text-[#AEB6C3] hover:bg-[#161B22]' : 'text-[#4A5568] hover:bg-[#F7F9FC]')}`}>
               <Grid className="w-4 h-4" />
             </button>
@@ -376,23 +377,23 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-        <div className="relative">
+      <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+        <div className="relative w-full lg:w-auto">
           <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`} />
           <input type="text" placeholder="Search reports..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-            className={`pl-10 pr-4 py-2 w-72 rounded-xl border transition-all duration-200 focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] ${isDarkMode ? 'bg-[#161B22] border-[#262C35] text-[#E8EDF5] placeholder-[#7A8291]' : 'bg-[#F7F9FC] border-[#E3E7EE] text-[#1C2733] placeholder-[#7D8693]'}`} />
+            className={`pl-10 pr-4 py-2 w-full lg:w-72 rounded-xl border transition-all duration-200 focus:ring-2 focus:ring-[#1ABC9C]/20 focus:border-[#1ABC9C] ${isDarkMode ? 'bg-[#161B22] border-[#262C35] text-[#E8EDF5] placeholder-[#7A8291]' : 'bg-[#F7F9FC] border-[#E3E7EE] text-[#1C2733] placeholder-[#7D8693]'}`} />
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'date' | 'risk' | 'title')}
-            className={`px-3 py-2 rounded-lg border transition-colors ${isDarkMode ? 'bg-[#161B22] border-[#262C35] text-[#E8EDF5]' : 'bg-[#FFFFFF] border-[#E3E7EE] text-[#1C2733]'}`}>
+            className={`w-full sm:w-auto px-3 py-2 rounded-lg border transition-colors ${isDarkMode ? 'bg-[#161B22] border-[#262C35] text-[#E8EDF5]' : 'bg-[#FFFFFF] border-[#E3E7EE] text-[#1C2733]'}`}>
             <option value="date">Sort by Date</option>
             <option value="risk">Sort by Risk</option>
             <option value="title">Sort by Title</option>
           </select>
 
           <select value={filterBy} onChange={(e) => setFilterBy(e.target.value as 'all' | 'high-risk' | 'recent')}
-            className={`px-3 py-2 rounded-lg border transition-colors ${isDarkMode ? 'bg-[#161B22] border-[#262C35] text-[#E8EDF5]' : 'bg-[#FFFFFF] border-[#E3E7EE] text-[#1C2733]'}`}>
+            className={`w-full sm:w-auto px-3 py-2 rounded-lg border transition-colors ${isDarkMode ? 'bg-[#161B22] border-[#262C35] text-[#E8EDF5]' : 'bg-[#FFFFFF] border-[#E3E7EE] text-[#1C2733]'}`}>
             <option value="all">All Reports</option>
             <option value="high-risk">High Risk Only</option>
             <option value="recent">Recent Reports</option>
@@ -411,11 +412,20 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
       ) : (
         <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
           {filteredReports.map((report) => (
-            viewMode === 'grid' ? (
-              <ReportCard key={report.filename} report={report} onViewReport={onViewReport} />
-            ) : (
-              <ReportRow key={report.filename} report={report} />
-            )
+            <React.Fragment key={report.filename}>
+              {viewMode === 'grid' ? (
+                <ReportCard report={report} onViewReport={onViewReport} />
+              ) : (
+                <>
+                  <div className="md:hidden">
+                    <ReportCard report={report} onViewReport={onViewReport} />
+                  </div>
+                  <div className="hidden md:block">
+                    <ReportRow report={report} />
+                  </div>
+                </>
+              )}
+            </React.Fragment>
           ))}
         </div>
       )}

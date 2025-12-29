@@ -19,7 +19,9 @@ import {
   Activity,
   Star,
   Share2,
-  MessageSquare
+  MessageSquare,
+  Menu,
+  X
 } from 'lucide-react';
 
 interface ReportProps {
@@ -60,6 +62,8 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
   const [activePdfPage, setActivePdfPage] = useState(1);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [highlightedText, setHighlightedText] = useState<string | undefined>(undefined);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileChatView, setMobileChatView] = useState<'chat' | 'pdf'>('chat');
 
   // Fetch document data when filename is provided
   useEffect(() => {
@@ -289,18 +293,18 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
   return (
     <div className="min-h-screen p-8 max-w-7xl mx-auto space-y-8">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
+      <div className="flex flex-col space-y-6 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
         <div className="flex items-start space-x-4">
           <button
             onClick={onBack}
-            className={`p-3 rounded-xl transition-all duration-200 hover:scale-105 ${isDarkMode ? 'bg-[#161B22] hover:bg-[#0F1A2E]' : 'bg-[#F7F9FC] hover:bg-[#E3E7EE]'
+            className={`flex-shrink-0 p-3 rounded-xl transition-all duration-200 hover:scale-105 ${isDarkMode ? 'bg-[#161B22] hover:bg-[#0F1A2E]' : 'bg-[#F7F9FC] hover:bg-[#E3E7EE]'
               }`}
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
 
-          <div>
-            <div className="flex items-center space-x-3 mb-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
               <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#1ABC9C]/10' : 'bg-[#1ABC9C]/10'}`}>
                 <FileText className="w-5 h-5 text-[#1ABC9C]" />
               </div>
@@ -309,22 +313,22 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
                 {documentData.documentType}
               </span>
             </div>
-            <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>
+            <h1 className={`text-2xl md:text-3xl font-bold break-words ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>
               {isLoading ? 'Loading...' : documentData.documentTitle}
             </h1>
-            <p className={`mt-2 text-lg ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
+            <p className={`mt-2 text-base md:text-lg ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
               {isLoading ? 'Fetching analysis report...' : 'Detailed Analysis Report'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <button className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 ${isDarkMode ? 'bg-[#161B22] hover:bg-[#0F1A2E] text-[#E8EDF5]' : 'bg-[#FFFFFF] hover:bg-[#F7F9FC] border border-[#E3E7EE]'
+        <div className="flex flex-wrap gap-3">
+          <button className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 flex-grow sm:flex-grow-0 justify-center ${isDarkMode ? 'bg-[#161B22] hover:bg-[#0F1A2E] text-[#E8EDF5]' : 'bg-[#FFFFFF] hover:bg-[#F7F9FC] border border-[#E3E7EE]'
             }`}>
             <Share2 className="w-4 h-4" />
             <span className="font-medium">Share</span>
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-[#1ABC9C] text-white rounded-xl hover:bg-[#17A085] transition-all duration-200">
+          <button className="flex items-center space-x-2 px-4 py-2 bg-[#1ABC9C] text-white rounded-xl hover:bg-[#17A085] transition-all duration-200 flex-grow sm:flex-grow-0 justify-center">
             <Download className="w-4 h-4" />
             <span className="font-medium">Export PDF</span>
           </button>
@@ -363,23 +367,65 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
         ))}
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex items-center space-x-1 overflow-x-auto pb-2">
-        {tabs.map((tab) => (
+      {/* Navigation */}
+      <div className="relative z-20">
+        {/* Mobile Filter / Navigation Button */}
+        <div className="md:hidden mb-4">
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${activeTab === tab.id
-              ? 'bg-[#1ABC9C] text-white shadow-lg'
-              : isDarkMode
-                ? 'text-[#AEB6C3] hover:bg-[#161B22]'
-                : 'text-[#4A5568] hover:bg-[#F7F9FC]'
-              }`}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${isDarkMode ? 'bg-[#161B22] border-[#262C35] text-[#E8EDF5]' : 'bg-white border-[#E3E7EE] text-[#1C2733] shadow-sm'}`}
           >
-            <tab.icon className="w-4 h-4" />
-            <span>{tab.label}</span>
+            <div className="flex items-center space-x-3">
+              {(() => {
+                const CurrentIcon = tabs.find(t => t.id === activeTab)?.icon || FileText;
+                return <CurrentIcon className="w-5 h-5 text-[#1ABC9C]" />;
+              })()}
+              <span className="font-medium">{tabs.find(t => t.id === activeTab)?.label}</span>
+            </div>
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
-        ))}
+
+          {/* Mobile Menu Dropdown */}
+          {isMobileMenuOpen && (
+            <div className={`absolute top-full left-0 right-0 mt-2 p-2 rounded-xl border shadow-xl ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-white border-[#E3E7EE]'}`}>
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors ${activeTab === tab.id
+                    ? (isDarkMode ? 'bg-[#1ABC9C]/10 text-[#1ABC9C]' : 'bg-[#1ABC9C]/10 text-[#1ABC9C]')
+                    : (isDarkMode ? 'text-[#AEB6C3] hover:bg-[#0D1117]' : 'text-[#4A5568] hover:bg-[#F7F9FC]')
+                    }`}
+                >
+                  <tab.icon className="w-5 h-5" />
+                  <span className="font-medium">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Tabs */}
+        <div className="hidden md:flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-shrink-0 flex items-center space-x-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${activeTab === tab.id
+                ? 'bg-[#1ABC9C] text-white shadow-lg'
+                : isDarkMode
+                  ? 'text-[#AEB6C3] hover:bg-[#161B22]'
+                  : 'text-[#4A5568] hover:bg-[#F7F9FC]'
+                }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -431,37 +477,67 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
             // Full screen split view
             <div className="fixed inset-0 z-50 bg-white dark:bg-gray-900 flex flex-col">
               {/* Toolbar */}
-              <div className="h-16 border-b flex items-center justify-between px-6 bg-white dark:bg-gray-900">
+              <div className="h-16 border-b flex items-center justify-between px-4 lg:px-6 bg-white dark:bg-gray-900">
                 <div className="flex items-center space-x-4">
                   <button
                     onClick={() => setActiveTab('overview')}
-                    className="p-2 hover:bg-gray-100 rounded-lg"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                   >
-                    <ArrowLeft className="w-5 h-5" />
+                    <ArrowLeft className="w-5 h-5 dark:text-gray-200" />
                   </button>
-                  <h2 className="font-semibold text-lg">{documentData.documentTitle}</h2>
+                  <h2 className="font-semibold text-lg truncate max-w-[150px] md:max-w-md dark:text-gray-200">{documentData.documentTitle}</h2>
                 </div>
+
+                {/* Mobile View Toggle */}
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">Ask AI Mode</span>
+                  <div className="lg:hidden flex items-center bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                    <button
+                      onClick={() => setMobileChatView('chat')}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${mobileChatView === 'chat'
+                        ? 'bg-white dark:bg-gray-700 shadow text-[#1ABC9C]'
+                        : 'text-gray-500 dark:text-gray-400'
+                        }`}
+                    >
+                      Chat
+                    </button>
+                    <button
+                      onClick={() => setMobileChatView('pdf')}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${mobileChatView === 'pdf'
+                        ? 'bg-white dark:bg-gray-700 shadow text-[#1ABC9C]'
+                        : 'text-gray-500 dark:text-gray-400'
+                        }`}
+                    >
+                      Document
+                    </button>
+                  </div>
+                  <span className="hidden lg:block text-sm text-gray-500">Ask AI Mode</span>
                 </div>
               </div>
 
               {/* Split Content */}
-              <div className="flex-1 flex overflow-hidden">
-                {/* Left: Chat */}
-                <div className="w-1/2 border-r p-0">
+              <div className="flex-1 flex overflow-hidden relative">
+                {/* Chat Section */}
+                <div className={`
+                  absolute inset-0 lg:static lg:w-1/2 lg:block border-r p-0 bg-white dark:bg-gray-900 transition-transform duration-300
+                  ${mobileChatView === 'chat' ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+                `}>
                   <ChatInterface
                     documentId={filename || ''}
                     isDarkMode={isDarkMode}
                     onCitationClick={(page, text) => {
                       setActivePdfPage(page);
                       setHighlightedText(text);
+                      setMobileChatView('pdf'); // Switch to PDF view on mobile when citation clicked
                     }}
                   />
                 </div>
-                {/* Right: PDF */}
-                <div className="w-1/2 bg-gray-100 p-4">
-                  <div className="h-full rounded-xl overflow-hidden shadow-sm bg-white">
+
+                {/* PDF Section */}
+                <div className={`
+                  absolute inset-0 lg:static lg:w-1/2 lg:block bg-gray-100 dark:bg-gray-800 p-2 lg:p-4 transition-transform duration-300
+                  ${mobileChatView === 'pdf' ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+                `}>
+                  <div className="h-full rounded-xl overflow-hidden shadow-sm bg-white dark:bg-gray-700">
                     {pdfUrl ? (
                       <PdfViewer
                         url={pdfUrl}

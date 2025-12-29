@@ -7,10 +7,24 @@ interface HowItWorksProps {
   isDarkMode: boolean;
 }
 
-const UploadDocuments = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isComplete: boolean }) => {
+const StepCard = ({
+  isDarkMode,
+  isComplete,
+  title,
+  description,
+  iconPath
+}: {
+  isDarkMode: boolean;
+  isComplete: boolean;
+  title: string;
+  description: string;
+  iconPath: string;
+}) => {
   return (
     <div
-      className={`p-6 rounded-xl h-full flex flex-col justify-center relative transition-all duration-500 ${isDarkMode ? 'bg-[#1C1F26]' : 'bg-slate-100 shadow-md'
+      className={`p-8 rounded-3xl h-full flex flex-col justify-center relative transition-all duration-500 border ${isDarkMode
+        ? 'bg-gradient-to-br from-[#1A1C20]/90 to-[#222B53]/40 border-[#4FC4C4]/20'
+        : 'bg-white border-[#E2E2E8] shadow-xl shadow-[#2F3C7E]/5'
         }`}
     >
       {/* Checkmark overlay */}
@@ -18,90 +32,56 @@ const UploadDocuments = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isCo
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="absolute top-4 right-4 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center z-10"
+          className={`absolute top-6 right-6 w-8 h-8 rounded-full flex items-center justify-center z-10 ${isDarkMode ? 'bg-[#4FC4C4] text-[#1A1C20]' : 'bg-[#2F3C7E] text-white'
+            }`}
         >
-          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
           </svg>
         </motion.div>
       )}
 
-      <p className={`font-bold text-2xl mb-3 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-        Upload Documents
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 ${isDarkMode ? 'bg-[#4FC4C4]/10 text-[#4FC4C4]' : 'bg-[#2F3C7E]/10 text-[#2F3C7E]'
+        }`}>
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={iconPath} />
+        </svg>
+      </div>
+
+      <p className={`font-bold text-2xl mb-4 ${isDarkMode ? 'text-white' : 'text-[#1C1F26]'}`}>
+        {title}
       </p>
 
-      <p className={`font-normal text-base ${isDarkMode ? 'text-gray-400' : 'text-slate-600'}`}>
-        Securely upload contracts, agreements, and legal documents for instant analysis.
-        Our platform supports multiple file formats and ensures your documents are encrypted
-        and protected throughout the process.
-      </p>
-    </div>
-  );
-};
-
-const AIAnalysis = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isComplete: boolean }) => {
-  return (
-    <div
-      className={`p-6 rounded-xl h-full flex flex-col justify-center relative transition-all duration-500 ${isDarkMode ? 'bg-[#1C1F26]' : 'bg-slate-100 shadow-md'
-        }`}
-    >
-      {/* Checkmark overlay */}
-      {isComplete && (
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="absolute top-4 right-4 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center z-10"
-        >
-          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-          </svg>
-        </motion.div>
-      )}
-
-      <p className={`font-bold text-2xl mb-3 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-        AI Analysis
-      </p>
-
-      <p className={`font-normal text-base ${isDarkMode ? 'text-gray-400' : 'text-slate-600'}`}>
-        Our AI reviews documents for risks, compliance issues, and key clauses automatically.
-        Advanced machine learning models identify patterns and potential concerns that might be
-        missed in manual reviews.
+      <p className={`font-normal text-base leading-relaxed ${isDarkMode ? 'text-[#B4B7BD]' : 'text-[#5F6B7C]'}`}>
+        {description}
       </p>
     </div>
   );
 };
 
-const GetInsights = ({ isDarkMode, isComplete }: { isDarkMode: boolean; isComplete: boolean }) => {
-  return (
-    <div
-      className={`p-6 rounded-xl h-full flex flex-col justify-center relative transition-all duration-500 ${isDarkMode ? 'bg-[#1C1F26]' : 'bg-slate-100 shadow-md'
-        }`}
-    >
-      {/* Checkmark overlay */}
-      {isComplete && (
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="absolute top-4 right-4 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center z-10"
-        >
-          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-          </svg>
-        </motion.div>
-      )}
-
-      <p className={`font-bold text-2xl mb-3 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-        Get Insights
-      </p>
-
-      <p className={`font-normal text-base ${isDarkMode ? 'text-gray-400' : 'text-slate-600'}`}>
-        Receive detailed reports with actionable insights and recommendations.
-        Our comprehensive analysis helps you make informed decisions quickly and confidently,
-        saving valuable time for your legal team.
-      </p>
-    </div>
-  );
-};
+const STEPS_DATA = [
+  {
+    id: 1,
+    title: "Upload Documents",
+    description: "Securely upload contracts, agreements, and legal documents for instant analysis. Our platform supports multiple file formats and ensures your documents are encrypted.",
+    iconPath: "M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12",
+    className: "md:col-span-2 lg:col-span-2",
+  },
+  {
+    id: 2,
+    title: "AI Analysis",
+    description: "Our AI reviews documents for risks, compliance issues, and key clauses automatically. Advanced machine learning models identify patterns and potential concerns.",
+    iconPath: "M13 10V3L4 14h7v7l9-11h-7z",
+    className: "md:col-span-1 lg:col-span-1",
+  },
+  {
+    id: 3,
+    title: "Get Insights",
+    description: "Receive detailed reports with actionable insights and recommendations. Comprehensive analysis that helps you make informed decisions quickly.",
+    iconPath: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+    className: "md:col-span-1 lg:col-span-1",
+  }
+];
 
 const cn = (...classes: (string | undefined | null | false)[]) => {
   return classes.filter(Boolean).join(' ');
@@ -115,7 +95,7 @@ type Card = {
 };
 
 const LayoutGrid = ({ cards }: { cards: Card[]; isDarkMode?: boolean }) => {
-  const [selected, setSelected] = useState<Card | null>(null);
+
   const [activeCard, setActiveCard] = useState<number>(0);
   const [completedCards, setCompletedCards] = useState<Set<number>>(new Set());
 
@@ -123,34 +103,25 @@ const LayoutGrid = ({ cards }: { cards: Card[]; isDarkMode?: boolean }) => {
     const interval = setInterval(() => {
       setActiveCard((prev) => {
         const next = (prev + 1) % cards.length;
-
-        // Mark the current card as complete before moving to next
         setCompletedCards(prevCompleted => {
           const newCompleted = new Set(prevCompleted);
           newCompleted.add(prev);
           return newCompleted;
         });
-
-        // Clear all completed cards when restarting the cycle
         if (next === 0) {
           setTimeout(() => {
             setCompletedCards(new Set());
           }, 1000);
         }
-
         return next;
       });
-    }, 2000); // 2 seconds per card
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [cards.length]);
 
-  const handleOutsideClick = () => {
-    setSelected(null);
-  };
-
   return (
-    <div className="w-full h-full p-10 grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 max-w-7xl mx-auto gap-4 relative">
+    <div className="w-full h-full p-6 md:p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto gap-4 relative">
       {cards.map((card, i) => {
         const isActive = activeCard === i;
         const isComplete = completedCards.has(i);
@@ -160,14 +131,10 @@ const LayoutGrid = ({ cards }: { cards: Card[]; isDarkMode?: boolean }) => {
             <motion.div
               className={cn(
                 card.className,
-                "relative overflow-visible",
-                selected?.id === card.id
-                  ? "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg w-[90%] md:w-[60%] z-50 mt-5"
-                  : "z-40 rounded-xl h-full w-full"
+                "relative overflow-visible z-40 rounded-xl h-full w-full"
               )}
               layoutId={`card-${card.id}`}
             >
-              {/* Shine effect overlay */}
               {isActive && !isComplete && (
                 <motion.div
                   className="absolute inset-0 rounded-xl pointer-events-none z-50 overflow-hidden"
@@ -177,13 +144,8 @@ const LayoutGrid = ({ cards }: { cards: Card[]; isDarkMode?: boolean }) => {
                 >
                   <motion.div
                     className="w-full h-full"
-                    animate={{
-                      x: ['-100%', '200%'],
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      ease: "easeOut",
-                    }}
+                    animate={{ x: ['-100%', '200%'] }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
                     style={{
                       background: 'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%)',
                       width: '50%',
@@ -192,118 +154,93 @@ const LayoutGrid = ({ cards }: { cards: Card[]; isDarkMode?: boolean }) => {
                   />
                 </motion.div>
               )}
-
-              {/* Subtle border glow when complete */}
               {isComplete && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="absolute inset-0 rounded-xl pointer-events-none z-30"
-                  style={{
-                    boxShadow: '0 0 0 2px rgba(16, 185, 129, 0.5)',
-                  }}
+                  style={{ boxShadow: '0 0 0 2px rgba(16, 185, 129, 0.5)' }}
                 />
               )}
-
-              {selected?.id === card.id ? (
-                <SelectedCard selected={selected} />
-              ) : (
-                <div className="h-full w-full">
-                  {card.content(isComplete)}
-                </div>
-              )}
+              <div className="h-full w-full">
+                {card.content(isComplete)}
+              </div>
             </motion.div>
           </div>
         );
       })}
-      <motion.div
-        onClick={handleOutsideClick}
-        className={cn(
-          "absolute h-full w-full left-0 top-0 bg-black z-10",
-          selected?.id ? "pointer-events-auto" : "pointer-events-none"
-        )}
-        animate={{ opacity: selected?.id ? 0.5 : 0.3 }}
-      />
-    </div>
-  );
-};
-
-const SelectedCard = ({ selected }: { selected: Card | null }) => {
-  return (
-    <div className="bg-transparent h-full w-full flex flex-col justify-end rounded-lg shadow-2xl relative z-[60]">
-      <motion.div
-        initial={{
-          opacity: 0,
-        }}
-        animate={{
-          opacity: 0.6,
-        }}
-        className="absolute inset-0 h-full w-full bg-black opacity-60 z-10"
-      />
-      <motion.div
-        layoutId={`content-${selected?.id}`}
-        initial={{
-          opacity: 0,
-          y: 100,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-        exit={{
-          opacity: 0,
-          y: 100,
-        }}
-        transition={{
-          duration: 0.3,
-          ease: "easeInOut",
-        }}
-        className="relative px-8 pb-4 z-[70]"
-      >
-        {selected?.content(false)}
-      </motion.div>
     </div>
   );
 };
 
 export function HowItWorks({ isDarkMode }: HowItWorksProps) {
-  const cards: Card[] = [
-    {
-      id: 1,
-      content: (isComplete) => <UploadDocuments isDarkMode={isDarkMode} isComplete={isComplete} />,
-      className: "md:col-span-2",
-      thumbnail: "",
-    },
-    {
-      id: 2,
-      content: (isComplete) => <AIAnalysis isDarkMode={isDarkMode} isComplete={isComplete} />,
-      className: "col-span-1",
-      thumbnail: "",
-    },
-    {
-      id: 3,
-      content: (isComplete) => <GetInsights isDarkMode={isDarkMode} isComplete={isComplete} />,
-      className: "col-span-1",
-      thumbnail: "",
-    },
-  ];
+  const cards: Card[] = STEPS_DATA.map(step => ({
+    id: step.id,
+    content: (isComplete) => <StepCard
+      isDarkMode={isDarkMode}
+      isComplete={isComplete}
+      title={step.title}
+      description={step.description}
+      iconPath={step.iconPath}
+    />,
+    className: step.className,
+    thumbnail: "",
+  }));
 
   return (
-    <section className="w-full py-12">
-      <div className="max-w-7xl mx-auto px-6 mb-8">
-        <div className="text-center">
-          <span className={`text-sm font-semibold ${isDarkMode ? 'text-[#4FC4C4]' : 'text-[#2F3C7E]'} uppercase tracking-wider`}>
-            How it works
-          </span>
-          <h2 className={`text-4xl md:text-4xl font-bold mt-4 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
-            We help legal teams analyze documents reliably and efficiently
-          </h2>
-          <p className={`text-lg ${isDarkMode ? 'text-[#B4B7BD]' : 'text-[#4E535E]'} mt-4 max-w-2xl mx-auto`}>
-            Upload your legal documents and get AI-powered analysis based on your team&apos;s needs and compliance requirements.
-          </p>
+    <section className={`w-full py-20 lg:py-32 relative overflow-hidden ${isDarkMode ? 'bg-[#0B0D10]' : 'bg-[#FAFAF9]'}`}>
+      {/* Background gradients similar to Hero */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute inset-0 opacity-[0.4]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 50% 50%, ${isDarkMode ? 'rgba(79, 196, 196, 0.05)' : 'rgba(47, 60, 126, 0.03)'} 0%, transparent 50%)`
+          }}
+        />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 mb-16 relative z-10">
+        <div className="text-center max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-6 ${isDarkMode
+              ? 'bg-[#4FC4C4]/10 text-[#4FC4C4] border border-[#4FC4C4]/20'
+              : 'bg-[#2F3C7E]/5 text-[#2F3C7E] border border-[#2F3C7E]/10'
+              }`}
+          >
+            PROCESS
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className={`text-4xl md:text-5xl font-bold mb-6 tracking-tight ${isDarkMode ? 'text-white' : 'text-[#1C1F26]'}`}
+          >
+            Simple, powerful{' '}
+            <span className={`text-transparent bg-clip-text bg-gradient-to-r ${isDarkMode ? 'from-[#4FC4C4] to-[#2F3C7E]' : 'from-[#2F3C7E] to-[#4FC4C4]'}`}>
+              workflow
+            </span>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className={`text-lg md:text-xl leading-relaxed ${isDarkMode ? 'text-[#B4B7BD]' : 'text-[#5F6B7C]'}`}
+          >
+            Upload your legal documents and let our AI handle the complexity.
+            Get actionable insights in minutes, not days.
+          </motion.p>
         </div>
       </div>
-      <div className="h-[500px] w-full overflow-visible">
+
+      <div className="h-auto w-full relative z-10">
         <LayoutGrid cards={cards} isDarkMode={isDarkMode} />
       </div>
     </section>
