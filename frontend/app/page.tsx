@@ -110,13 +110,7 @@ export default function Home() {
         >
           <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <div className={`
-                w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm shadow-md
-                ${isDarkMode ? 'bg-gradient-to-br from-[#4FC4C4] to-[#2F3C7E]' : 'bg-[#2F3C7E]'}
-              `}>
-                SV
-              </div>
-              <span className="font-bold text-xl">Saral Vakeel</span>
+              <span className="font-bold text-2xl font-[family-name:var(--font-playfair)]">Saral Vakeel</span>
             </div>
             <div className="flex items-center gap-2">
               <button

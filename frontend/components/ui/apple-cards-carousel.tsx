@@ -34,7 +34,7 @@ export const CarouselContext = createContext<{
   onCardClose: (index: number) => void;
   currentIndex: number;
 }>({
-  onCardClose: () => {},
+  onCardClose: () => { },
   currentIndex: 0,
 });
 
@@ -43,6 +43,12 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
   const [canScrollLeft, setCanScrollLeft] = React.useState(false);
   const [canScrollRight, setCanScrollRight] = React.useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Duplicate items for infinite scroll illusion
+  // We need enough duplicates to fill the screen and then some to allow for seamless reset
+  // Simpler approach: just double them.
+  const duplicatedItems = [...items, ...items];
 
   useEffect(() => {
     if (carouselRef.current) {
@@ -71,6 +77,43 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
     }
   };
 
+  // Auto-scroll logic
+  useEffect(() => {
+    let animationFrameId: number;
+    let lastTimestamp: number;
+    // Speed in pixels per second
+    const speed = 80;
+
+    const animate = (timestamp: number) => {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const deltaTime = timestamp - lastTimestamp;
+      lastTimestamp = timestamp;
+
+      if (carouselRef.current && !isHovered) {
+        // Move right
+        carouselRef.current.scrollLeft += (speed * deltaTime) / 1000;
+
+        // Check for reset
+        // If we have scrolled past the first set of items (halfway), reset to 0
+        // We need to calculate the width of the first set of items.
+        // Approximate width based on known card size?
+        // Or simply checking if scrollLeft >= scrollWidth / 2 is close enough if items are identical.
+        const { scrollLeft, scrollWidth } = carouselRef.current;
+        if (scrollLeft >= scrollWidth / 2) {
+          carouselRef.current.scrollLeft = 0;
+        }
+
+        checkScrollability();
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isHovered, items.length]);
+
   const handleCardClose = (index: number) => {
     if (carouselRef.current) {
       const cardWidth = isMobile() ? 230 : 384;
@@ -85,14 +128,20 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
   };
 
   const isMobile = () => {
-    return window && window.innerWidth < 768;
+    return typeof window !== 'undefined' && window.innerWidth < 768;
   };
 
   return (
     <CarouselContext.Provider
       value={{ onCardClose: handleCardClose, currentIndex }}
     >
-      <div className="relative w-full">
+      <div
+        className="relative w-full"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onTouchStart={() => setIsHovered(true)}
+        onTouchEnd={() => setIsHovered(false)}
+      >
         <div
           className="flex w-full overflow-x-scroll overscroll-x-auto scroll-smooth py-5 [scrollbar-width:none] md:py-2"
           ref={carouselRef}
@@ -107,10 +156,12 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
           <div
             className={cn(
               "flex flex-row justify-start gap-4 pl-4",
-              "mx-auto max-w-7xl"
+              // Removed mx-auto and max-w-7xl to allow infinite scrolling
+              // "mx-auto max-w-7xl"
             )}
+          // We need to ensure the container is wide enough or just flexible
           >
-            {items.map((item, index) => (
+            {duplicatedItems.map((item, index) => (
               <motion.div
                 initial={{
                   opacity: 0,
@@ -121,7 +172,7 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
                   y: 0,
                   transition: {
                     duration: 0.5,
-                    delay: 0.2 * index,
+                    delay: 0.2 * (index % items.length), // Stagger based on original index
                     ease: "easeOut",
                   },
                 }}
@@ -133,22 +184,7 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
             ))}
           </div>
         </div>
-        <div className="mr-10 flex justify-end gap-2">
-          <button
-            className="relative z-40 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 disabled:opacity-50"
-            onClick={scrollLeft}
-            disabled={!canScrollLeft}
-          >
-            <IconArrowNarrowLeft className="h-6 w-6 text-gray-500" />
-          </button>
-          <button
-            className="relative z-40 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 disabled:opacity-50"
-            onClick={scrollRight}
-            disabled={!canScrollRight}
-          >
-            <IconArrowNarrowRight className="h-6 w-6 text-gray-500" />
-          </button>
-        </div>
+
       </div>
     </CarouselContext.Provider>
   );

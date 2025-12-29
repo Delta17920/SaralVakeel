@@ -26,7 +26,7 @@ const HeroBackground = ({ isDarkMode }: { isDarkMode: boolean }) => (
           rotate: [0, 20, 0],
         }}
         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        className={`absolute top-[10%] -right-[5%] w-[500px] h-[500px] rounded-full blur-[80px] opacity-70 transform-gpu ${isDarkMode ? 'bg-[#2F3C7E]' : 'bg-[#E0E7FF]'}`}
+        className={`absolute top-[10%] -right-[5%] w-[500px] h-[500px] rounded-full blur-[80px] opacity-40 transform-gpu ${isDarkMode ? 'bg-[#4FC4C4]' : 'bg-[#E0E7FF]'}`}
       />
 
       {/* Small Blob 2 - Bottom Left */}
@@ -37,7 +37,7 @@ const HeroBackground = ({ isDarkMode }: { isDarkMode: boolean }) => (
           rotate: [0, -20, 0],
         }}
         transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-        className={`absolute bottom-[10%] -left-[5%] w-[450px] h-[450px] rounded-full blur-[60px] opacity-70 transform-gpu ${isDarkMode ? 'bg-[#4FC4C4]' : 'bg-[#D1FAE5]'}`}
+        className={`absolute bottom-[10%] -left-[5%] w-[450px] h-[450px] rounded-full blur-[60px] opacity-40 transform-gpu ${isDarkMode ? 'bg-[#581C87]' : 'bg-[#D1FAE5]'}`}
       />
 
       {/* Small Blob 3 - Mid Right (Extra "small blob" for balance) */}
@@ -47,7 +47,7 @@ const HeroBackground = ({ isDarkMode }: { isDarkMode: boolean }) => (
           opacity: [0.3, 0.4, 0.3],
         }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className={`hidden lg:block absolute top-[40%] right-[20%] w-[200px] h-[200px] rounded-full blur-[50px] transform-gpu ${isDarkMode ? 'bg-[#4FC4C4]/20' : 'bg-[#D1FAE5]/50'}`}
+        className={`hidden lg:block absolute top-[40%] right-[20%] w-[200px] h-[200px] rounded-full blur-[50px] transform-gpu opacity-40 ${isDarkMode ? 'bg-[#A21CAF]/20' : 'bg-[#D1FAE5]/50'}`}
       />
 
       {/* Interactive Web Pattern */}
@@ -206,8 +206,8 @@ export default function HeroSection({ isDarkMode, setShowLandingPage }: HeroSect
                 className={`
                   px-8 py-4 rounded-xl font-semibold transition-all border
                   ${isDarkMode
-                    ? 'border-[#2B2E35] text-white hover:bg-[#2B2E35]'
-                    : 'border-[#E2E2E8] text-[#1C1F26] hover:bg-white hover:shadow-md'
+                    ? 'bg-[#2B2E35] border-[#2B2E35] text-white hover:bg-[#3B3E45]'
+                    : 'bg-white border-[#E2E2E8] text-[#1C1F26] hover:bg-gray-50 shadow-sm'
                   }
                 `}
               >

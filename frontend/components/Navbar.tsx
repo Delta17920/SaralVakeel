@@ -60,7 +60,7 @@ export default function Navbar({
 
           {/* Logo and Brand */}
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowLandingPage(true)} className={`font-bold text-xl tracking-tight cursor-pointer ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
+            <button onClick={() => setShowLandingPage(true)} className={`font-bold text-xl tracking-tight cursor-pointer font-[family-name:var(--font-playfair)] ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
               Saral Vakeel
             </button>
           </div>

@@ -62,7 +62,7 @@ export default function Sidebar({
         <div className="flex justify-between items-center mb-8 lg:hidden">
           <div className="flex items-center gap-3">
             <div>
-              <span className={`font-bold text-lg block ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
+              <span className={`font-bold text-lg block font-[family-name:var(--font-playfair)] ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
                 Saral Vakeel
               </span>
               <span className={`text-xs ${isDarkMode ? 'text-[#B4B7BD]' : 'text-[#4E535E]'}`}>
