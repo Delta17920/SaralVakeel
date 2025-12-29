@@ -100,6 +100,9 @@ const LayoutGrid = ({ cards }: { cards: Card[]; isDarkMode?: boolean }) => {
   const [completedCards, setCompletedCards] = useState<Set<number>>(new Set());
 
   useEffect(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const intervalDuration = isMobile ? 4000 : 2000; // Slower on mobile
+
     const interval = setInterval(() => {
       setActiveCard((prev) => {
         const next = (prev + 1) % cards.length;
@@ -115,7 +118,7 @@ const LayoutGrid = ({ cards }: { cards: Card[]; isDarkMode?: boolean }) => {
         }
         return next;
       });
-    }, 2000);
+    }, intervalDuration);
 
     return () => clearInterval(interval);
   }, [cards.length]);

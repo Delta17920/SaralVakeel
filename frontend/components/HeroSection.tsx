@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import ParticlesBackground from './ParticlesBackground';
 
 interface HeroSectionProps {
   isDarkMode: boolean;
@@ -17,24 +18,40 @@ const HeroBackground = ({ isDarkMode }: { isDarkMode: boolean }) => (
           backgroundSize: '40px 40px',
         }}
       />
+      {/* Small Blob 1 - Top Right */}
+      <motion.div
+        animate={{
+          x: [0, 30, 0],
+          y: [0, -30, 0],
+          rotate: [0, 20, 0],
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        className={`absolute top-[10%] -right-[5%] w-[500px] h-[500px] rounded-full blur-[80px] opacity-70 transform-gpu ${isDarkMode ? 'bg-[#2F3C7E]' : 'bg-[#E0E7FF]'}`}
+      />
+
+      {/* Small Blob 2 - Bottom Left */}
+      <motion.div
+        animate={{
+          x: [0, -30, 0],
+          y: [0, 30, 0],
+          rotate: [0, -20, 0],
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        className={`absolute bottom-[10%] -left-[5%] w-[450px] h-[450px] rounded-full blur-[60px] opacity-70 transform-gpu ${isDarkMode ? 'bg-[#4FC4C4]' : 'bg-[#D1FAE5]'}`}
+      />
+
+      {/* Small Blob 3 - Mid Right (Extra "small blob" for balance) */}
       <motion.div
         animate={{
           scale: [1, 1.1, 1],
-          opacity: [0.1, 0.2, 0.1],
-          rotate: [0, 45, 0],
+          opacity: [0.3, 0.4, 0.3],
         }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className={`absolute -top-[20%] -right-[10%] w-[800px] h-[800px] rounded-full blur-[120px] ${isDarkMode ? 'bg-[#2F3C7E]' : 'bg-[#E0E7FF]'}`}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        className={`hidden lg:block absolute top-[40%] right-[20%] w-[200px] h-[200px] rounded-full blur-[50px] transform-gpu ${isDarkMode ? 'bg-[#4FC4C4]/20' : 'bg-[#D1FAE5]/50'}`}
       />
-      <motion.div
-        animate={{
-          scale: [1.1, 1, 1.1],
-          opacity: [0.1, 0.2, 0.1],
-          rotate: [0, -45, 0],
-        }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className={`absolute -bottom-[20%] -left-[10%] w-[800px] h-[800px] rounded-full blur-[120px] ${isDarkMode ? 'bg-[#4FC4C4]' : 'bg-[#D1FAE5]'}`}
-      />
+
+      {/* Interactive Web Pattern */}
+      <ParticlesBackground isDarkMode={isDarkMode} />
     </div>
   </>
 );
