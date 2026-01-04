@@ -2,7 +2,7 @@
 
 ![Saral Vakeel Banner](frontend/public/project-banner.png)
 
-**Saral Vakeel** is an advanced AI-powered legal assistant designed to simplify complex legal documents for everyone. It leverages cutting-edge Retrieval-Augmented Generation (RAG) technology to analyze files, highlight risks, and answer specific questions with precise page citations—all wrapped in a modern, responsive interface.
+**Saral Vakeel** is an advanced AI-powered legal assistant designed to simplify complex legal documents for everyone. It leverages cutting-edge Retrieval-Augmented Generation (RAG) technology to analyze files, highlight risks, and answer specific questions with precise page citations all wrapped in a modern, responsive interface.
 
 ## 🚀 Features
 
