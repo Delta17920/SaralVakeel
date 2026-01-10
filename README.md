@@ -2,7 +2,7 @@
 
 ![Saral Vakeel Banner](frontend/public/project-banner.png)
 
-**Saral Vakeel** is an advanced AI-powered legal assistant designed to simplify complex legal documents for everyone. It leverages cutting-edge Retrieval-Augmented Generation (RAG) technology to analyze files, highlight risks, and answer specific questions with precise page citations—all wrapped in a modern, responsive interface.
+**Saral Vakeel** is a scalable, AI-powered legal assistant hosted on **Google Cloud Platform (GCP)**. It leverages **Google Gemini** and RAG technology to simplify complex legal documents, offering instant summaries, risk detection, and precise citations with enterprise-grade security and performance.
 
 ## 🚀 Features
 
