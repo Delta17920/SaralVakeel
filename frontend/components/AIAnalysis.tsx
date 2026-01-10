@@ -48,6 +48,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
           id: string;
           created_at: string;
           metadata: {
+            documentTitle?: string;
             riskScore?: number;
             'risk score'?: number;
             risk_score?: number;
