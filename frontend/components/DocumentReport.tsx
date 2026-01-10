@@ -132,7 +132,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
         setDocumentData({
           documentTitle: filename ? filename.replace(/\.[^/.]+$/, '') : "Error Loading Document",
           documentType: "Document",
-          summary: `Failed to load document data: ${(error as any).message || error}`,
+          summary: `Failed to load document data: ${error instanceof Error ? error.message : String(error)}`,
           keyTerms: [],
           obligations: [],
           parties: [],
