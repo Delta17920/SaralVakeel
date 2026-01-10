@@ -12,7 +12,7 @@ interface AIAnalysisProps {
 }
 
 interface AnalysisCard {
-  id: string; title: string; status: 'processing' | 'complete' | 'warning' | 'error';
+  id: string; title: string; filename: string; status: 'processing' | 'complete' | 'warning' | 'error';
   progress: number; findings: number; riskScore: number; completedAt?: Date;
   category: string; keyInsights: string[]; obligationsCount: number; risksCount: number;
 }
@@ -69,7 +69,10 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
           const risksCount = fileData.risks?.length ?? 0;
 
           return {
-            id: (index + 1).toString(), title: doc.id.replace(/\.[^/.]+$/, ''), status: 'complete',
+            id: (index + 1).toString(),
+            title: doc.id.replace(/\.[^/.]+$/, ''),
+            filename: doc.id,
+            status: 'complete',
             progress: 100, findings: fileData.findings ?? 0,
             riskScore, obligationsCount, risksCount,
             completedAt: doc.created_at ? new Date(doc.created_at) : new Date(),
@@ -303,7 +306,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
                   </div>
                 </div>
                 <div className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-[#262C35]' : 'border-[#E3E7EE]'}`}>
-                  <button onClick={() => onViewReport?.(analysis.title + '.json')} className="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-[#1ABC9C] text-white rounded-lg hover:bg-[#17A085] transition-all duration-200">
+                  <button onClick={() => onViewReport?.(analysis.filename)} className="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-[#1ABC9C] text-white rounded-lg hover:bg-[#17A085] transition-all duration-200">
                     <span className="font-medium">View Detailed Report</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
