@@ -70,7 +70,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
 
           return {
             id: (index + 1).toString(),
-            title: doc.id.replace(/\.[^/.]+$/, ''),
+            title: fileData.documentTitle || doc.id.replace(/\.[^/.]+$/, ''),
             filename: doc.id,
             status: 'complete',
             progress: 100, findings: fileData.findings ?? 0,
@@ -264,7 +264,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
               <div key={analysis.id} className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'}`}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-lg mb-2">{analysis.title.slice(0, -7)}</h3>
+                    <h3 className="font-semibold text-lg mb-2">{analysis.title}</h3>
                     <div className="flex items-center space-x-4">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(analysis.status)}`}>
                         {analysis.status === 'processing' && <Clock className="w-3 h-3 mr-1" />}
