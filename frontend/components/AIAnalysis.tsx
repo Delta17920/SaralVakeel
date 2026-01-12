@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from './AuthProvider';
 import { SVGProps } from 'react';
 import {
   Clock, Brain, AlertTriangle, CheckCircle, Activity, Eye, Download, RefreshCw,
@@ -33,14 +34,17 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
   const [totalRiskScore, setTotalRiskScore] = useState<number>(0);
   const [totalObligationsCount, setTotalObligationsCount] = useState<number>(0);
   const [totalRisksCount, setTotalRisksCount] = useState<number>(0);
+  const { session } = useAuth();
 
   useEffect(() => {
     async function fetchJsonFiles() {
+      if (!session?.user) return;
       setIsLoading(true);
       try {
         const { data, error } = await supabase
           .from('documents')
-          .select('*');
+          .select('*')
+          .eq('user_id', session.user.id);
 
         if (error) throw error;
 
@@ -98,8 +102,10 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
         setIsLoading(false);
       }
     }
-    fetchJsonFiles();
-  }, []);
+    if (session?.user) {
+      fetchJsonFiles();
+    }
+  }, [session]);
 
   const metrics: MetricCard[] = [
     {

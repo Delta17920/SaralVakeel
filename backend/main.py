@@ -6,22 +6,9 @@ import tempfile
 from pathlib import Path
 from typing import List
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Security
 from fastapi.middleware.cors import CORSMiddleware
-from supabase import create_client, Client
-from pydantic import BaseModel
-from dotenv import load_dotenv
-
-import os
-import shutil
-import uuid
-import json
-import tempfile
-from pathlib import Path
-from typing import List
-
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from supabase import create_client, Client
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -81,6 +68,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Security Scheme
+security = HTTPBearer()
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security)):
+    token = credentials.credentials
+    try:
+        user = supabase.auth.get_user(token)
+        if not user or not user.user:
+             raise HTTPException(status_code=401, detail="Invalid authentication token")
+        return user.user
+    except Exception as e:
+        print(f"Auth Error: {e}")
+        raise HTTPException(status_code=401, detail=str(e))
+
 @app.get("/")
 def health_check():
     return {"status": "active", "service": "Legal AI Backend"}
@@ -97,7 +98,7 @@ def extract_text(file_path):
     return text
 
 @app.post("/process-document")
-async def process_document(file: UploadFile = File(...)):
+async def process_document(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
     print(f"Processing: {file.filename}")
     
     temp_dir = tempfile.gettempdir()
@@ -152,6 +153,10 @@ async def process_document(file: UploadFile = File(...)):
         # 2. Store Vectors in Supabase
         try:
             # Note: We are using the same table, ensure dimensions match!
+            # Add user_id to metadata for filtering
+            for doc in docs:
+                doc.metadata["user_id"] = user.id
+
             vector_store = SupabaseVectorStore.from_documents(
                 docs,
                 embeddings,
@@ -235,7 +240,8 @@ async def process_document(file: UploadFile = File(...)):
         data = {
             "id": file.filename,
             "content": full_text[:10000], # truncated preview
-            "metadata": report_json
+            "metadata": report_json,
+            "user_id": user.id
         }
         supabase.table("documents").upsert(data).execute()
 
@@ -253,7 +259,7 @@ class QueryRequest(BaseModel):
     question: str
 
 @app.post("/query-document")
-async def query_document(payload: QueryRequest):
+async def query_document(payload: QueryRequest, user: dict = Depends(get_current_user)):
     try:
         # 1. Setup Retrieval
         vector_store = SupabaseVectorStore(
@@ -266,7 +272,7 @@ async def query_document(payload: QueryRequest):
         retriever = vector_store.as_retriever(
             search_kwargs={
                 "k": 5, 
-                "filter": {"document_id": payload.document_name}
+                "filter": {"document_id": payload.document_name, "user_id": user.id}
             }
         )
         

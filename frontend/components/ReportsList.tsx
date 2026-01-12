@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from './AuthProvider';
 import {
   FileText,
   Eye,
@@ -42,17 +43,22 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
   const [filterBy, setFilterBy] = useState<'all' | 'high-risk' | 'recent'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { session } = useAuth();
 
   useEffect(() => {
-    fetchReports();
-  }, []);
+    if (session?.user) {
+      fetchReports();
+    }
+  }, [session]);
 
   const fetchReports = async () => {
+    if (!session?.user) return;
     setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('documents')
-        .select('*');
+        .select('*')
+        .eq('user_id', session.user.id);
 
       if (error) throw error;
 

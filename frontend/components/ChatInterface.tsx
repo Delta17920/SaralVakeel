@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, Bot, AlertCircle, Loader2 } from 'lucide-react';
+import { useAuth } from './AuthProvider';
 
 interface Citation {
     page: number;
@@ -33,6 +34,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentId, isDarkMode, o
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const { session } = useAuth();
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,6 +65,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentId, isDarkMode, o
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session?.access_token}`
                 },
                 body: JSON.stringify({
                     document_name: documentId,

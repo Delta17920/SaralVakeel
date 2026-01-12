@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from './AuthProvider';
 
 interface UploadedFile {
   id: string;
@@ -38,10 +39,16 @@ interface UploadResponse {
   };
 }
 
-const uploadFileWithRetry = async (url: string, formData: FormData, retries = 3): Promise<UploadResponse | undefined> => {
+const uploadFileWithRetry = async (url: string, formData: FormData, token: string, retries = 3): Promise<UploadResponse | undefined> => {
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await fetch(url, { method: 'POST', body: formData });
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (response.ok) return await response.json();
       if (response.status < 500 && response.status !== 429) throw new Error(response.statusText);
     } catch (err) {
@@ -66,15 +73,19 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const { session } = useAuth();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchUploadedFiles = useCallback(async () => {
     setIsLoading(true);
     try {
+      if (!session?.user) return;
+
       const { data, error } = await supabase
         .from('documents')
         .select('*')
+        .eq('user_id', session.user.id)
         .order('id', { ascending: false }); // Assuming 'id' or a timestamp suitable for sorting
 
       if (error) {
@@ -125,8 +136,10 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
 
   // Fetch files on component mount
   useEffect(() => {
-    fetchUploadedFiles();
-  }, [fetchUploadedFiles]);
+    if (session?.user) {
+      fetchUploadedFiles();
+    }
+  }, [fetchUploadedFiles, session]);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -173,10 +186,6 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     fetch(`${API_URL}/`).catch(() => console.log('Warming up server...'));
   }, []);
 
-
-
-
-
   const handleFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
 
@@ -213,8 +222,9 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
       formData.append('file', file);
 
       try {
+        if (!session?.access_token) throw new Error("Not authenticated");
         // Use retry logic to handle Render cold starts
-        const result = await uploadFileWithRetry(`${API_URL}/process-document`, formData);
+        const result = await uploadFileWithRetry(`${API_URL}/process-document`, formData, session.access_token);
         console.log('Upload success:', result);
 
         setUploadedFiles(prev =>

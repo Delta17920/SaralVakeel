@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
+import { useAuth } from './AuthProvider';
 
 interface NavbarProps {
   isDarkMode: boolean;
@@ -22,6 +23,7 @@ export default function Navbar({
   setIsDesktopCollapsed
 }: NavbarProps) {
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const { user, signOut } = useAuth();
 
   const handleMenuClick = () => {
     if (window.innerWidth >= 1024 && setIsDesktopCollapsed && isDesktopCollapsed !== undefined) {
@@ -108,6 +110,30 @@ export default function Navbar({
               />
             </svg>
           </button>
+
+
+          {/* Auth Button */}
+          {user ? (
+            <button
+              onClick={() => signOut()}
+              className={`p-2 rounded-lg text-sm font-medium transition-colors ${isDarkMode
+                ? "bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                : "bg-red-50 text-red-600 hover:bg-red-100"
+                }`}
+            >
+              Sign Out
+            </button>
+          ) : (
+            <a
+              href="/login"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isDarkMode
+                ? "bg-blue-600 text-white hover:bg-blue-500"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
+            >
+              Sign In
+            </a>
+          )}
 
           {/* Dark Mode Toggle */}
           <button
