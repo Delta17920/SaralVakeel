@@ -36,7 +36,7 @@ export default function AuthForm({ isDarkMode = false }: { isDarkMode?: boolean 
                     email,
                     password,
                     options: {
-                        emailRedirectTo: `${location.origin}/auth/callback`,
+                        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`,
                     },
                 });
                 if (error) throw error;

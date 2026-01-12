@@ -12,8 +12,12 @@ import { HowItWorks } from '../components/HowItWorks';
 import { motion } from "framer-motion";
 import HeroSection from '@/components/HeroSection';
 import { Sun, Moon } from 'lucide-react';
+import { useRouter } from "next/navigation";
+import { useAuth } from "../components/AuthProvider";
 
 export default function Home() {
+  const router = useRouter();
+  const { session } = useAuth();
   const [isDarkMode, setIsDarkModeState] = useState(false);
 
   useEffect(() => {
@@ -145,7 +149,20 @@ export default function Home() {
 
         {/* HERO Section */}
         <div className="-mt-8">
-          <HeroSection isDarkMode={isDarkMode} setShowLandingPage={setShowLandingPage} />
+          <HeroSection
+            isDarkMode={isDarkMode}
+            setShowLandingPage={(value) => {
+              if (value === false) {
+                if (session) {
+                  setShowLandingPage(false);
+                } else {
+                  router.push('/login');
+                }
+              } else {
+                setShowLandingPage(true);
+              }
+            }}
+          />
         </div>
         {/* How It Works - Slide from Left */}
         <motion.div
