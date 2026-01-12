@@ -21,6 +21,14 @@ export default function Home() {
   const [isDarkMode, setIsDarkModeState] = useState(false);
 
   useEffect(() => {
+    if (session) {
+      setShowLandingPage(false);
+    } else {
+      setShowLandingPage(true);
+    }
+  }, [session]);
+
+  useEffect(() => {
     const storedTheme = localStorage.getItem('saral-theme-preference');
     if (storedTheme === 'dark') {
       setIsDarkModeState(true);
