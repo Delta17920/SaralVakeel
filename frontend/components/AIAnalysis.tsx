@@ -4,7 +4,7 @@ import { useAuth } from './AuthProvider';
 import { SVGProps } from 'react';
 import {
   Clock, Brain, AlertTriangle, CheckCircle, Activity, Eye, Download, RefreshCw,
-  ChevronRight, ArrowUp, ArrowDown, Minus, Search, FileText, AlertCircle
+  ChevronRight, ArrowUp, ArrowDown, Minus, Search, FileText, AlertCircle, Trash2
 } from 'lucide-react';
 
 interface AIAnalysisProps {
@@ -64,6 +64,8 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
           } | null;
         }
 
+        console.log("Raw documents data:", data); // DEBUG
+
         const filenames: string[] = (data as DocumentRecord[]).map((d) => d.id);
         setFileCount(filenames.length);
 
@@ -113,7 +115,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
       color: 'text-[#1ABC9C]', bgColor: 'bg-[#1ABC9C]/10'
     },
     {
-      title: 'Average Risk Score', value: (totalRiskScore / fileCount).toFixed(2), change: -8.2, trend: 'down', icon: AlertTriangle,
+      title: 'Average Risk Score', value: fileCount > 0 ? (totalRiskScore / fileCount).toFixed(2) : "0", change: -8.2, trend: 'down', icon: AlertTriangle,
       color: isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]', bgColor: isDarkMode ? 'bg-[#D4AC0D]/10' : 'bg-[#F1C40F]/10'
     },
     {
@@ -148,7 +150,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
   const riskDistribution = calculateDistribution();
 
   const getStatusColor = (status: string) => {
-    const colors = {
+    const colors: Record<string, string> = {
       complete: isDarkMode ? 'text-[#27AE60] bg-[#27AE60]/10 border-[#27AE60]/30' : 'text-[#2ECC71] bg-[#2ECC71]/10 border-[#2ECC71]/30',
       processing: 'text-[#1ABC9C] bg-[#1ABC9C]/10 border-[#1ABC9C]/30',
       warning: isDarkMode ? 'text-[#D4AC0D] bg-[#D4AC0D]/10 border-[#D4AC0D]/30' : 'text-[#F1C40F] bg-[#F1C40F]/10 border-[#F1C40F]/30',
@@ -172,7 +174,36 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 2000);
+    // In a real app, this would re-fetch data
+    // fetchJsonFiles();
+    // But since fetchJsonFiles is inside useEffect, we can force a re-mount or just toggle state if we extracted it.
+    // For now, simpler to reload window to get fresh state including DB and Storage updates.
+    window.location.reload();
+  };
+
+  const handleDelete = async (filename: string) => {
+    if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) return;
+
+    try {
+      if (!session?.access_token) return;
+
+      const response = await fetch(`http://127.0.0.1:8000/documents/${filename}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      if (response.ok) {
+        handleRefresh();
+      } else {
+        const errData = await response.json();
+        alert(`Failed to delete document: ${errData.detail || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Error deleting document');
+    }
   };
 
   const filteredAnalyses = analysisCards.filter(card => {
@@ -285,6 +316,9 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
                   <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <button className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`}><Eye className="w-4 h-4" /></button>
                     <button className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`}><Download className="w-4 h-4" /></button>
+                    <button onClick={() => handleDelete(analysis.filename)} className={`p-2 rounded-lg transition-colors hover:text-red-500 ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`} title="Delete Document">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
                 {analysis.status === 'processing' && (

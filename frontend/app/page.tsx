@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LegalDocumentUploader from "../components/LegalDocumentUploader";
 import AIAnalysis from "../components/AIAnalysis";
 import Navbar from "../components/Navbar";
@@ -14,7 +14,21 @@ import HeroSection from '@/components/HeroSection';
 import { Sun, Moon } from 'lucide-react';
 
 export default function Home() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkModeState] = useState(false);
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('saral-theme-preference');
+    if (storedTheme === 'dark') {
+      setIsDarkModeState(true);
+    } else if (storedTheme === 'light') {
+      setIsDarkModeState(false);
+    }
+  }, []);
+
+  const setIsDarkMode = (value: boolean) => {
+    setIsDarkModeState(value);
+    localStorage.setItem('saral-theme-preference', value ? 'dark' : 'light');
+  };
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('documents');

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from './AuthProvider';
 import ChatInterface from './ChatInterface';
 import PdfViewer from './PdfViewer';
 import {
@@ -9,6 +10,7 @@ import {
   Users,
   CheckCircle,
   Eye,
+  Trash2,
   Download,
   ArrowLeft,
   ChevronRight,
@@ -64,6 +66,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
   const [highlightedText, setHighlightedText] = useState<string | undefined>(undefined);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileChatView, setMobileChatView] = useState<'chat' | 'pdf'>('chat');
+  const { session } = useAuth(); // Using hook now
 
   // Fetch document data when filename is provided
   useEffect(() => {
@@ -162,6 +165,35 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
     fetchDocumentData();
     fetchPdfUrl();
   }, [filename]);
+
+  const handleDelete = async () => {
+    if (!filename) return;
+    if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) return;
+
+    try {
+      if (!session?.access_token) {
+        alert('Authentication error: No session found. Please wait for session to load.');
+        return;
+      }
+
+      const response = await fetch(`http://127.0.0.1:8000/documents/${filename}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      if (response.ok) {
+        onBack?.(); // Navigate back to the list
+      } else {
+        const err = await response.json();
+        alert(`Failed to delete document: ${err.detail || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Error deleting document');
+    }
+  };
 
   // Calculate metrics
 
@@ -323,6 +355,10 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
         </div>
 
         <div className="flex flex-wrap gap-3">
+          <button onClick={handleDelete} className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 flex-grow sm:flex-grow-0 justify-center hover:bg-red-500/10 text-red-500 border border-red-500/20 ${isDarkMode ? 'bg-[#161B22]' : 'bg-[#FFFFFF]'}`}>
+            <Trash2 className="w-4 h-4" />
+            <span className="font-medium">Delete</span>
+          </button>
           <button className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 flex-grow sm:flex-grow-0 justify-center ${isDarkMode ? 'bg-[#161B22] hover:bg-[#0F1A2E] text-[#E8EDF5]' : 'bg-[#FFFFFF] hover:bg-[#F7F9FC] border border-[#E3E7EE]'
             }`}>
             <Share2 className="w-4 h-4" />
@@ -800,35 +836,19 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
                   className={`p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] cursor-pointer ${isDarkMode ? 'bg-[#0D1117] border-[#262C35] hover:border-[#1ABC9C]/50' : 'bg-[#F7F9FC] border-[#E3E7EE] hover:border-[#1ABC9C]/30'
                     }`}
                 >
-                  <div className="flex items-start space-x-3">
-                    <FileText className="w-4 h-4 text-[#1ABC9C] mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{doc.name}</p>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className={`text-xs ${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`}>{doc.type}</span>
-                        <span className="text-xs font-medium text-[#1ABC9C]">{doc.similarity}% similar</span>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium truncate mr-2">{doc.name}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${isDarkMode ? 'bg-[#1ABC9C]/10 text-[#1ABC9C]' : 'bg-[#1ABC9C]/10 text-[#1ABC9C]'}`}>
+                      {doc.similarity}%
+                    </span>
                   </div>
+                  <span className={`text-xs ${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`}>{doc.type}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
-  )
-}
+  );
+};

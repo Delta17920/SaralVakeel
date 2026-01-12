@@ -1,12 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AuthForm from "@/components/AuthForm";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import { Sun, Moon } from "lucide-react";
 
 export default function LoginPage() {
     const [isDarkMode, setIsDarkMode] = useState(false);
+
+    useEffect(() => {
+        const storedTheme = localStorage.getItem('saral-theme-preference');
+        if (storedTheme === 'dark') {
+            setIsDarkMode(true);
+        } else if (storedTheme === 'light') {
+            setIsDarkMode(false);
+        }
+    }, []);
+
+    const toggleTheme = () => {
+        const newMode = !isDarkMode;
+        setIsDarkMode(newMode);
+        localStorage.setItem('saral-theme-preference', newMode ? 'dark' : 'light');
+    };
 
     return (
         <div className={`min-h-screen relative flex flex-col transition-colors duration-300 ${isDarkMode ? "bg-[#101114]" : "bg-stone-100"}`}>
@@ -23,7 +38,7 @@ export default function LoginPage() {
                     </span>
                 </div>
                 <button
-                    onClick={() => setIsDarkMode(!isDarkMode)}
+                    onClick={toggleTheme}
                     className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'bg-[#2B2E35] text-yellow-400' : 'bg-[#E2E2E8] text-slate-700'}`}
                 >
                     {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -35,7 +50,7 @@ export default function LoginPage() {
             </main>
 
             <footer className={`relative z-10 py-6 text-center text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                &copy; {new Date().getFullYear()} Saral Vakeel. All rights reserved.
+                &copy; 2025 Saral Vakeel. All rights reserved.
             </footer>
         </div>
     );

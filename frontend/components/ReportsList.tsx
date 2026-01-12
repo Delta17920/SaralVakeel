@@ -14,7 +14,8 @@ import {
   Grid,
   List,
   MoreHorizontal,
-  TrendingUp
+  TrendingUp,
+  Trash2
 } from 'lucide-react';
 
 interface ReportsListProps {
@@ -184,6 +185,31 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
       }
     });
 
+  const handleDelete = async (filename: string) => {
+    if (!confirm('Are you sure you want to delete this document? This action cannot be undone.')) return;
+
+    try {
+      if (!session?.access_token) return;
+
+      const response = await fetch(`http://127.0.0.1:8000/documents/${filename}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      if (response.ok) {
+        setReports(prev => prev.filter(r => r.filename !== filename));
+      } else {
+        alert('Failed to delete document');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Error deleting document');
+    }
+  };
+
+
   const ReportCard = ({ report, onViewReport }: { report: ReportItem, onViewReport?: (filename: string) => void }) => {
     const riskLevel = getRiskLevel(parseFloat(report.riskScore.toString()));
 
@@ -210,8 +236,8 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
               </div>
             </div>
           </div>
-          <button className={`p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`}>
-            <MoreHorizontal className="w-4 h-4" />
+          <button onClick={(e) => { e.stopPropagation(); handleDelete(report.filename); }} className={`p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:text-red-500 ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`}>
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
         <div className="grid grid-cols-2 gap-3 mb-4">
@@ -276,6 +302,9 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
               <p className={`font-semibold ${riskLevel.color}`}>{report.riskScore}</p>
               <p className={`text-xs ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Risk Score</p>
             </div>
+            <button onClick={(e) => { e.stopPropagation(); handleDelete(report.filename); }} className={`p-2 rounded-lg transition-colors hover:text-red-500 ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`}>
+              <Trash2 className="w-4 h-4" />
+            </button>
             <button onClick={() => onViewReport?.(report.filename)} className="flex items-center space-x-2 px-4 py-2 bg-[#1ABC9C] text-white rounded-lg hover:bg-[#17A085] transition-all duration-200">
               <Eye className="w-4 h-4" />
               <span className="font-medium">View</span>
