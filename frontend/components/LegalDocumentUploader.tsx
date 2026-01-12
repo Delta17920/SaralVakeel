@@ -182,7 +182,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
 
   // Warm up Render server on mount
   useEffect(() => {
-    const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://saralvakeel.onrender.com';
+    const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
     fetch(`${API_URL}/`).catch(() => console.log('Warming up server...'));
   }, []);
 
@@ -192,7 +192,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     setIsUploading(true);
     setUploadProgress(0);
 
-    const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://saralvakeel.onrender.com';
+    const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
 
     // Generate temp file metadata for UI
     const newFiles: UploadedFile[] = files.map(file => ({
