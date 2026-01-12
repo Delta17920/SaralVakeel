@@ -230,7 +230,6 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
         setUploadedFiles(prev =>
           prev.map(f => f.name === file.name ? {
             ...f,
-            ...f,
             status: 'complete',
             riskScore: result.report?.riskScore ?? result.report?.['risk score'] ?? result.report?.risk_score,
             category: result.report?.documentType
