@@ -11,7 +11,7 @@
 -   **⚡ Real-Time Processing**: Fast PDF ingestion, text chunking, and vector embedding generation.
 -   **☁️ Enterprise-Grade Scalability**: Backend deployed on **Google Cloud Platform (GCP)**, ensuring high availability and the ability to handle massive document workloads effortlessly.
 -   **🎨 Modern UI/UX**: A sleek, accessible interface built with **Next.js 15** and **Tailwind CSS**, featuring dark mode support and interactive background animations.
--   **🔍 Precise Citations**: Pinpoints the exact page and paragraph where an answer is found.
+-   **🔍 Precise Citations**: Pinpoints the exact page and paragraph where an answer is found
 -   **🔒 Secure Storage**: Utilizes **Supabase** for secure file storage and vector database management.
 
 ## 🛠️ Tech Stack
