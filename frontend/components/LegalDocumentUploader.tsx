@@ -225,6 +225,11 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
         if (!session?.access_token) throw new Error("Not authenticated");
         // Use retry logic to handle Render cold starts
         const result = await uploadFileWithRetry(`${API_URL}/process-document`, formData, session.access_token);
+
+        if (!result) {
+          throw new Error('Upload failed: no response received');
+        }
+
         console.log('Upload success:', result);
 
         setUploadedFiles(prev =>
