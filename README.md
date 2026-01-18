@@ -106,6 +106,24 @@ npm run dev
 ```
 The application will be available at `http://localhost:3000`.
 
+### 🔄 Background Jobs (Inngest)
+To handle heavy document processing (OCR, Vectors, AI Analysis), this project uses **Inngest**.
+
+1. **Start the Inngest Dev Server**:
+   ```bash
+   npx inngest-cli@latest dev -u http://127.0.0.1:8000/api/inngest
+   ```
+2. **Dashboard**: Open [http://localhost:8288](http://localhost:8288) to see specific function execution and logs.
+
+**Pipeline Overview**:
+- **Trigger**: `app/document.uploaded` (User uploads a PDF)
+- **Steps**:
+  1. **Download**: Fetch file from Supabase Storage.
+  2. **Chunking**: Text extraction & splitting via `pdfplumber`.
+  3. **Embedding**: Generate vectors (Gemini 004) & store in Supabase.
+  4. **Analysis**: Generate Risk/Obligation report (Gemini 2.5 Flash).
+  5. **Update**: Save metadata to DB.
+
 ## 📂 Project Structure
 
 ```
