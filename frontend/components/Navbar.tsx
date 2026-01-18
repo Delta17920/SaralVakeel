@@ -69,28 +69,6 @@ export default function Navbar({
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Search Bar */}
-          <div className={`${showMobileSearch ? 'flex absolute top-20 left-4 right-4 z-30' : 'hidden'} md:flex items-center gap-2 px-4 py-2 rounded-lg ${isDarkMode ? 'bg-[#2B2E35]' : 'bg-[#F5F5F7]'} transition-all`}>
-            <svg
-              className={`w-5 h-5 ${isDarkMode ? 'text-[#8F939A]' : 'text-[#8A909A]'}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search documents..."
-              className={`bg-transparent outline-none w-full md:w-64 ${isDarkMode ? 'text-[#ECEDEE] placeholder-[#8F939A]' : 'text-[#1C1F26] placeholder-[#8A909A]'}`}
-            />
-          </div>
-
           {/* Mobile Search Toggle */}
           <button
             onClick={() => setShowMobileSearch(!showMobileSearch)}

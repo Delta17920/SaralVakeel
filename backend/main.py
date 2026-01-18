@@ -6,12 +6,15 @@ import tempfile
 from pathlib import Path
 from typing import List
 
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Security
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Security, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from supabase import create_client, Client
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from inngest.fast_api import serve
+from inngest_client import inngest_client
+from inngest_functions import process_document_async
 
 # --- RAG / LangChain Imports ---
 import pdfplumber
@@ -361,3 +364,64 @@ async def delete_document(document_id: str, user: dict = Depends(get_current_use
     except Exception as e:
         print(f"Delete Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# serve(app, inngest_client, [process_document_async])
+
+# --- Manual Inngest Handler for Debugging ---
+from inngest._internal import comm_lib, server_lib, config_lib, const, transforms
+import json
+from fastapi.responses import Response
+
+framework = server_lib.Framework.FAST_API
+handler = comm_lib.CommHandler(
+    client=inngest_client,
+    framework=framework,
+    functions=[process_document_async],
+    streaming=None,
+)
+
+@app.api_route("/api/inngest", methods=["GET", "POST", "PUT"])
+async def inngest_api_manual(request: Request):
+    print(f"DEBUG: Inngest request received: {request.method}")
+    try:
+        body = b""
+        if request.method in ["POST", "PUT"]:
+            body = await request.body()
+            
+        comm_req = comm_lib.CommRequest(
+            body=body,
+            headers=dict(request.headers.items()),
+            public_path=None,
+            query_params=dict(request.query_params.items()),
+            raw_request=request,
+            request_url=str(request.url),
+            serve_origin=None,
+            serve_path=None,
+        )
+        
+        if request.method == "GET":
+            comm_res = handler.get_sync(comm_req)
+        elif request.method == "POST":
+            comm_res = await handler.post(comm_req)
+        elif request.method == "PUT":
+            comm_res = await handler.put(comm_req)
+        else:
+            return Response(status_code=405)
+
+        # Response Conversion
+        body_resp = transforms.dump_json(comm_res.body)
+        if isinstance(body_resp, Exception):
+            comm_res = comm_lib.CommResponse.from_error(inngest_client.logger, body_resp)
+            body_resp = json.dumps(comm_res.body)
+
+        return Response(
+            content=body_resp.encode("utf-8"),
+            headers=comm_res.headers,
+            status_code=comm_res.status_code,
+        )
+
+    except Exception as e:
+        print("CRITICAL INNGEST ERROR:")
+        import traceback
+        traceback.print_exc()
+        return {"error": str(e)}

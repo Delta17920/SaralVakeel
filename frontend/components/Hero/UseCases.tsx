@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Carousel, Card } from "./ui/apple-cards-carousel";
+import { Carousel, Card } from "../ui/apple-cards-carousel";
 
 interface UseCasesProps {
   isDarkMode: boolean;
@@ -71,8 +71,8 @@ export function UseCases({ isDarkMode }: UseCasesProps) {
         <div className="text-center max-w-3xl mx-auto">
           <div
             className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-6 ${isDarkMode
-                ? 'bg-[#4FC4C4]/10 text-[#4FC4C4] border border-[#4FC4C4]/20'
-                : 'bg-[#2F3C7E]/5 text-[#2F3C7E] border border-[#2F3C7E]/10'
+              ? 'bg-[#4FC4C4]/10 text-[#4FC4C4] border border-[#4FC4C4]/20'
+              : 'bg-[#2F3C7E]/5 text-[#2F3C7E] border border-[#2F3C7E]/10'
               }`}
           >
             USE CASES

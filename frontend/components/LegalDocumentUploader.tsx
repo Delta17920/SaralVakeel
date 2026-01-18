@@ -39,25 +39,7 @@ interface UploadResponse {
   };
 }
 
-const uploadFileWithRetry = async (url: string, formData: FormData, token: string, retries = 3): Promise<UploadResponse | undefined> => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (response.ok) return await response.json();
-      if (response.status < 500 && response.status !== 429) throw new Error(response.statusText);
-    } catch (err) {
-      if (i === retries - 1) throw err;
-      await new Promise(res => setTimeout(res, 2000 * (i + 1)));
-    }
-  }
-  return undefined;
-};
+// function removed
 
 interface LegalDocumentUploaderProps {
   isDarkMode?: boolean;
@@ -105,6 +87,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
           risk_score?: number;
           documentType?: string;
           fileSize?: number;
+          status?: 'processing' | 'complete' | 'error';
         } | null;
       }
 
@@ -120,7 +103,7 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
           pages: metadata.pages || 0,
           words: metadata.words || 0,
           readingTime: metadata.readingTime || 0,
-          status: 'complete', // Assuming if it's in DB it's processed or we check a status field
+          status: (metadata.status as 'processing' | 'complete' | 'error') || 'complete',
           riskScore: metadata.riskScore ?? metadata['risk score'] ?? metadata.risk_score ?? 0,
           category: metadata.documentType || 'Legal Document'
         };
@@ -134,10 +117,32 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     }
   }, []);
 
-  // Fetch files on component mount
+  // Fetch files on component mount & Subscribe to Realtime Updates
   useEffect(() => {
     if (session?.user) {
       fetchUploadedFiles();
+
+      // Subscribe to Realtime changes
+      const channel = supabase
+        .channel('documents_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*', // Listen to INSERT and UPDATE
+            schema: 'public',
+            table: 'documents',
+            filter: `user_id=eq.${session.user.id}`
+          },
+          (payload) => {
+            console.log('Realtime update received:', payload);
+            fetchUploadedFiles(); // Refresh list on any change
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [fetchUploadedFiles, session]);
 
@@ -215,29 +220,59 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
       });
     }, 500);
 
-    // Upload files to Render Backend
+    // Upload files to Supabase Storage & Trigger Analysis
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const formData = new FormData();
-      formData.append('file', file);
+      const timestamp = new Date().getTime();
+      // Sanitize filename
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filePath = `${session?.user?.id}/${timestamp}_${sanitizedName}`;
 
       try {
         if (!session?.access_token) throw new Error("Not authenticated");
-        // Use retry logic to handle Render cold starts
-        const result = await uploadFileWithRetry(`${API_URL}/process-document`, formData, session.access_token);
 
-        if (!result) {
-          throw new Error('Upload failed: no response received');
-        }
+        // 1. Upload to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+          .from('pdfs')
+          .upload(filePath, file);
 
-        console.log('Upload success:', result);
+        if (uploadError) throw uploadError;
+
+        // 1.5 Insert Placeholder into Database (Optimistic Persistence)
+        // This ensures the file appears immediately even if reload implies "Processing"
+        const placeholderMetadata = {
+          documentType: 'Processing...',
+          fileSize: file.size,
+          status: 'processing'
+        };
+
+        await supabase.from('documents').upsert({
+          id: file.name, // Using filename as ID temporarily to match worker logic
+          user_id: session.user.id,
+          content: '', // Empty content until processed
+          metadata: placeholderMetadata
+        });
+
+        // 2. Trigger Inngest Analysis
+        const response = await fetch('/api/trigger-analysis', {
+          method: 'POST',
+          body: JSON.stringify({
+            filePath,
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type
+          })
+        });
+
+        if (!response.ok) throw new Error('Failed to trigger analysis');
+
+        console.log('Upload trigger success');
 
         setUploadedFiles(prev =>
           prev.map(f => f.name === file.name ? {
             ...f,
-            status: 'complete',
-            riskScore: result.report?.riskScore ?? result.report?.['risk score'] ?? result.report?.risk_score,
-            category: result.report?.documentType
+            status: 'processing', // Stays processing until backend finishes
+            category: 'Pending Analysis...'
           } : f)
         );
 
@@ -253,10 +288,12 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
     setUploadProgress(100);
     setTimeout(() => {
       setIsUploading(false);
-      fetchUploadedFiles(); // Refresh list to get accurate data from DB
+      // We don't fetch immediately because analysis takes time.
+      // The user will see "Processing" which is correct.
+      // fetchUploadedFiles(); 
     }, 1000);
 
-  }, [fetchUploadedFiles]);
+  }, [fetchUploadedFiles, session]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();

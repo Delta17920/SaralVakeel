@@ -362,54 +362,62 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'}`}>
-          <div className="flex items-center space-x-3 mb-4">
-            <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#1ABC9C]/10' : 'bg-[#1ABC9C]/10'}`}>
+        <div className={`flex items-center justify-between p-4 rounded-xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-sm'}`}>
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#1ABC9C]/10' : 'bg-[#1ABC9C]/10'}`}>
               <BarChart3 className="w-5 h-5 text-[#1ABC9C]" />
             </div>
-            <span className={`font-semibold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>Total Reports</span>
+            <div>
+              <p className={`font-medium ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>Total Reports</p>
+              <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>All time</p>
+            </div>
           </div>
           <p className={`text-2xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>{reports.length}</p>
-          <p className={`text-sm mt-1 ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>All time</p>
         </div>
 
-        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'}`}>
-          <div className="flex items-center space-x-3 mb-4">
-            <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#C0392B]/10' : 'bg-[#E74C3C]/10'}`}>
+        <div className={`flex items-center justify-between p-4 rounded-xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-sm'}`}>
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#C0392B]/10' : 'bg-[#E74C3C]/10'}`}>
               <AlertTriangle className={`w-5 h-5 ${isDarkMode ? 'text-[#C0392B]' : 'text-[#E74C3C]'}`} />
             </div>
-            <span className={`font-semibold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>High Risk</span>
+            <div>
+              <p className={`font-medium ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>High Risk</p>
+              <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Action needed</p>
+            </div>
           </div>
-          <p className={`text-2xl font-bold ${isDarkMode ? 'text-[#C0392B]' : 'text-[#E74C3C]'}`}>
+          <p className={`text-2xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>
             {reports.filter(r => parseFloat(r.riskScore.toString()) >= 8).length}
           </p>
-          <p className={`text-sm mt-1 ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Requires attention</p>
         </div>
 
-        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'}`}>
-          <div className="flex items-center space-x-3 mb-4">
-            <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#27AE60]/10' : 'bg-[#2ECC71]/10'}`}>
+        <div className={`flex items-center justify-between p-4 rounded-xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-sm'}`}>
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#27AE60]/10' : 'bg-[#2ECC71]/10'}`}>
               <CheckCircle className={`w-5 h-5 ${isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]'}`} />
             </div>
-            <span className={`font-semibold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>Completed</span>
+            <div>
+              <p className={`font-medium ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>Completed</p>
+              <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Ready</p>
+            </div>
           </div>
-          <p className={`text-2xl font-bold ${isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]'}`}>
+          <p className={`text-2xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>
             {reports.filter(r => r.status === 'complete').length}
           </p>
-          <p className={`text-sm mt-1 ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Analysis complete</p>
         </div>
 
-        <div className={`p-6 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'}`}>
-          <div className="flex items-center space-x-3 mb-4">
-            <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-[#9B59B6]/10' : 'bg-[#9B59B6]/10'}`}>
+        <div className={`flex items-center justify-between p-4 rounded-xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-sm'}`}>
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-[#9B59B6]/10' : 'bg-[#9B59B6]/10'}`}>
               <TrendingUp className="w-5 h-5 text-[#9B59B6]" />
             </div>
-            <span className={`font-semibold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>Avg Risk Score</span>
+            <div>
+              <p className={`font-medium ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>Avg Risk</p>
+              <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Overall</p>
+            </div>
           </div>
-          <p className="text-2xl font-bold text-[#9B59B6]">
+          <p className={`text-2xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>
             {reports.length > 0 ? (reports.reduce((acc, r) => acc + parseFloat(r.riskScore.toString()), 0) / reports.length).toFixed(1) : '0.0'}
           </p>
-          <p className={`text-sm mt-1 ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Overall average</p>
         </div>
       </div>
 

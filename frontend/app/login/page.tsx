@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import AuthForm from "@/components/AuthForm";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import { Sun, Moon } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -33,9 +34,9 @@ export default function LoginPage() {
             {/* Navbar (Simplified for Login Page) */}
             <nav className={`relative z-10 px-6 py-4 flex justify-between items-center ${isDarkMode ? "bg-transparent" : "bg-transparent"}`}>
                 <div className="flex items-center gap-2">
-                    <span className={`font-bold text-xl tracking-tight font-[family-name:var(--font-playfair)] ${isDarkMode ? "text-[#ECEDEE]" : "text-[#1C1F26]"}`}>
+                    <Link href="/" className={`font-bold text-xl tracking-tight font-[family-name:var(--font-playfair)] ${isDarkMode ? "text-[#ECEDEE]" : "text-[#1C1F26]"}`}>
                         Saral Vakeel
-                    </span>
+                    </Link>
                 </div>
                 <button
                     onClick={toggleTheme}

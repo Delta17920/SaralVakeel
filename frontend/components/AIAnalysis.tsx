@@ -109,21 +109,21 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
     }
   }, [session]);
 
-  const metrics: MetricCard[] = [
+  const metrics: MetricCard[] & { subtitle: string }[] = [
     {
-      title: 'Total Analyses', value: fileCount, change: 12.5, trend: 'up', icon: Brain,
+      title: 'Total Analyses', subtitle: 'Processed docs', value: fileCount, change: 12.5, trend: 'up', icon: Brain,
       color: 'text-[#1ABC9C]', bgColor: 'bg-[#1ABC9C]/10'
     },
     {
-      title: 'Average Risk Score', value: fileCount > 0 ? (totalRiskScore / fileCount).toFixed(2) : "0", change: -8.2, trend: 'down', icon: AlertTriangle,
+      title: 'Average Risk Score', subtitle: 'Overall health', value: fileCount > 0 ? (totalRiskScore / fileCount).toFixed(2) : "0", change: -8.2, trend: 'down', icon: AlertTriangle,
       color: isDarkMode ? 'text-[#D4AC0D]' : 'text-[#F1C40F]', bgColor: isDarkMode ? 'bg-[#D4AC0D]/10' : 'bg-[#F1C40F]/10'
     },
     {
-      title: 'Total Obligations', value: totalObligationsCount, change: -15.3, trend: 'down', icon: FileText,
+      title: 'Total Obligations', subtitle: 'Action items', value: totalObligationsCount, change: -15.3, trend: 'down', icon: FileText,
       color: isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]', bgColor: isDarkMode ? 'bg-[#27AE60]/10' : 'bg-[#2ECC71]/10'
     },
     {
-      title: 'Total Risks', value: totalRisksCount, change: 2.1, trend: 'up', icon: AlertCircle,
+      title: 'Total Risks', subtitle: 'Identified issues', value: totalRisksCount, change: 2.1, trend: 'up', icon: AlertCircle,
       color: 'text-[#1ABC9C]', bgColor: 'bg-[#1ABC9C]/10'
     }
   ];
@@ -222,13 +222,15 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className={`p-6 rounded-2xl border animate-pulse ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE]'}`}>
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 rounded-xl ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
-                <div className={`w-8 h-4 rounded ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+            <div key={i} className={`flex items-center justify-between gap-6 p-4 rounded-xl border animate-pulse ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE]'}`}>
+              <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-lg ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+                <div>
+                  <div className={`w-24 h-4 rounded mb-2 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+                  <div className={`w-16 h-3 rounded ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+                </div>
               </div>
-              <div className={`h-8 rounded mb-2 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
-              <div className={`h-4 rounded w-3/4 ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
+              <div className={`w-12 h-8 rounded ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}></div>
             </div>
           ))}
         </div>
@@ -259,21 +261,29 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {metrics.map((metric, index) => (
-          <div key={index} className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-105 group ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'}`}>
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-xl ${metric.bgColor} group-hover:scale-110 transition-transform duration-200`}>
-                <metric.icon className={`w-6 h-6 ${metric.color}`} />
+          <div key={index} className={`flex items-center justify-between gap-6 p-4 rounded-xl border transition-all duration-300 hover:scale-[1.02] group ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-sm'}`}>
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-lg ${metric.bgColor} group-hover:scale-110 transition-transform duration-200`}>
+                <metric.icon className={`w-5 h-5 ${metric.color}`} />
               </div>
-              <div className="flex items-center space-x-1">
-                {getTrendIcon(metric.trend)}
-                <span className={`text-sm font-medium ${metric.trend === 'up' ? (isDarkMode ? 'text-[#27AE60]' : 'text-[#2ECC71]') : metric.trend === 'down' ? (isDarkMode ? 'text-[#C0392B]' : 'text-[#E74C3C]') : (isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]')}`}>
-                  {Math.abs(metric.change)}%
-                </span>
+              <div>
+                <p className={`font-medium ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
+                  {metric.title}
+                </p>
+                {/* @ts-ignore */}
+                <p className={`text-xs mt-0.5 ${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`}>
+                  {/* @ts-ignore */}
+                  {metric.subtitle}
+                </p>
               </div>
             </div>
-            <div className="space-y-2">
-              <p className="text-2xl font-bold">{metric.value}</p>
-              <p className={`text-sm ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>{metric.title}</p>
+
+            <div className="text-right">
+              <p className={`text-2xl font-bold ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>
+                {metric.value}
+              </p>
+              <div className="flex items-center justify-end gap-1">
+              </div>
             </div>
           </div>
         ))}
@@ -299,62 +309,72 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
         <div className="lg:col-span-2 space-y-6">
           <h2 className="text-xl font-semibold">Recent Analysis Results</h2>
           <div className="space-y-4">
-            {filteredAnalyses.map((analysis) => (
-              <div key={analysis.id} className={`p-6 rounded-2xl border transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-lg'}`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-lg mb-2">{analysis.title}</h3>
-                    <div className="flex items-center space-x-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(analysis.status)}`}>
-                        {analysis.status === 'processing' && <Clock className="w-3 h-3 mr-1" />}
-                        {analysis.status === 'complete' && <CheckCircle className="w-3 h-3 mr-1" />}
-                        {analysis.status === 'warning' && <AlertTriangle className="w-3 h-3 mr-1" />}
-                        {analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1)}
-                      </span>
-                      <span className={`text-sm px-2 py-1 rounded-full ${isDarkMode ? 'bg-[#0D1117] text-[#AEB6C3]' : 'bg-[#F7F9FC] text-[#4A5568]'}`}>{analysis.category}</span>
+            {filteredAnalyses.length === 0 ? (
+              <div className={`text-center py-12 rounded-2xl border ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-white border-[#E3E7EE]'}`}>
+                <FileText className={`w-12 h-12 mx-auto mb-4 ${isDarkMode ? 'text-[#7A8291]' : 'text-[#7D8693]'}`} />
+                <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-[#E8EDF5]' : 'text-[#1C2733]'}`}>No analysis found</h3>
+                <p className={`${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>
+                  {searchQuery ? 'Try adjusting your search filters.' : 'Upload documents to see analysis.'}
+                </p>
+              </div>
+            ) : (
+              filteredAnalyses.map((analysis) => (
+                <div key={analysis.id} className={`p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.01] hover:shadow-lg group ${isDarkMode ? 'bg-[#161B22] border-[#262C35]' : 'bg-[#FFFFFF] border-[#E3E7EE] shadow-sm'}`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-base mb-2">{analysis.title}</h3>
+                      <div className="flex items-center space-x-3">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(analysis.status)}`}>
+                          {analysis.status === 'processing' && <Clock className="w-3 h-3 mr-1" />}
+                          {analysis.status === 'complete' && <CheckCircle className="w-3 h-3 mr-1" />}
+                          {analysis.status === 'warning' && <AlertTriangle className="w-3 h-3 mr-1" />}
+                          {analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1)}
+                        </span>
+                        <span className={`text-sm px-2 py-1 rounded-full ${isDarkMode ? 'bg-[#0D1117] text-[#AEB6C3]' : 'bg-[#F7F9FC] text-[#4A5568]'}`}>{analysis.category}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <button className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`}><Eye className="w-4 h-4" /></button>
+                      <button className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`}><Download className="w-4 h-4" /></button>
+                      <button onClick={() => handleDelete(analysis.filename)} className={`p-2 rounded-lg transition-colors hover:text-red-500 ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`} title="Delete Document">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <button className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`}><Eye className="w-4 h-4" /></button>
-                    <button className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`}><Download className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(analysis.filename)} className={`p-2 rounded-lg transition-colors hover:text-red-500 ${isDarkMode ? 'hover:bg-[#0D1117]' : 'hover:bg-[#F7F9FC]'}`} title="Delete Document">
-                      <Trash2 className="w-4 h-4" />
+                  {analysis.status === 'processing' && (
+                    <div className="mb-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium">Processing Progress</span>
+                        <span className="text-sm">{analysis.progress}%</span>
+                      </div>
+                      <div className={`w-full h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#E3E7EE]'}`}>
+                        <div className="h-full bg-[#1ABC9C] rounded-full transition-all duration-300" style={{ width: `${analysis.progress}%` }} />
+                      </div>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-3 gap-3 mb-3">
+                    <div className={`text-center p-2 rounded-lg ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}>
+                      <p className={`text-xl font-bold ${getRiskScoreColor(analysis.riskScore)}`}>{analysis.riskScore}</p>
+                      <p className={`text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Risk Score</p>
+                    </div>
+                    <div className={`text-center p-2 rounded-lg ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}>
+                      <p className={`text-xl font-bold ${getRiskScoreColor(analysis.obligationsCount)}`}>{analysis.obligationsCount}</p>
+                      <p className={`text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Obligations</p>
+                    </div>
+                    <div className={`text-center p-2 rounded-lg ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}>
+                      <p className={`text-xl font-bold ${getRiskScoreColor(analysis.risksCount)}`}>{analysis.risksCount}</p>
+                      <p className={`text-[10px] uppercase tracking-wider font-semibold ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Risks</p>
+                    </div>
+                  </div>
+                  <div className={`mt-3 pt-3 border-t ${isDarkMode ? 'border-[#262C35]' : 'border-[#E3E7EE]'}`}>
+                    <button onClick={() => onViewReport?.(analysis.filename)} className="w-full flex items-center justify-center space-x-2 py-1.5 px-4 bg-[#1ABC9C] text-white text-sm rounded-lg hover:bg-[#17A085] transition-all duration-200">
+                      <span className="font-medium">View Detailed Report</span>
+                      <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>
                 </div>
-                {analysis.status === 'processing' && (
-                  <div className="mb-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">Processing Progress</span>
-                      <span className="text-sm">{analysis.progress}%</span>
-                    </div>
-                    <div className={`w-full h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#E3E7EE]'}`}>
-                      <div className="h-full bg-[#1ABC9C] rounded-full transition-all duration-300" style={{ width: `${analysis.progress}%` }} />
-                    </div>
-                  </div>
-                )}
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}>
-                    <p className={`text-2xl font-bold ${getRiskScoreColor(analysis.riskScore)}`}>{analysis.riskScore}</p>
-                    <p className={`text-xs ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Risk Score</p>
-                  </div>
-                  <div className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}>
-                    <p className={`text-2xl font-bold ${getRiskScoreColor(analysis.obligationsCount)}`}>{analysis.obligationsCount}</p>
-                    <p className={`text-xs ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Obligations</p>
-                  </div>
-                  <div className={`text-center p-3 rounded-xl ${isDarkMode ? 'bg-[#0D1117]' : 'bg-[#F7F9FC]'}`}>
-                    <p className={`text-2xl font-bold ${getRiskScoreColor(analysis.risksCount)}`}>{analysis.risksCount}</p>
-                    <p className={`text-xs ${isDarkMode ? 'text-[#AEB6C3]' : 'text-[#4A5568]'}`}>Risks</p>
-                  </div>
-                </div>
-                <div className={`mt-4 pt-4 border-t ${isDarkMode ? 'border-[#262C35]' : 'border-[#E3E7EE]'}`}>
-                  <button onClick={() => onViewReport?.(analysis.filename)} className="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-[#1ABC9C] text-white rounded-lg hover:bg-[#17A085] transition-all duration-200">
-                    <span className="font-medium">View Detailed Report</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 

@@ -7,8 +7,8 @@ import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
 import { DocumentReport } from '../components/DocumentReport';
 import { ReportsList } from '@/components/ReportsList';
-import { UseCases } from '../components/UseCases';
-import { HowItWorks } from '../components/HowItWorks';
+import { UseCases } from '../components/Hero/UseCases';
+import { HowItWorks } from '../components/Hero/HowItWorks';
 import { motion } from "framer-motion";
 import HeroSection from '@/components/HeroSection';
 import { Sun, Moon } from 'lucide-react';
@@ -119,7 +119,7 @@ export default function Home() {
   // Landing page styling updates (light mode)
   if (showLandingPage) {
     return (
-      <div className={`min-h-screen transition-colors duration-300 ${themeClasses} relative overflow-x-hidden`}>
+      <div className={`min-h-screen transition-colors duration-300 ${themeClasses} relative`}>
 
         {/* Updated Navbar for light mode */}
         <nav
@@ -128,10 +128,10 @@ export default function Home() {
               ? 'bg-[#1A1C20]/80 backdrop-blur-sm'
               : 'bg-[#EDE7DB] backdrop-blur-sm'
             }
-            border-b
+            border-b sticky top-0
             ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#D8D2C7]'}
             shadow-[0_2px_4px_rgba(0,0,0,0.08)]
-            relative z-10
+            z-50
           `}
         >
           <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
@@ -155,52 +155,54 @@ export default function Home() {
           </div>
         </nav>
 
-        {/* HERO Section */}
-        <div className="-mt-8">
-          <HeroSection
-            isDarkMode={isDarkMode}
-            setShowLandingPage={(value) => {
-              if (value === false) {
-                if (session) {
-                  setShowLandingPage(false);
+        {/* Content Wrapper to handle overflow without breaking sticky nav */}
+        <div className="overflow-x-hidden">
+          {/* HERO Section */}
+          <div className="-mt-8">
+            <HeroSection
+              isDarkMode={isDarkMode}
+              setShowLandingPage={(value) => {
+                if (value === false) {
+                  if (session) {
+                    setShowLandingPage(false);
+                  } else {
+                    router.push('/login');
+                  }
                 } else {
-                  router.push('/login');
+                  setShowLandingPage(true);
                 }
-              } else {
-                setShowLandingPage(true);
-              }
+              }}
+            />
+          </div>
+          {/* How It Works - Slide from Left */}
+          <motion.div
+            className={`${isDarkMode ? "" : "border-t border-[#D8D2C7]"}`}
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{
+              duration: 0.7,
+              ease: [0.22, 1, 0.36, 1]
             }}
-          />
-        </div>
-        {/* How It Works - Slide from Left */}
-        <motion.div
-          className={`${isDarkMode ? "" : "border-t border-[#D8D2C7]"}`}
-          initial={{ opacity: 0, x: -80 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{
-            duration: 0.7,
-            ease: [0.22, 1, 0.36, 1]
-          }}
-        >
-          <HowItWorks isDarkMode={isDarkMode} />
-        </motion.div>
-        {/* Use Cases - Scale Effect */}
-        <motion.div
-          className={`${isDarkMode ? "" : "border-t border-[#D8D2C7]"}`}
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{
-            duration: 0.7,
-            ease: [0.16, 1, 0.3, 1]
-          }}
-        >
-          <UseCases isDarkMode={isDarkMode} />
-        </motion.div>
+          >
+            <HowItWorks isDarkMode={isDarkMode} />
+          </motion.div>
+          {/* Use Cases - Scale Effect */}
+          <motion.div
+            className={`${isDarkMode ? "" : "border-t border-[#D8D2C7]"}`}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{
+              duration: 0.7,
+              ease: [0.16, 1, 0.3, 1]
+            }}
+          >
+            <UseCases isDarkMode={isDarkMode} />
+          </motion.div>
 
-        {/* FAQ */}
-        {/* <section className="max-w-4xl mx-auto px-6 py-16 relative z-10">
+          {/* FAQ */}
+          {/* <section className="max-w-4xl mx-auto px-6 py-16 relative z-10">
           <div className="text-center mb-12">
             <h2 className={`text-4xl font-bold ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
               Common questions
@@ -235,36 +237,37 @@ export default function Home() {
           </div>
         </section> */}
 
-        {/* Footer — NEW Light Mode color */}
-        <footer
-          className={`
+          {/* Footer — NEW Light Mode color */}
+          <footer
+            className={`
             ${isDarkMode
-              ? 'bg-[#1A1C20]/80 backdrop-blur-sm'
-              : 'bg-[#F1ECE2]/90 backdrop-blur-sm'
-            }
+                ? 'bg-[#1A1C20]/80 backdrop-blur-sm'
+                : 'bg-[#F1ECE2]/90 backdrop-blur-sm'
+              }
             
             border-t
             ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#D8D2C7]'}
             relative z-10
           `}
-        >
-          <div className="max-w-7xl mx-auto px-6 py-12">
-            <div className="grid md:grid-cols-4 gap-8">
-              <div>
-                <span className="font-bold text-xl">Saral Vakeel</span>
-                <p className={`text-sm mt-2 ${isDarkMode ? 'text-[#8F939A]' : 'text-[#7A7F89]'}`}>
-                  AI-powered legal document analysis for modern teams.
+          >
+            <div className="max-w-7xl mx-auto px-6 py-12">
+              <div className="grid md:grid-cols-4 gap-8">
+                <div>
+                  <span className="font-bold text-xl">Saral Vakeel</span>
+                  <p className={`text-sm mt-2 ${isDarkMode ? 'text-[#8F939A]' : 'text-[#7A7F89]'}`}>
+                    AI-powered legal document analysis for modern teams.
+                  </p>
+                </div>
+              </div>
+
+              <div className={`mt-12 pt-8 border-t ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#D8D2C7]'} text-center`}>
+                <p className={`text-sm ${isDarkMode ? 'text-[#8F939A]' : 'text-[#7A7F89]'}`}>
+                  © 2025 Saral Vakeel Inc. All rights reserved.
                 </p>
               </div>
             </div>
-
-            <div className={`mt-12 pt-8 border-t ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#D8D2C7]'} text-center`}>
-              <p className={`text-sm ${isDarkMode ? 'text-[#8F939A]' : 'text-[#7A7F89]'}`}>
-                © 2025 Saral Vakeel Inc. All rights reserved.
-              </p>
-            </div>
-          </div>
-        </footer>
+          </footer>
+        </div>
       </div>
     );
   }
