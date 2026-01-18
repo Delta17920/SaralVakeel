@@ -34,8 +34,8 @@ supabase: Client = None
 if SUPABASE_URL and SUPABASE_KEY:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=GOOGLE_API_KEY)
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.1)
+# Global initialization removed to prevent import-time crashes.
+# embeddings and llm will be initialized inside the worker function.
 
 import inngest
 
@@ -70,6 +70,12 @@ async def process_document_async(*args, **kwargs):
 
         if not file_path or not user_id:
             return {"status": "error", "message": "Missing file_path or user_id"}
+        
+        if not GOOGLE_API_KEY:
+             raise ValueError("GOOGLE_API_KEY not set")
+
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=GOOGLE_API_KEY)
+        llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.1)
 
         temp_dir = tempfile.gettempdir()
         temp_filename = os.path.join(temp_dir, f"{uuid.uuid4()}.pdf")
