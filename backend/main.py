@@ -235,8 +235,18 @@ async def process_document(file: UploadFile = File(...), user: dict = Depends(ge
         
         try:
             analysis_response = llm.invoke(analysis_prompt)
-            # Clean up code blocks if present
-            content_str = analysis_response.content.replace('```json', '').replace('```', '').strip()
+            content_str = analysis_response.content
+            print(f"DEBUG: Raw LLM Response: {content_str[:500]}...") # Log start of response
+
+            # Robust JSON Extraction
+            import re
+            json_match = re.search(r"\{.*\}", content_str, re.DOTALL)
+            if json_match:
+                content_str = json_match.group(0)
+            else:
+                # If no JSON object found, try cleaning markdown code blocks aggressively
+                content_str = content_str.replace('```json', '').replace('```', '').strip()
+
             report_json = json.loads(content_str)
             
             # Ensure required fields exist
@@ -244,9 +254,11 @@ async def process_document(file: UploadFile = File(...), user: dict = Depends(ge
             
             # Add file size
             report_json["fileSize"] = os.path.getsize(temp_filename)
-            
+             
         except Exception as analysis_err:
             print(f"Analysis Error: {analysis_err}")
+            print(f"FAILED CONTENT: {analysis_response.content if 'analysis_response' in locals() else 'No response'}")
+            # Fallback
             # Fallback
             report_json = {
                 "documentTitle": file.filename,
