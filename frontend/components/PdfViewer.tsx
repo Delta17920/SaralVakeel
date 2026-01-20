@@ -18,6 +18,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, pageNumber = 1, onPageChange
     const [numPages, setNumPages] = useState<number | null>(null);
     const [scale, setScale] = useState(1.0);
     const [containerWidth, setContainerWidth] = useState<number>(0);
+    const [pdfError, setPdfError] = useState<string | null>(null);
     const containerRef = React.useRef<HTMLDivElement>(null);
 
     // Initial width calculation and resize observer
@@ -100,6 +101,7 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, pageNumber = 1, onPageChange
                     <Document
                         file={url}
                         onLoadSuccess={onDocumentLoadSuccess}
+                        onLoadError={(error) => setPdfError(error.message)}
                         className="shadow-xl"
                         loading={<div className="text-gray-400 mt-10">Loading PDF...</div>}
                     >
@@ -130,7 +132,14 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ url, pageNumber = 1, onPageChange
                     </Document>
                 ) : (
                     <div className="flex items-center justify-center h-full text-gray-400">
-                        No PDF selected
+                        {pdfError ? (
+                            <div className="text-red-500 text-center px-4">
+                                <p className="font-bold">Failed to load PDF</p>
+                                <p className="text-sm mt-1">{pdfError}</p>
+                            </div>
+                        ) : (
+                            "No PDF selected"
+                        )}
                     </div>
                 )}
             </div>
