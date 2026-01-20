@@ -262,7 +262,7 @@ export default function Home() {
 
               <div className={`mt-12 pt-8 border-t ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#D8D2C7]'} text-center`}>
                 <p className={`text-sm ${isDarkMode ? 'text-[#8F939A]' : 'text-[#7A7F89]'}`}>
-                  © 2025 Saral Vakeel Inc. All rights reserved.
+                  © 2026 Saral Vakeel Inc. All rights reserved.
                 </p>
               </div>
             </div>

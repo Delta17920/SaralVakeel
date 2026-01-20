@@ -51,7 +51,7 @@ export default function LoginPage() {
             </main>
 
             <footer className={`relative z-10 py-6 text-center text-sm ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                &copy; 2025 Saral Vakeel. All rights reserved.
+                &copy; 2026 Saral Vakeel. All rights reserved.
             </footer>
         </div>
     );
