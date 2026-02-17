@@ -182,8 +182,8 @@ async def process_document(file: UploadFile = File(...), user: dict = Depends(ge
                 docs,
                 embeddings,
                 client=supabase,
-                table_name="document_chunks",
-                query_name="match_documents"
+                table_name="document_chunks_3072",
+                query_name="match_documents_3072"
             )
         except Exception as vec_err:
              print(f"Vector Store Error: {vec_err}")
@@ -320,8 +320,8 @@ async def query_document(payload: QueryRequest, user: dict = Depends(get_current
         vector_store = SupabaseVectorStore(
             embedding=embeddings,
             client=supabase,
-            table_name="document_chunks",
-            query_name="match_documents"
+            table_name="document_chunks_3072",
+            query_name="match_documents_3072"
         )
         
         retriever = vector_store.as_retriever(
@@ -371,24 +371,26 @@ async def query_document(payload: QueryRequest, user: dict = Depends(get_current
 @app.delete("/documents/{document_id}")
 async def delete_document(document_id: str, user: dict = Depends(get_current_user)):
     try:
+        # 0. Fetch document metadata first to get the storage path
+        doc_res = supabase.table("documents").select("metadata").eq("id", document_id).eq("user_id", user.id).execute()
+        file_path = document_id # Default to ID if path not found
+        
+        if doc_res.data and len(doc_res.data) > 0:
+            metadata = doc_res.data[0].get("metadata", {})
+            file_path = metadata.get("filePath", document_id)
+            
         # 1. Delete from 'documents' table
         # We enforce user_id to ensure users can only delete their own docs
-        res = supabase.table("documents").delete().eq("id", document_id).eq("user_id", user.id).execute()
+        supabase.table("documents").delete().eq("id", document_id).eq("user_id", user.id).execute()
         
-        # 2. Delete from 'document_chunks' table (Vector Store)
-        # Assuming metadata->>document_id or similar. 
-        # Since we used SupabaseVectorStore which stores metadata in a jsonb column, 
-        # we delete where metadata->>document_id matches.
-        # However, standard Supabase vector store might not expose direct delete by metadata easily via python client 
-        # if not using the vector_store object. 
-        # But we can use raw supabase client.
-        supabase.table("document_chunks").delete().match({"metadata->>document_id": document_id, "metadata->>user_id": user.id}).execute()
-        
-        # Alternative: simpler delete if we trust the metadata column structure
-        # supabase.table("document_chunks").delete().eq("metadata->>document_id", document_id).execute()
+        # 2. Delete from 'document_chunks_3072' table (Vector Store)
+        # We use the new table for 3072 dimensions
+        supabase.table("document_chunks_3072").delete().match({"metadata->>document_id": document_id, "metadata->>user_id": user.id}).execute()
         
         # 3. Delete from Storage ('pdfs' bucket)
-        supabase.storage.from_("pdfs").remove([document_id])
+        # Use the correct file_path from metadata
+        print(f"DEBUG: Deleting file from storage: {file_path}")
+        supabase.storage.from_("pdfs").remove([file_path])
         
         return {"status": "success", "message": f"Document {document_id} deleted successfully"}
         
