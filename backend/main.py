@@ -4,7 +4,7 @@ import uuid
 import json
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any, Tuple, Optional
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Security, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -75,6 +75,46 @@ embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", g
 # Using Gemini 2.5 Flash as requested by user
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.1)
 
+
+
+# Fix for PGRST202: Subclass SupabaseVectorStore to pass correct arguments to RPC
+class CustomSupabaseVectorStore(SupabaseVectorStore):
+    def similarity_search_by_vector_with_relevance_scores(
+        self,
+        query: List[float],
+        k: int,
+        filter: Optional[Dict[str, Any]] = None,
+        postgrest_filter: Optional[str] = None,
+        score_threshold: Optional[float] = None,
+        **kwargs: Any,
+    ) -> List[Tuple[Document, float]]:
+        match_documents_params = {
+            "query_embedding": query,
+            "filter": filter or {},
+            "match_count": k,
+            "match_threshold": score_threshold or 0.0
+        }
+        
+        query_builder = self._client.rpc(self.query_name, match_documents_params)
+
+        if postgrest_filter:
+            query_builder.params = query_builder.params.set("and", f"({postgrest_filter})")
+
+        res = query_builder.execute()
+
+        match_result = [
+            (
+                Document(
+                    metadata=search.get("metadata", {}),
+                    page_content=search.get("content", ""),
+                ),
+                search.get("similarity", 0.0),
+            )
+            for search in res.data
+            if search.get("content")
+        ]
+        
+        return match_result
 
 app = FastAPI()
 
@@ -318,7 +358,7 @@ class QueryRequest(BaseModel):
 async def query_document(payload: QueryRequest, user: dict = Depends(get_current_user)):
     try:
         # 1. Setup Retrieval
-        vector_store = SupabaseVectorStore(
+        vector_store = CustomSupabaseVectorStore(
             embedding=embeddings,
             client=supabase,
             table_name="document_chunks_3072",
