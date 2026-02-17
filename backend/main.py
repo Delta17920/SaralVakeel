@@ -34,7 +34,6 @@ from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 
 # --- Load Environment Variables ---
-# --- Load Environment Variables ---
 current_dir = Path(__file__).resolve().parent
 root_dir = current_dir.parent
 # Try loading from multiple potential locations
@@ -70,7 +69,7 @@ if not GOOGLE_API_KEY:
 
 # 1. Initialize Embeddings (Gemini)
 # Using text-embedding-004 for better performance and newer quotas
-embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=GOOGLE_API_KEY)
+embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=GOOGLE_API_KEY)
 
 # 2. LLM Model (for Chat)
 # Using Gemini 2.5 Flash as requested by user

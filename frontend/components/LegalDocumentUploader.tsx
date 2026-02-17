@@ -243,7 +243,8 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
         const placeholderMetadata = {
           documentType: 'Processing...',
           fileSize: file.size,
-          status: 'processing'
+          status: 'processing',
+          filePath: filePath // Store storage path so we can retrieve it later
         };
 
         await supabase.from('documents').upsert({

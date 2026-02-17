@@ -74,7 +74,7 @@ async def process_document_async(*args, **kwargs):
         if not GOOGLE_API_KEY:
              raise ValueError("GOOGLE_API_KEY not set")
 
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=GOOGLE_API_KEY)
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=GOOGLE_API_KEY)
         llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.1)
 
         temp_dir = tempfile.gettempdir()
@@ -127,22 +127,68 @@ async def process_document_async(*args, **kwargs):
         print("WORKER: Generating AI Report")
         analysis_prompt = f"""
         Analyze this legal document (Title: {file_name}) and extract JSON metadata.
+        Focus on extracting:
+        - Key Terms
+        - Parties Involved
+        - Obligations
+        - Risks
+
         Text (truncated): {full_text[:25000]}
         
-        Return ONLY valid JSON:
+        Return ONLY valid JSON with this structure:
         {{
             "documentTitle": "Inferred Title",
             "documentType": "Contract Type",
             "summary": "Executive summary",
-            "obligations": ["List of obligations"],
-            "risks": ["List of legal risks"],
+            "keyTerms": ["list of key defined terms found in the doc"],
+            "obligations": ["detailed list of key obligations"],
+            "parties": [
+                {{"name": "Party A", "type": "Individual/Company", "role": "Buyer/Seller etc"}}
+            ],
+            "risks": ["detailed list of potential legal risks"],
             "riskScore": 1-10
         }}
         """
         
-        response = await llm.ainvoke(analysis_prompt) # Use async invoke if available, otherwise invoke
-        content_str = response.content.replace('```json', '').replace('```', '').strip()
+        response = await llm.ainvoke(analysis_prompt)
+        content_str = response.content
+        print(f"WORKER: Raw LLM Response: {content_str[:500]}...")
+
+        # Robust JSON Extraction
+        import re
+        json_match = re.search(r"\{.*\}", content_str, re.DOTALL)
+        if json_match:
+            content_str = json_match.group(0)
+        else:
+             content_str = content_str.replace('```json', '').replace('```', '').strip()
+
         report_json = json.loads(content_str)
+        
+        # Normalize keys
+        def normalize_keys(data):
+            if not isinstance(data, dict): return data
+            new_data = {}
+            for k, v in data.items():
+                if k.lower() in ['keyterms', 'key_terms', 'terms']: new_key = 'keyTerms'
+                elif k.lower() in ['riskscore', 'risk_score', 'risk_level']: new_key = 'riskScore'
+                elif k.lower() in ['documenttitle', 'document_title', 'title']: new_key = 'documentTitle'
+                elif k.lower() in ['documenttype', 'document_type', 'type']: new_key = 'documentType'
+                else: new_key = k
+                new_data[new_key] = v
+            return new_data
+
+        report_json = normalize_keys(report_json)
+
+        # Ensure required fields exist
+        if "documentTitle" not in report_json: report_json["documentTitle"] = file_name
+        if "keyTerms" not in report_json: report_json["keyTerms"] = []
+        if "parties" not in report_json: report_json["parties"] = []
+        if "risks" not in report_json: report_json["risks"] = []
+        if "obligations" not in report_json: report_json["obligations"] = []
+
+        # Preserve existing metadata fields like filePath if needed, or add it here
+        report_json["filePath"] = file_path # Ensure we keep the storage path
+
         report_json["fileSize"] = os.path.getsize(temp_filename)
         report_json["status"] = "complete"
         

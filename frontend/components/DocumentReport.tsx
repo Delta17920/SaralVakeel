@@ -147,24 +147,81 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
       }
     };
 
-    const fetchPdfUrl = async () => {
-      if (!filename) return;
+    const fetchPdfUrl = async (path: string) => {
+      if (!path) return;
       try {
-        const { data } = await supabase.storage
+        console.log(`Attempting to fetch signed URL for PDF: ${path} from bucket 'pdfs'`);
+        const { data, error } = await supabase.storage
           .from('pdfs')
-          .createSignedUrl(filename, 3600);
+          .createSignedUrl(path, 3600);
+
+        if (error) {
+          console.error("Error creating signed URL:", error);
+          setPdfUrl(null);
+          return;
+        }
 
         if (data?.signedUrl) {
+          console.log("Successfully generated signed URL:", data.signedUrl);
           setPdfUrl(data.signedUrl);
+        } else {
+          console.warn("No signed URL returned from Supabase despite no error.");
         }
       } catch (e) {
-        console.error("Error fetching PDF URL:", e);
+        console.error("Exception fetching PDF URL:", e);
       }
     };
 
-    fetchDocumentData();
-    fetchPdfUrl();
+    if (filename) {
+      fetchDocumentData();
+    }
   }, [filename]);
+
+  // Effect to fetch PDF URL once we have the document data (and potentionally the correct filePath)
+  useEffect(() => {
+    if (!filename) return;
+
+    // If we have document data with a filePath, use it. 
+    // Otherwise, fallback to filename (legacy behavior or if metadata missing)
+    // We check if documentData is loaded by checking if title is not "Loading..."
+    // OR we just check if documentData.filePath exists. 
+    // Since documentData is initialized with default values, we need to be careful.
+    // However, we can just try to fetch using the best available path.
+
+    const filePath = (documentData as any).filePath || filename;
+
+    // Define the fetch function inside or outside? 
+    // We can reuse the logic if we move active fetching here.
+
+    const getUrl = async () => {
+      try {
+        console.log(`Attempting to fetch signed URL for path: ${filePath}`);
+        const { data, error } = await supabase.storage
+          .from('pdfs')
+          .createSignedUrl(filePath, 3600);
+
+        if (data?.signedUrl) {
+          setPdfUrl(data.signedUrl);
+        } else if (error) {
+          console.error("Error creating signed URL:", error);
+          // If failed with filePath, and filePath != filename, maybe try filename as backup?
+          if (filePath !== filename) {
+            console.log("Retrying with filename only...");
+            const { data: retryData } = await supabase.storage
+              .from('pdfs')
+              .createSignedUrl(filename, 3600);
+            if (retryData?.signedUrl) setPdfUrl(retryData.signedUrl);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    if (documentData.documentTitle !== "Loading...") {
+      getUrl();
+    }
+  }, [documentData, filename]);
 
   const handleDelete = async () => {
     if (!filename) return;
