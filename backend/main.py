@@ -328,7 +328,8 @@ async def query_document(payload: QueryRequest, user: dict = Depends(get_current
         retriever = vector_store.as_retriever(
             search_kwargs={
                 "k": 5, 
-                "filter": {"document_id": payload.document_name, "user_id": user.id}
+                "filter": {"document_id": payload.document_name, "user_id": user.id},
+                "score_threshold": 0.5 # Default threshold
             }
         )
         
