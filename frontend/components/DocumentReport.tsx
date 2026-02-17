@@ -45,6 +45,7 @@ interface DocumentData {
   }>;
   risks: string[];
   risk_score: number
+  filePath?: string;
 }
 
 export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, filename, onBack }) => {
@@ -74,29 +75,14 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
       if (!filename) {
         // Use default data if no filename provided
         setDocumentData({
-          documentTitle: "CPU Scheduling Algorithm Simulation Program Assignment",
-          documentType: "Programming Assignment",
-          summary: "This document outlines a programming assignment focused on simulating CPU scheduling algorithms, specifically First-Come-First-Serve (FCFS) and Shortest Job First (SJF), using Python. The program must calculate process execution metrics and visualize the scheduling process.",
-          keyTerms: ["CPU Scheduling", "FCFS Algorithm", "SJF Algorithm", "Python Programming", "Process Simulation", "Execution Metrics", "Gantt Chart", "Turnaround Time", "Waiting Time"],
-          obligations: [
-            "Write a Python program to simulate the FCFS CPU scheduling algorithm.",
-            "Write a Python program to simulate the SJF CPU scheduling algorithm.",
-            "Accept the number of processes from the user.",
-            "Accept arrival time and burst time for each process.",
-            "Calculate and display waiting time for each process.",
-            "Calculate and display turnaround time for each process.",
-            "Display a Gantt chart showing the scheduling order and timing."
-          ],
-          parties: [
-            { name: "Student", type: "Individual", role: "Assignment Executor" },
-            { name: "Instructor", type: "Individual", role: "Assignment Reviewer" }
-          ],
-          risks: [
-            "The document does not explicitly specify error handling or input validation requirements.",
-            "The document does not define the format or structure of the input data for the processes (arrival time and burst time).",
-            "The document does not specify whether preemptive or non-preemptive SJF is required."
-          ],
-          risk_score: 5.0,
+          documentTitle: "Document Analysis",
+          documentType: "General",
+          summary: "Select a document to view its analysis.",
+          keyTerms: [],
+          obligations: [],
+          parties: [],
+          risks: [],
+          risk_score: 0,
         });
         return;
       }
@@ -126,6 +112,7 @@ export const DocumentReport: React.FC<ReportProps> = ({ isDarkMode = false, file
           parties: fileData.parties || [],
           risks: fileData.risks || [],
           risk_score: fileData.riskScore ?? fileData['risk score'] ?? fileData.risk_score ?? 0,
+          filePath: fileData.filePath || fileData.fileName
         };
 
         setDocumentData(mappedData);
