@@ -270,7 +270,8 @@ async def process_document(file: UploadFile = File(...), user: dict = Depends(ge
             if "parties" not in report_json: report_json["parties"] = []
             if "risks" not in report_json: report_json["risks"] = []
             if "obligations" not in report_json: report_json["obligations"] = []
-            
+            report_json["filePath"] = file.filename 
+            report_json["fileName"] = file.filename
             # Add file size
             report_json["fileSize"] = os.path.getsize(temp_filename)
              

@@ -185,7 +185,8 @@ async def process_document_async(*args, **kwargs):
         if "parties" not in report_json: report_json["parties"] = []
         if "risks" not in report_json: report_json["risks"] = []
         if "obligations" not in report_json: report_json["obligations"] = []
-
+        report_json["filePath"] = file_path 
+        report_json["fileName"] = file_name
         report_json["fileSize"] = os.path.getsize(temp_filename)
         report_json["status"] = "complete"
         
