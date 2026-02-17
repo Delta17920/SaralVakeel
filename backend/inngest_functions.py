@@ -74,7 +74,7 @@ async def process_document_async(*args, **kwargs):
         if not GOOGLE_API_KEY:
              raise ValueError("GOOGLE_API_KEY not set")
 
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=GOOGLE_API_KEY)
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", google_api_key=GOOGLE_API_KEY)
         llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.1)
 
         temp_dir = tempfile.gettempdir()
@@ -185,9 +185,6 @@ async def process_document_async(*args, **kwargs):
         if "parties" not in report_json: report_json["parties"] = []
         if "risks" not in report_json: report_json["risks"] = []
         if "obligations" not in report_json: report_json["obligations"] = []
-
-        # Preserve existing metadata fields like filePath if needed, or add it here
-        report_json["filePath"] = file_path # Ensure we keep the storage path
 
         report_json["fileSize"] = os.path.getsize(temp_filename)
         report_json["status"] = "complete"
