@@ -333,7 +333,7 @@ const AIAnalysis: React.FC<AIAnalysisProps> = ({ isDarkMode, onViewReport }) => 
               <div className="space-y-4">
                 {filteredAnalyses.map((analysis, i) => (
                   <div key={analysis.id} className={`ai-item group relative rounded-2xl border transition-all duration-300 hover:scale-[1.01] hover:shadow-xl overflow-hidden
-                    ${isDarkMode ? 'bg-gray-900 border-gray-800 hover:border-[#3B3E45]' : `${analysis.status === 'processing' ? 'bg-gray-900 border-gray-800' : 'bg-white border-[#C8BEB4] hover:border-[#B0A598]'} shadow-sm`}`}
+                    ${isDarkMode ? 'bg-gray-900 border-gray-800 hover:border-[#3B3E45]' : `${analysis.status === 'processing' ? 'bg-amber-50 border-amber-200 hover:border-amber-300' : 'bg-white border-[#C8BEB4] hover:border-[#B0A598]'} shadow-sm`}`}
                     style={{ animationDelay: `${i * 60}ms` }}>
 
                     {/* Left risk accent bar */}
