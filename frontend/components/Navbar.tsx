@@ -34,89 +34,69 @@ export default function Navbar({
   };
 
   return (
-    <nav className={`${isDarkMode ? 'bg-[#1A1C20]' : 'bg-white'} border-b ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#E2E2E8]'} sticky top-0 z-20`}>
+    <nav className={`sticky top-0 z-20 border-b transition-colors duration-200
+      ${isDarkMode
+        ? 'bg-[#1A1C20] border-[#2B2E35]'
+        : 'bg-[#FBF8F3] border-[#DDD6CC]'
+      }`}>
       <div className="px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          {/* Hamburger Menu Button */}
+          {/* Hamburger */}
           {setSidebarExpanded && (
             <button
               onClick={handleMenuClick}
-              className={`p-2 rounded-lg ${isDarkMode ? 'hover:bg-[#2B2E35]' : 'hover:bg-[#E2E2E8]'} transition-colors`}
+              className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#2B2E35]' : 'hover:bg-[#EDE7DB]'}`}
               aria-label="Toggle sidebar"
             >
-              <svg
-                className={`w-6 h-6 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
+              <svg className={`w-6 h-6 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#2E2A26]'}`}
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           )}
 
-          {/* Logo and Brand */}
-          <div className="flex items-center gap-2">
-            <button onClick={() => setShowLandingPage?.(true)} className={`font-bold text-xl tracking-tight cursor-pointer font-[family-name:var(--font-playfair)] ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
-              Saral Vakeel
-            </button>
-          </div>
+          {/* Brand */}
+          <button
+            onClick={() => setShowLandingPage?.(true)}
+            className={`font-bold text-xl tracking-tight cursor-pointer font-[family-name:var(--font-playfair)]
+              ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#2E2A26]'}`}>
+            Saral Vakeel
+          </button>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Mobile Search Toggle */}
+        <div className="flex items-center gap-3">
+          {/* Mobile search icon */}
           <button
             onClick={() => setShowMobileSearch(!showMobileSearch)}
-            className={`md:hidden p-2 rounded-lg ${isDarkMode ? 'hover:bg-[#2B2E35]' : 'hover:bg-[#E2E2E8]'}`}
+            className={`md:hidden p-2 rounded-lg ${isDarkMode ? 'hover:bg-[#2B2E35]' : 'hover:bg-[#EDE7DB]'}`}
           >
-            <svg
-              className={`w-5 h-5 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
+            <svg className={`w-5 h-5 ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#2E2A26]'}`}
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
 
-
-          {/* Auth Button */}
+          {/* Auth */}
           {user ? (
             <button
               onClick={() => signOut()}
-              className={`p-2 rounded-lg text-sm font-medium transition-colors ${isDarkMode
-                ? "bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                : "bg-red-50 text-red-600 hover:bg-red-100"
-                }`}
-            >
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
+                ${isDarkMode ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}>
               Sign Out
             </button>
           ) : (
-            <a
-              href="/login"
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isDarkMode
-                ? "bg-blue-600 text-white hover:bg-blue-500"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-                }`}
-            >
+            <a href="/login"
+              className="px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-[#4A3F35] text-[#FBF8F3] hover:bg-[#2E2A26]">
               Sign In
             </a>
           )}
 
-          {/* Dark Mode Toggle */}
+          {/* Theme toggle */}
           <button
             onClick={() => setIsDarkMode(!isDarkMode)}
-            className={`p-2 rounded-lg transition-all duration-200 ${isDarkMode ? 'bg-[#2B2E35] text-yellow-400 hover:bg-[#3B3E45]' : 'bg-[#E2E2E8] text-slate-700 hover:bg-[#D2D2D8]'}`}
+            className={`p-2 rounded-lg transition-all duration-200
+              ${isDarkMode ? 'bg-[#2B2E35] text-yellow-400 hover:bg-[#3B3E45]' : 'bg-[#EDE7DB] text-[#4A3F35] hover:bg-[#DDD6CC]'}`}
             aria-label="Toggle theme"
           >
             {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import LegalDocumentUploader from "../components/LegalDocumentUploader";
 import AIAnalysis from "../components/AIAnalysis";
 import Navbar from "../components/Navbar";
@@ -11,9 +11,10 @@ import { UseCases } from '../components/Hero/UseCases';
 import { HowItWorks } from '../components/Hero/HowItWorks';
 import { motion } from "framer-motion";
 import HeroSection from '@/components/HeroSection';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Loader2 } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { useAuth } from "../components/AuthProvider";
+import { DialogProvider } from '../components/ConfirmDialog';
 
 export default function Home() {
   const router = useRouter();
@@ -44,6 +45,7 @@ export default function Home() {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('documents');
+  const [isTabChanging, setIsTabChanging] = useState(false);
   const [uploadedFilesCount] = useState(0);
   const [showLandingPage, setShowLandingPage] = useState(true);
 
@@ -53,7 +55,7 @@ export default function Home() {
   // NEW light mode background (warm beige)
   const themeClasses = isDarkMode
     ? 'bg-[#101114] text-[#ECEDEE]'
-    : 'bg-stone-100 text-[#1C1F26]';
+    : 'bg-[#F6F1E8] text-[#4B463F]';
 
   const handleViewReport = (filename: string) => {
     setSelectedReportFilename(filename);
@@ -61,9 +63,22 @@ export default function Home() {
   };
 
   const handleBackFromReport = () => {
-    setShowReport(false);
-    setSelectedReportFilename(null);
+    setIsTabChanging(true);
+    setTimeout(() => {
+      setShowReport(false);
+      setSelectedReportFilename(null);
+      setIsTabChanging(false);
+    }, 200);
   };
+
+  const handleTabChange = useCallback((tab: string) => {
+    if (tab === activeTab && !showReport) return;
+    setIsTabChanging(true);
+    setTimeout(() => {
+      setActiveTab(tab);
+      setIsTabChanging(false);
+    }, 150);
+  }, [activeTab, showReport]);
 
   const renderActiveComponent = () => {
     if (showReport) {
@@ -79,7 +94,7 @@ export default function Home() {
     switch (activeTab) {
       case 'documents':
         return (
-          <div className={`${isDarkMode ? "" : "bg-white border border-[#D8D2C7] shadow-sm "}`}>
+          <div className={`${isDarkMode ? '' : 'bg-[#FBF8F3] border border-[#DDD6CC] shadow-sm'}`}>
             <LegalDocumentUploader
               isDarkMode={isDarkMode}
               onViewReport={handleViewReport}
@@ -89,7 +104,7 @@ export default function Home() {
 
       case 'analysis':
         return (
-          <div className={`${isDarkMode ? "" : "bg-white border border-[#D8D2C7] shadow-sm  "}`}>
+          <div className={`${isDarkMode ? '' : 'bg-[#FBF8F3] border border-[#DDD6CC] shadow-sm'}`}>
             <AIAnalysis
               isDarkMode={isDarkMode}
               onViewReport={handleViewReport}
@@ -99,7 +114,7 @@ export default function Home() {
 
       case 'reports':
         return (
-          <div className={`${isDarkMode ? "" : "bg-white border border-[#D8D2C7] shadow-sm  "}`}>
+          <div className={`${isDarkMode ? '' : 'bg-[#FBF8F3] border border-[#DDD6CC] shadow-sm'}`}>
             <ReportsList
               isDarkMode={isDarkMode}
               onViewReport={handleViewReport}
@@ -109,7 +124,7 @@ export default function Home() {
 
       default:
         return (
-          <div className={`${isDarkMode ? "" : "bg-white border border-[#D8D2C7] shadow-sm "}`}>
+          <div className={`${isDarkMode ? '' : 'bg-[#FBF8F3] border border-[#DDD6CC] shadow-sm'}`}>
             <LegalDocumentUploader />
           </div>
         );
@@ -119,90 +134,91 @@ export default function Home() {
   // Landing page styling updates (light mode)
   if (showLandingPage) {
     return (
-      <div className={`min-h-screen transition-colors duration-300 ${themeClasses} relative`}>
+      <DialogProvider isDarkMode={isDarkMode}>
+        <div className={`min-h-screen transition-colors duration-300 ${themeClasses} relative`}>
 
-        {/* Updated Navbar for light mode */}
-        <nav
-          className={`
+          {/* Updated Navbar for light mode */}
+          <nav
+            className={`
             ${isDarkMode
-              ? 'bg-[#1A1C20]/80 backdrop-blur-sm'
-              : 'bg-[#EDE7DB] backdrop-blur-sm'
-            }
+                ? 'bg-[#1A1C20]/80 backdrop-blur-sm'
+                : 'bg-[#FBF8F3]/90 backdrop-blur-sm'
+              }
             border-b sticky top-0
-            ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#D8D2C7]'}
-            shadow-[0_2px_4px_rgba(0,0,0,0.08)]
+            ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#DDD6CC]'}
+            shadow-[0_2px_4px_rgba(74,63,53,0.08)]
             z-50
           `}
-        >
-          <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-2xl font-[family-name:var(--font-playfair)]">Saral Vakeel</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`
+          >
+            <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-2xl font-[family-name:var(--font-playfair)]">Saral Vakeel</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className={`
                   p-2 rounded-lg transition-colors
                   ${isDarkMode
-                    ? 'border border-white bg-[#2B2E35] hover:bg-[#3B3E45]'
-                    : 'border border-black/30 bg-[#F5F0E6] hover:bg-[#E9E2D7]'
-                  }
+                      ? 'border border-white bg-[#2B2E35] hover:bg-[#3B3E45]'
+                      : 'border border-[#DDD6CC] bg-[#FBF8F3] hover:bg-[#EDE7DB]'
+                    }
                 `}
-              >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
+                >
+                  {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
-          </div>
-        </nav>
+          </nav>
 
-        {/* Content Wrapper to handle overflow without breaking sticky nav */}
-        <div className="overflow-x-hidden">
-          {/* HERO Section */}
-          <div className="-mt-8">
-            <HeroSection
-              isDarkMode={isDarkMode}
-              setShowLandingPage={(value) => {
-                if (value === false) {
-                  if (session) {
-                    setShowLandingPage(false);
+          {/* Content Wrapper to handle overflow without breaking sticky nav */}
+          <div className="overflow-x-hidden">
+            {/* HERO Section */}
+            <div className="-mt-8">
+              <HeroSection
+                isDarkMode={isDarkMode}
+                setShowLandingPage={(value) => {
+                  if (value === false) {
+                    if (session) {
+                      setShowLandingPage(false);
+                    } else {
+                      router.push('/login');
+                    }
                   } else {
-                    router.push('/login');
+                    setShowLandingPage(true);
                   }
-                } else {
-                  setShowLandingPage(true);
-                }
+                }}
+              />
+            </div>
+            {/* How It Works - Slide from Left */}
+            <motion.div
+              className={`${isDarkMode ? "" : "border-t border-[#D8D2C7]"}`}
+              initial={{ opacity: 0, x: -80 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{
+                duration: 0.7,
+                ease: [0.22, 1, 0.36, 1]
               }}
-            />
-          </div>
-          {/* How It Works - Slide from Left */}
-          <motion.div
-            className={`${isDarkMode ? "" : "border-t border-[#D8D2C7]"}`}
-            initial={{ opacity: 0, x: -80 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{
-              duration: 0.7,
-              ease: [0.22, 1, 0.36, 1]
-            }}
-          >
-            <HowItWorks isDarkMode={isDarkMode} />
-          </motion.div>
-          {/* Use Cases - Scale Effect */}
-          <motion.div
-            className={`${isDarkMode ? "" : "border-t border-[#D8D2C7]"}`}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{
-              duration: 0.7,
-              ease: [0.16, 1, 0.3, 1]
-            }}
-          >
-            <UseCases isDarkMode={isDarkMode} />
-          </motion.div>
+            >
+              <HowItWorks isDarkMode={isDarkMode} />
+            </motion.div>
+            {/* Use Cases - Scale Effect */}
+            <motion.div
+              className={`${isDarkMode ? "" : "border-t border-[#D8D2C7]"}`}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{
+                duration: 0.7,
+                ease: [0.16, 1, 0.3, 1]
+              }}
+            >
+              <UseCases isDarkMode={isDarkMode} />
+            </motion.div>
 
-          {/* FAQ */}
-          {/* <section className="max-w-4xl mx-auto px-6 py-16 relative z-10">
+            {/* FAQ */}
+            {/* <section className="max-w-4xl mx-auto px-6 py-16 relative z-10">
           <div className="text-center mb-12">
             <h2 className={`text-4xl font-bold ${isDarkMode ? 'text-[#ECEDEE]' : 'text-[#1C1F26]'}`}>
               Common questions
@@ -237,84 +253,90 @@ export default function Home() {
           </div>
         </section> */}
 
-          {/* Footer — NEW Light Mode color */}
-          <footer
-            className={`
+            {/* Footer — NEW Light Mode color */}
+            <footer
+              className={`
             ${isDarkMode
-                ? 'bg-[#1A1C20]/80 backdrop-blur-sm'
-                : 'bg-[#F1ECE2]/90 backdrop-blur-sm'
-              }
-            
+                  ? 'bg-[#1A1C20]/80 backdrop-blur-sm'
+                  : 'bg-[#FBF8F3]/90 backdrop-blur-sm'
+                }
             border-t
-            ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#D8D2C7]'}
+            ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#DDD6CC]'}
             relative z-10
           `}
-          >
-            <div className="max-w-7xl mx-auto px-6 py-12">
-              <div className="grid md:grid-cols-4 gap-8">
-                <div>
-                  <span className="font-bold text-xl">Saral Vakeel</span>
-                  <p className={`text-sm mt-2 ${isDarkMode ? 'text-[#8F939A]' : 'text-[#7A7F89]'}`}>
-                    AI-powered legal document analysis for modern teams.
+            >
+              <div className="max-w-7xl mx-auto px-6 py-12">
+                <div className="grid md:grid-cols-4 gap-8">
+                  <div>
+                    <span className="font-bold text-xl">Saral Vakeel</span>
+                    <p className={`text-sm mt-2 ${isDarkMode ? 'text-[#8F939A]' : 'text-[#8C7B6B]'}`}>
+                      AI-powered legal document analysis for modern teams.
+                    </p>
+                  </div>
+                </div>
+
+                <div className={`mt-12 pt-8 border-t ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#D8D2C7]'} text-center`}>
+                  <p className={`text-sm ${isDarkMode ? 'text-[#8F939A]' : 'text-[#7A7F89]'}`}>
+                    © 2026 Saral Vakeel Inc. All rights reserved.
                   </p>
                 </div>
               </div>
-
-              <div className={`mt-12 pt-8 border-t ${isDarkMode ? 'border-[#2B2E35]' : 'border-[#D8D2C7]'} text-center`}>
-                <p className={`text-sm ${isDarkMode ? 'text-[#8F939A]' : 'text-[#7A7F89]'}`}>
-                  © 2026 Saral Vakeel Inc. All rights reserved.
-                </p>
-              </div>
-            </div>
-          </footer>
+            </footer>
+          </div>
         </div>
-      </div>
+      </DialogProvider>
     );
   }
 
-  // MAIN APPLICATION VIEW (after closing landing page)
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${themeClasses}`}>
+    <DialogProvider isDarkMode={isDarkMode}>
+      <div className={`min-h-screen transition-colors duration-300 ${themeClasses}`}>
 
-      {/* Fade overlay when sidebar opens */}
-      {sidebarExpanded && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setSidebarExpanded(false)}
-        />
-      )}
+        {/* Fade overlay when sidebar opens */}
+        {sidebarExpanded && (
+          <div
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+            onClick={() => setSidebarExpanded(false)}
+          />
+        )}
 
-      <Navbar
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        sidebarExpanded={sidebarExpanded}
-        setSidebarExpanded={setSidebarExpanded}
-        showLandingPage={showLandingPage}
-        setShowLandingPage={setShowLandingPage}
-        isDesktopCollapsed={isDesktopCollapsed}
-        setIsDesktopCollapsed={setIsDesktopCollapsed}
-      />
-
-      <div className="flex">
-        <Sidebar
+        <Navbar
           isDarkMode={isDarkMode}
+          setIsDarkMode={setIsDarkMode}
           sidebarExpanded={sidebarExpanded}
           setSidebarExpanded={setSidebarExpanded}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          uploadedFilesCount={uploadedFilesCount}
-          showReport={showReport}
-          onBackFromReport={handleBackFromReport}
+          showLandingPage={showLandingPage}
+          setShowLandingPage={setShowLandingPage}
           isDesktopCollapsed={isDesktopCollapsed}
           setIsDesktopCollapsed={setIsDesktopCollapsed}
         />
 
-        {/* MAIN CONTENT */}
-        <main className="flex-1">
-          {renderActiveComponent()}
-          <Footer isDarkMode={isDarkMode} />
-        </main>
+        <div className="flex">
+          <Sidebar
+            isDarkMode={isDarkMode}
+            sidebarExpanded={sidebarExpanded}
+            setSidebarExpanded={setSidebarExpanded}
+            activeTab={activeTab}
+            setActiveTab={(tab) => handleTabChange(tab)}
+            uploadedFilesCount={uploadedFilesCount}
+            showReport={showReport}
+            onBackFromReport={handleBackFromReport}
+            isDesktopCollapsed={isDesktopCollapsed}
+            setIsDesktopCollapsed={setIsDesktopCollapsed}
+          />
+
+          {/* MAIN CONTENT */}
+          <main className="flex-1 relative">
+            {isTabChanging && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#FBF8F3]/70 dark:bg-[#101114]/60 backdrop-blur-[1px]">
+                <Loader2 className="w-8 h-8 animate-spin text-[#8C6A4A]" />
+              </div>
+            )}
+            {renderActiveComponent()}
+            <Footer isDarkMode={isDarkMode} />
+          </main>
+        </div>
       </div>
-    </div>
+    </DialogProvider>
   );
 }
