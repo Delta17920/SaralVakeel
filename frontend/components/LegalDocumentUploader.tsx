@@ -154,36 +154,44 @@ const LegalDocumentUploader: React.FC<LegalDocumentUploaderProps> = ({
   const handleFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
     setIsUploading(true); setUploadProgress(0);
-    const newFiles: UploadedFile[] = files.map(f => ({
-      id: f.name, name: f.name, size: f.size,
-      type: f.name.split('.').pop() || 'unknown',
+
+    const filesWithIds = files.map(file => {
+      const sanitizedName = (file.name || 'document.pdf').replace(/[^a-zA-Z0-9.-]/g, '_');
+      const ext = sanitizedName.split('.').pop() || 'pdf';
+      const baseName = sanitizedName.replace(`.${ext}`, '') || 'document';
+      const uniqueSuffix = Math.random().toString(36).substring(2, 6);
+      return { file, sanitizedName, uniqueDocId: `${baseName}_${uniqueSuffix}.${ext}` };
+    });
+
+    const newFiles: UploadedFile[] = filesWithIds.map(({ file, uniqueDocId }) => ({
+      id: uniqueDocId, name: uniqueDocId, size: file.size,
+      type: file.name.split('.').pop() || 'unknown',
       uploadDate: new Date(), status: 'processing', category: 'Processing...'
     }));
     setUploadedFiles(prev => [...newFiles, ...prev]);
     const interval = setInterval(() => setUploadProgress(p => p >= 90 ? 90 : p + Math.random() * 10), 500);
 
-    for (const file of files) {
-      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const filePath = `${session?.user?.id}/${Date.now()}_${sanitizedName}`;
+    for (const { file, sanitizedName, uniqueDocId } of filesWithIds) {
+      const filePath = `${session?.user?.id}/${Date.now()}_${uniqueDocId}`;
       try {
         if (!session?.access_token) throw new Error('Not authenticated');
         const { error: uploadError } = await supabase.storage.from('pdfs').upload(filePath, file);
         if (uploadError) throw uploadError;
         await supabase.from('documents').upsert({
-          id: file.name, user_id: session.user.id, content: '',
+          id: uniqueDocId, user_id: session.user.id, content: '',
           metadata: { documentType: 'Processing...', fileSize: file.size, status: 'processing', filePath }
         });
         const res = await fetch('/api/trigger-analysis', {
           method: 'POST',
-          body: JSON.stringify({ filePath, fileName: file.name, fileSize: file.size, fileType: file.type })
+          body: JSON.stringify({ filePath, fileName: uniqueDocId, fileSize: file.size, fileType: file.type })
         });
         if (!res.ok) throw new Error('Failed to trigger analysis');
         setUploadedFiles(prev => prev.map(f =>
-          f.name === file.name ? { ...f, status: 'processing', category: 'Pending Analysis...' } : f
+          f.id === uniqueDocId ? { ...f, status: 'processing', category: 'Pending Analysis...' } : f
         ));
       } catch (err) {
-        console.error('Upload failed for', file.name, err);
-        setUploadedFiles(prev => prev.map(f => f.name === file.name ? { ...f, status: 'error' } : f));
+        console.error('Upload failed for', uniqueDocId, err);
+        setUploadedFiles(prev => prev.map(f => f.id === uniqueDocId ? { ...f, status: 'error' } : f));
       }
     }
     clearInterval(interval);

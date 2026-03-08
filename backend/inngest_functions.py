@@ -206,6 +206,17 @@ async def process_document_async(*args, **kwargs):
     except Exception as e:
         print("WORKER EXCEPTION TRACEBACK:")
         traceback.print_exc()
+        try:
+            if 'file_name' in locals() and 'user_id' in locals():
+                supabase.table("documents").update({
+                    "metadata": {
+                        "status": "error", 
+                        "error_message": str(e),
+                        "documentType": "Unsupported or Corrupted File"
+                    }
+                }).eq("id", file_name).eq("user_id", user_id).execute()
+        except Exception as db_err:
+            print(f"Failed to update document status to error: {str(db_err)}")
         return {"status": "error", "message": str(e)}
     finally:
         if 'temp_filename' in locals() and os.path.exists(temp_filename):

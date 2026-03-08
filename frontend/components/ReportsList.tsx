@@ -52,6 +52,7 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [clickingFilename, setClickingFilename] = useState<string | null>(null);
+  const [deletingFilename, setDeletingFilename] = useState<string | null>(null);
   const { session } = useAuth();
   const dialog = useDialog();
 
@@ -112,6 +113,7 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
       confirmLabel: 'Delete',
     });
     if (!ok) return;
+    setDeletingFilename(filename);
     try {
       if (!session?.access_token) return;
       const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
@@ -121,6 +123,7 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
       if (res.ok) setReports(prev => prev.filter(r => r.filename !== filename));
       else await dialog.alert({ title: 'Delete Failed', message: 'Failed to delete document. Please try again.', type: 'alert-error' });
     } catch { await dialog.alert({ title: 'Error', message: 'An error occurred while deleting. Please try again.', type: 'alert-error' }); }
+    finally { setDeletingFilename(null); }
   };
 
   const getRiskLevel = (score: number) => {
@@ -319,9 +322,10 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
                       </div>
                     </div>
                     <button onClick={() => handleDelete(report.filename)}
-                      className={`p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:text-red-500 ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-[#4B463F] hover:bg-[#EDE7DB]'
+                      disabled={deletingFilename === report.filename}
+                      className={`p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:text-red-500 disabled:opacity-100 disabled:text-red-500 ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-[#4B463F] hover:bg-[#EDE7DB]'
                         }`}>
-                      <Trash2 className="w-4 h-4" />
+                      {deletingFilename === report.filename ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                     </button>
                   </div>
 
@@ -425,9 +429,10 @@ export const ReportsList: React.FC<ReportsListProps> = ({ isDarkMode = false, on
                           <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-[#4B463F]'}`}>Risk Score</p>
                         </div>
                         <button onClick={() => handleDelete(report.filename)}
-                          className={`p-2 rounded-lg transition-colors hover:text-red-500 ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-[#4B463F] hover:bg-[#EDE7DB]'
+                          disabled={deletingFilename === report.filename}
+                          className={`p-2 rounded-lg transition-colors hover:text-red-500 disabled:opacity-70 disabled:text-red-500 ${isDarkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-[#4B463F] hover:bg-[#EDE7DB]'
                             }`}>
-                          <Trash2 className="w-4 h-4" />
+                          {deletingFilename === report.filename ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                         </button>
                         <button
                           onClick={() => { setClickingFilename(report.filename); setTimeout(() => { setClickingFilename(null); onViewReport?.(report.filename); }, 280); }}
