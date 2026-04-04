@@ -9,7 +9,8 @@ from pathlib import Path
 import pdfplumber
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import SupabaseVectorStore
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_groq import ChatGroq
 from langchain.schema import Document
 from supabase import create_client, Client
 from dotenv import load_dotenv
@@ -28,7 +29,6 @@ for path in env_paths:
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 supabase: Client = None
 if SUPABASE_URL and SUPABASE_KEY:
@@ -71,11 +71,8 @@ async def process_document_async(*args, **kwargs):
         if not file_path or not user_id:
             return {"status": "error", "message": "Missing file_path or user_id"}
         
-        if not GOOGLE_API_KEY:
-             raise ValueError("GOOGLE_API_KEY not set")
-
-        embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", google_api_key=GOOGLE_API_KEY)
-        llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.1)
+        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=os.environ.get("GROQ_API_KEY"), temperature=0.1)
 
         temp_dir = tempfile.gettempdir()
         temp_filename = os.path.join(temp_dir, f"{uuid.uuid4()}.pdf")

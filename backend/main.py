@@ -28,7 +28,8 @@ except ImportError as e:
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import SupabaseVectorStore
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_groq import ChatGroq
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
@@ -53,7 +54,6 @@ else:
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 # Initialize Supabase Client
 # Initialize Supabase Client
@@ -63,18 +63,11 @@ if SUPABASE_URL and SUPABASE_KEY:
 else:
     print(f"Warning: SUPABASE_URL or SUPABASE_KEY not set. Looking in {root_dir / '.env'}")
 
-# Initialize Gemini Clients
-if not GOOGLE_API_KEY:
-    print("Error: GOOGLE_API_KEY is missing.")
-
-# 1. Initialize Embeddings (Gemini)
-# Using gemini-embedding-001 as requested
-embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", google_api_key=GOOGLE_API_KEY)
+# 1. Initialize Embeddings (HuggingFace Local)
+embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 # 2. LLM Model (for Chat)
-# Using Gemini 2.5 Flash as requested by user
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.1)
-
+llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=os.environ.get("GROQ_API_KEY"), temperature=0.1)
 
 
 # Fix for PGRST202: Subclass SupabaseVectorStore to pass correct arguments to RPC
