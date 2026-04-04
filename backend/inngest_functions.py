@@ -9,7 +9,7 @@ from pathlib import Path
 import pdfplumber
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import SupabaseVectorStore
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_cohere import CohereEmbeddings
 from langchain_groq import ChatGroq
 from langchain.schema import Document
 from supabase import create_client, Client
@@ -71,7 +71,7 @@ async def process_document_async(*args, **kwargs):
         if not file_path or not user_id:
             return {"status": "error", "message": "Missing file_path or user_id"}
         
-        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        embeddings = CohereEmbeddings(model="embed-english-v3.0", cohere_api_key=os.environ.get("COHERE_API_KEY"))
         llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=os.environ.get("GROQ_API_KEY"), temperature=0.1)
 
         temp_dir = tempfile.gettempdir()

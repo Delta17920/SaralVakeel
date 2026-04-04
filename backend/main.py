@@ -28,7 +28,7 @@ except ImportError as e:
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import SupabaseVectorStore
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_cohere import CohereEmbeddings
 from langchain_groq import ChatGroq
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
@@ -63,8 +63,8 @@ if SUPABASE_URL and SUPABASE_KEY:
 else:
     print(f"Warning: SUPABASE_URL or SUPABASE_KEY not set. Looking in {root_dir / '.env'}")
 
-# 1. Initialize Embeddings (HuggingFace Local)
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+# 1. Initialize Embeddings (Cohere API)
+embeddings = CohereEmbeddings(model="embed-english-v3.0", cohere_api_key=os.environ.get("COHERE_API_KEY"))
 
 # 2. LLM Model (for Chat)
 llm = ChatGroq(model="llama-3.3-70b-versatile", api_key=os.environ.get("GROQ_API_KEY"), temperature=0.1)
