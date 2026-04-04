@@ -215,8 +215,8 @@ async def process_document(file: UploadFile = File(...), user: dict = Depends(ge
                 docs,
                 embeddings,
                 client=supabase,
-                table_name="document_chunks_3072",
-                query_name="match_documents_3072"
+                table_name="document_chunks_1024",
+                query_name="match_documents_1024"
             )
         except Exception as vec_err:
              print(f"Vector Store Error: {vec_err}")
@@ -354,8 +354,8 @@ async def query_document(payload: QueryRequest, user: dict = Depends(get_current
         vector_store = CustomSupabaseVectorStore(
             embedding=embeddings,
             client=supabase,
-            table_name="document_chunks_3072",
-            query_name="match_documents_3072"
+            table_name="document_chunks_1024",
+            query_name="match_documents_1024"
         )
         
         retriever = vector_store.as_retriever(
@@ -418,9 +418,9 @@ async def delete_document(document_id: str, user: dict = Depends(get_current_use
         # We enforce user_id to ensure users can only delete their own docs
         supabase.table("documents").delete().eq("id", document_id).eq("user_id", user.id).execute()
         
-        # 2. Delete from 'document_chunks_3072' table (Vector Store)
-        # We use the new table for 3072 dimensions
-        supabase.table("document_chunks_3072").delete().match({"metadata->>document_id": document_id, "metadata->>user_id": user.id}).execute()
+        # 2. Delete from 'document_chunks_1024' table (Vector Store)
+        # We use the new table for 1024 dimensions
+        supabase.table("document_chunks_1024").delete().match({"metadata->>document_id": document_id, "metadata->>user_id": user.id}).execute()
         
         # 3. Delete from Storage ('pdfs' bucket)
         # Use the correct file_path from metadata

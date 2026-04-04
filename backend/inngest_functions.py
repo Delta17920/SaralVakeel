@@ -117,7 +117,7 @@ async def process_document_async(*args, **kwargs):
         if docs:
             SupabaseVectorStore.from_documents(
                 docs, embeddings, client=supabase, 
-                table_name="document_chunks_3072", query_name="match_documents_3072"
+                table_name="document_chunks_1024", query_name="match_documents_1024"
             )
 
         # 4. Generate AI Report
