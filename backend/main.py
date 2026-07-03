@@ -358,37 +358,102 @@ class QueryRequest(BaseModel):
 @app.post("/query-document")
 async def query_document(payload: QueryRequest, user: dict = Depends(get_current_user)):
     try:
-        # 1. Setup Retrieval
+        # 1. Fetch metadata AND the raw preview content from your DB
+        doc_res = supabase.table("documents").select("metadata, content").eq("id", payload.document_name).eq("user_id", user.id).execute()
+        
+        doc_title = "Unknown Document"
+        doc_summary = "No summary available."
+        doc_risks = ""
+        doc_obligations = ""
+        doc_preview = ""
+        
+        if doc_res.data and len(doc_res.data) > 0:
+            metadata = doc_res.data[0].get("metadata", {})
+            doc_title = metadata.get("documentTitle", doc_title)
+            doc_summary = metadata.get("summary", doc_summary)
+            
+            # Grab the raw text of the first few pages
+            doc_preview = doc_res.data[0].get("content", "")[:4000] 
+            
+            risks_list = metadata.get("risks", [])
+            if risks_list:
+                doc_risks = "\n- " + "\n- ".join(risks_list)
+                
+            obligations_list = metadata.get("obligations", [])
+            if obligations_list:
+                doc_obligations = "\n- " + "\n- ".join(obligations_list)
+
+        # 2. Setup Vector Store
         vector_store = CustomSupabaseVectorStore(
             embedding=embeddings,
             client=supabase,
             table_name="document_chunks_1024",
             query_name="match_documents_1024"
         )
-        
+
+        # 3. Widen the Retrieval Window (k=15)
         retriever = vector_store.as_retriever(
             search_kwargs={
-                "k": 5, 
+                "k": 15, 
                 "filter": {"document_id": payload.document_name, "user_id": user.id},
-                "score_threshold": 0.5 # Default threshold
+                "score_threshold": 0.3 
             }
         )
         
-        # 2. Create Chain with Source Returns
+        # 4. The "God-Mode" Prompt Template
+        dynamic_template = f"""You are a Legal AI Assistant analyzing a document titled "{doc_title}". 
+        
+        **Document Summary & Intelligence:**
+        {doc_summary}
+        Known Risks: {doc_risks}
+        Known Obligations: {doc_obligations}
+        
+        **First Pages Preview:**
+        {doc_preview}
+        
+        **Specific Retrieved Clauses:**
+        {{context}}
+        
+        Rules:
+        - Combine this information to give a comprehensive, accurate answer.
+        - CRITICAL: When using information from the "Specific Retrieved Clauses", you MUST explicitly cite the page number in your response (e.g., "According to Page 3...").
+        - If the answer comes from the general Summary or Preview, you do not need a page citation.
+        - If the user says hello, greet them warmly and ask how you can help analyze the document.
+        
+        User Question: {{question}}
+        
+        Answer:"""
+        
+        PROMPT = PromptTemplate(
+            template=dynamic_template, 
+            input_variables=["context", "question"]
+        )
+
+        # 5. Inject Page Numbers into Context
+        DOC_PROMPT = PromptTemplate(
+            template="--- Excerpt from Page {page} ---\n{page_content}\n",
+            input_variables=["page_content", "page"]
+        )
+        
+        # 6. Create Chain with BOTH prompts
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
             chain_type="stuff",
             retriever=retriever,
-            return_source_documents=True # Get metadata back!
+            return_source_documents=True,
+            chain_type_kwargs={
+                "prompt": PROMPT,
+                "document_prompt": DOC_PROMPT 
+            }
         )
         
-        # 3. Run Query
+        # 7. Run Query
         result = qa_chain.invoke({"query": payload.question})
         
         answer_text = result['result']
         source_docs = result['source_documents']
         
-        # 4. Extract Citations (Unique Pages)
+        # 8. Extract Citations for Frontend
         citations = []
         seen_pages = set()
         
@@ -397,7 +462,7 @@ async def query_document(payload: QueryRequest, user: dict = Depends(get_current
             if page_num and page_num not in seen_pages:
                 citations.append({
                     "page": page_num,
-                    "text": doc.page_content, # Full text for highlighting
+                    "text": doc.page_content,
                     "preview": doc.page_content[:100] + "..."
                 })
                 seen_pages.add(page_num)
