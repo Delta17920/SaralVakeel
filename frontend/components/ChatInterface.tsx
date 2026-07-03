@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, Bot, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 interface Citation {
     page: number;
@@ -132,11 +135,29 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ documentId, isDarkMode, o
                             </div>
 
                             <div className={`flex flex-col`}>
-                                <div className={`p-3 rounded-2xl text-sm ${msg.role === 'user'
-                                    ? 'bg-blue-600 text-white rounded-br-none'
-                                    : (isDarkMode ? 'bg-gray-800 text-gray-200 rounded-bl-none' : 'bg-gray-100 text-gray-800 rounded-bl-none')
-                                    }`}>
-                                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                                <div className={`p-3 rounded-2xl text-sm overflow-x-auto ${msg.role === 'user'? 'bg-blue-600 text-white rounded-br-none': (isDarkMode ? 'bg-gray-800 text-gray-200 rounded-bl-none' : 'bg-gray-100 text-gray-800 rounded-bl-none')}`}>
+                                    
+                                    {msg.role === 'user' ? (
+                                        // Keep user messages as plain text
+                                        <div className="whitespace-pre-wrap">{msg.content}</div>
+                                    ) : (
+                                        // Parse AI messages as Markdown!
+                                        <div className="markdown-body">
+                                            <ReactMarkdown 
+                                                remarkPlugins={[remarkGfm]} 
+                                                rehypePlugins={[rehypeRaw]}
+                                                components={{
+                                                    table: ({node, ...props}) => <table className="w-full border-collapse mt-2 mb-2" {...props} />,
+                                                    th: ({node, ...props}) => <th className="border border-gray-400 px-2 py-1 bg-gray-500/20 text-left font-semibold" {...props} />,
+                                                    td: ({node, ...props}) => <td className="border border-gray-400 px-2 py-1" {...props} />,
+                                                    p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                                                    strong: ({node, ...props}) => <strong className="font-bold text-inherit" {...props} />
+                                                }}
+                                            >
+                                                {msg.content}
+                                            </ReactMarkdown>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Render Citations */}
