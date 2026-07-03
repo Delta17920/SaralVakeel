@@ -72,7 +72,7 @@ async def process_document_async(*args, **kwargs):
             return {"status": "error", "message": "Missing file_path or user_id"}
         
         embeddings = CohereEmbeddings(model="embed-english-v3.0", cohere_api_key=os.environ.get("COHERE_API_KEY"))
-        llm = ChatGroq(model="meta-llama/llama-4-scout-17b-16e-instruct", api_key=os.environ.get("GROQ_API_KEY"), temperature=0.1)
+        llm = ChatGroq(model="groq/compound-mini", api_key=os.environ.get("GROQ_API_KEY"), temperature=0.1)
 
         temp_dir = tempfile.gettempdir()
         temp_filename = os.path.join(temp_dir, f"{uuid.uuid4()}.pdf")

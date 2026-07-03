@@ -67,7 +67,7 @@ else:
 embeddings = CohereEmbeddings(model="embed-english-v3.0", cohere_api_key=os.environ.get("COHERE_API_KEY"))
 
 # 2. LLM Model (for Chat)
-llm = ChatGroq(model="meta-llama/llama-4-scout-17b-16e-instruct", api_key=os.environ.get("GROQ_API_KEY"), temperature=0.1)
+llm = ChatGroq(model="groq/compound-mini", api_key=os.environ.get("GROQ_API_KEY"), temperature=0.1)
 
 
 # Fix for PGRST202: Subclass SupabaseVectorStore to pass correct arguments to RPC
