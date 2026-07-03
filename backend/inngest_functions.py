@@ -16,6 +16,47 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 
 from inngest_client import inngest_client
+from typing import List, Dict, Any, Tuple, Optional
+from langchain_community.vectorstores import SupabaseVectorStore
+from langchain.schema import Document
+
+class CustomSupabaseVectorStore(SupabaseVectorStore):
+    def similarity_search_by_vector_with_relevance_scores(
+        self,
+        query: List[float],
+        k: int,
+        filter: Optional[Dict[str, Any]] = None,
+        postgrest_filter: Optional[str] = None,
+        score_threshold: Optional[float] = None,
+        **kwargs: Any,
+    ) -> List[Tuple[Document, float]]:
+        match_documents_params = {
+            "query_embedding": query,
+            "filter": filter or {},
+            "match_count": k,
+            "match_threshold": score_threshold or 0.0
+        }
+        
+        query_builder = self._client.rpc(self.query_name, match_documents_params)
+
+        if postgrest_filter:
+            query_builder.params = query_builder.params.set("and", f"({postgrest_filter})")
+
+        res = query_builder.execute()
+
+        match_result = [
+            (
+                Document(
+                    metadata=search.get("metadata", {}),
+                    page_content=search.get("content", ""),
+                ),
+                search.get("similarity", 0.0),
+            )
+            for search in res.data
+            if search.get("content")
+        ]
+        
+        return match_result
 
 # --- Init Logic (Duplicated for Worker safety) ---
 current_dir = Path(__file__).resolve().parent
@@ -116,7 +157,7 @@ async def process_document_async(*args, **kwargs):
         print(f"WORKER: Storing {len(docs)} vectors")
         context = ""
         if docs:
-            vector_store = SupabaseVectorStore.from_documents(
+            vector_store = CustomSupabaseVectorStore.from_documents(
                 docs, embeddings, client=supabase, 
                 table_name="document_chunks_1024", query_name="match_documents_1024"
             )
