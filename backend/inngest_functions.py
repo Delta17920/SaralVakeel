@@ -112,25 +112,32 @@ async def process_document_async(*args, **kwargs):
                         }
                     ))
         
-        # 3. Store Vectors
+        # 3. Store Vectors & Retrieve Context
         print(f"WORKER: Storing {len(docs)} vectors")
+        context = ""
         if docs:
-            SupabaseVectorStore.from_documents(
+            vector_store = SupabaseVectorStore.from_documents(
                 docs, embeddings, client=supabase, 
                 table_name="document_chunks_1024", query_name="match_documents_1024"
             )
+            
+            # Immediately retrieve the 8 most relevant chunks for the summary
+            retriever = vector_store.as_retriever(search_kwargs={"k": 8})
+            relevant_docs = retriever.invoke("Identify the key terms, parties involved, legal obligations, and potential risks in this document.")
+            context = "\n\n".join([doc.page_content for doc in relevant_docs])
 
         # 4. Generate AI Report
         print("WORKER: Generating AI Report")
         analysis_prompt = f"""
-        Analyze this legal document (Title: {file_name}) and extract JSON metadata.
+        Analyze these excerpts from a legal document (Title: {file_name}) and extract JSON metadata.
         Focus on extracting:
         - Key Terms
         - Parties Involved
         - Obligations
         - Risks
 
-        Text (truncated): {full_text[:25000]}
+        Document Excerpts: 
+        {context}
         
         Return ONLY valid JSON with this structure:
         {{

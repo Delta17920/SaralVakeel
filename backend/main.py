@@ -239,16 +239,24 @@ async def process_document(file: UploadFile = File(...), user: dict = Depends(ge
              # Don't fail the whole process if storage upload fails (e.g. bucket doesn't exist yet)
              # User might need to create 'pdfs' bucket manually if not verified.
 
-        # 3. Generate Basic Report Metadata
-        # (Simplified for speed, can be enhanced with LLM summary if needed)
-        # 3. Generate Detailed Report Metadata via Gemini
+        # 3. Generate Detailed Report Metadata via LLM
         print("DEBUG: Generating document analysis...")
+        
+        # Retrieve the most relevant chunks instead of using full_text
+        context = ""
+        if 'vector_store' in locals():
+            retriever = vector_store.as_retriever(search_kwargs={"k": 8})
+            relevant_docs = retriever.invoke("Identify the key terms, parties involved, legal obligations, and potential risks in this document.")
+            context = "\n\n".join([doc.page_content for doc in relevant_docs])
+        else:
+            context = full_text[:4000] # Fallback just in case vector store failed
+            
         analysis_prompt = f"""
-        Analyze the following legal document and extract detailed metadata in JSON format.
+        Analyze the following legal document excerpts and extract detailed metadata in JSON format.
         Focus heavily on identifying specific contractual obligations and potential legal risks.
         
-        Document Text (truncated):
-        {full_text[:30000]}
+        Document Excerpts:
+        {context}
         
         Return ONLY valid JSON with this structure. Ensure 'obligations' and 'risks' are populated with at least 3-5 items each if present in the text.
         {{
